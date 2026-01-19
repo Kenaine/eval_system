@@ -4,14 +4,12 @@ import style from "../style/programlist.module.css";
 import HeaderWebsite from "../component/header";
 import ProgramTable from "../component/program_table";
 import LoadingOverlay from "../component/loadingOverlay";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import { useUser } from "../App";
 
 export default function ProgramCourseList() {
   const pageName = "PROGRAM COURSELIST";
-  const navigate = useNavigate();
 
   const [programs, setPrograms] = useState([]);
   const [program_id, setProgram] = useState("");
@@ -22,8 +20,6 @@ export default function ProgramCourseList() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [editingRowId, setEditingRowId] = useState(null);
 
-  const [currentUser, setCurrentUser] = useUser();
-
   const printRef = useRef();
 
 
@@ -31,9 +27,6 @@ export default function ProgramCourseList() {
     const programs = JSON.parse(sessionStorage.getItem("programs"));
 
     setPrograms(programs);
-
-    const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
-    setCurrentUser(currentUser);
   }, []);
 
   const getCourses = async (program_id) => {
@@ -145,7 +138,7 @@ export default function ProgramCourseList() {
         <div className={style.programDetail}>
           <h3 style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             PROGRAM COURSELIST
-            {currentUser?.role === "admin" && (
+         
               <span className={style.buttonLoc}>
                 {!isEditing ? (
                   <>
@@ -171,7 +164,6 @@ export default function ProgramCourseList() {
                   </>
                 )}
               </span>
-            )}
             
           </h3>
 

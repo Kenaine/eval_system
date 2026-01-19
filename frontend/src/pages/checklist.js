@@ -12,12 +12,11 @@ import EditStudent from "../component/editStudent";
 import HeaderWebsite from "../component/header";
 import { BulkGradeUpload } from "../component/student_table";
 
-import { useUser, useCourses, useFetchStudentInfo } from "../App";
+import { useUser, useCourses } from "../App";
 
 export default function Checklist() {
     const pageName = "CURRICULUM CHECKLIST";
     const navigate = useNavigate();
-    const fetchStudentData = useFetchStudentInfo()
 
     const [currentUser, setCurrentUser] = useUser();
     const [selectedStudent, setSelectedStudent] = useState(null);
@@ -59,39 +58,26 @@ export default function Checklist() {
         }
     };
 
-    useEffect(() => {
-        const user = JSON.parse(sessionStorage.getItem("currentUser"));
-        setCurrentUser(user);
-
-        const courses = JSON.parse(sessionStorage.getItem("courses"));
-        setCourses(courses);
-    }, []);
-
     return (
         <div className={style.curChecklist}>
             <HeaderWebsite pageName={pageName} />
 
             <div className={style.studentBody}>
                 <div className={style.studentSearchBarWrapper}>
-                    {currentUser?.role === "admin" && (
                         <StudentSearchBar onSelectStudent={handleStudentSelect} />
-                    )}
                 </div>
 
                 <div className={style.studentDetail}>
                     <h3>
                         STUDENT RESIDENCY EVALUATION
                         <span className={style.buttons}>
-                            {currentUser?.role === "admin" && (
-                                <>
-                                    <AddStudent onSubmit={addStudent} />
-                                    <EditStudent
-                                        onSubmit={editStudent}
-                                        student={selectedStudent}
-                                        isViewing={isViewing}
-                                    />
-                                </>
-                            )}
+
+                            <AddStudent onSubmit={addStudent} />
+                            <EditStudent
+                                onSubmit={editStudent}
+                                student={selectedStudent}
+                                isViewing={isViewing}
+                            />
                             <FaPrint
                                 style={{ cursor: "pointer" }}
                                 title="Print"

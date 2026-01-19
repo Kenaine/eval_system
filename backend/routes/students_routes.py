@@ -9,35 +9,22 @@ from services.student_services import addStudentHelper
 router = APIRouter()
 
 @router.post("/add")
-def addStudent(student: Student, role: str = checkRole(["admin"])):
+def addStudent(student: Student):
     return addStudentHelper(student)
 
 @router.put("/edit")
-def editStudent(student: Student, user: User = Depends(getCurrentUser)):
-    if user["role"] != "admin" and user["login_id"] != student.student_id:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "You do not have permission to edit this student")
-    
+def editStudent(student: Student):
     return student_func.editStudent(student)
 
 @router.delete("/delete/{student_id}")
-def deleteStudent(student_id: str, role: str = checkRole(["admin"])):
+def deleteStudent(student_id: str):
     return student_func.deleteStudent(student_id)
 
-@router.get("/get/details")
-def get_own_student_details(user: User = Depends(getCurrentUser)):
-    if user["role"] == "admin":
-        return {"student": {"role": user["role"]}, "courses": []}
-    
-    return student_func.getStudent(user)
-
 @router.get("/search")
-def search_students(q: str = Query(..., min_length=1), role: str = checkRole(["admin", "student"])):
+def search_students(q: str = Query(..., min_length=1)):
     return student_func.search_students(q)
 
 @router.get("/get/{student_id}")
-def getStudentByID(student_id: str, user: User = Depends(getCurrentUser)):
-    if user["role"] != "admin":
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only admins can access this route")
-    
-    return student_func.getStudent(user, student_id)
+def getStudentByID(student_id: str):
+    return student_func.getStudent(student_id)
 

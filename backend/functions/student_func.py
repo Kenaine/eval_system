@@ -36,14 +36,9 @@ def deleteStudent(student_id: str):
     
     student.delete()
 
-def getStudent(user: User, student_id: str = None):
-    if user["role"] == "student":
-        student_id = user["login_id"]
-    elif user["role"] == "admin":
-        if not student_id:
-            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Admin must specify a student ID.")
-    else:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "User not authorized to access student data.")
+def getStudent(student_id: str = None):
+    if not student_id:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Admin must specify a student ID.")
     
     student_collection = fs.collection("students")
     
@@ -65,7 +60,7 @@ def getStudent(user: User, student_id: str = None):
     student_data["gwa"] = gwa
     student_data["units_taken"] = units_taken
     student_data["total_units_required"] = total_units
-    student_data["role"] = user["role"]
+    student_data["role"] = "student"
 
     return JSONResponse(content={"student": student_data, "courses": courses})
 

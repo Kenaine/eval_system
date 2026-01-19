@@ -28,7 +28,7 @@ def logginIn(user: OAuth2PasswordRequestForm = Depends()):
         path="/"
     )
 
-    return response
+    return True
 
 @router.post("/logout")
 def logOut(response: Response):
@@ -36,20 +36,7 @@ def logOut(response: Response):
     response.delete_cookie("access_token", path="/")
     return response
 
-@router.get("/validate-token")
-def validateToken(current_user: dict = Depends(auth_func.getCurrentUser)):
-    """Check if the current token is still valid"""
-    return {
-        "valid": True,
-        "user_id": current_user.get("sub"),
-        "message": "Token is valid"
-    }
 
 @router.post("editPassword/{student_id}")
-def editPassword(student_id: str, newPass: RequestedPass, curUser: dict = Depends(auth_func.getCurrentUser)):
-    if curUser["role"] != "admin" and curUser["login_id"] != student_id:
-        return {"message": "You do not have permission to change this password"}
-    
+def editPassword(student_id: str, newPass: RequestedPass):
     return user_func.editPass(student_id, newPass.newPass)
-
-

@@ -3,7 +3,11 @@
     background-color: white;
 }
 
-
+.dashboard{
+    position: absolute;
+    top: 17%;
+    left: 22%;
+}
 
 .studentBody{
     display: flex;

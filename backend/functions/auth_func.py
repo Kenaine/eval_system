@@ -1,5 +1,5 @@
 from fastapi.security import OAuth2PasswordBearer
-from fastapi import Depends, HTTPException, status, Cookie, Request
+from fastapi import Depends, HTTPException, status, Request
 from schema.user_schema import User
 from passlib.context import CryptContext
 from jose import JWTError, jwt
@@ -89,6 +89,3 @@ def createToken(user: dict, expire: timedelta | None = None):
     to_encode.update({"exp": expr})
 
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
-
-

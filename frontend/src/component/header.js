@@ -49,10 +49,6 @@ export default function HeaderWebsite({ pageName }){
         }
     }
 
-    useEffect(() => {
-        validateToken();
-    }, []);
-
     // Filter out the current page from the list
     const filteredPages = pageList.filter(page => page.link.toLowerCase() !== pageName.toLowerCase());
 

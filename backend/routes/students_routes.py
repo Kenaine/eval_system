@@ -28,3 +28,7 @@ def search_students(q: str = Query(..., min_length=1)):
 def getStudentByID(student_id: str):
     return student_func.getStudent(student_id)
 
+@router.get("/get_all")
+def getAllStudents():
+    return student_func.get_students()
+

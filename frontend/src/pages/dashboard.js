@@ -35,16 +35,59 @@ const students = [
 export default function Dashbaord() {
     const pageName = "DASHBOARD";
 
+    const [student_list, setStudentList] = useState([]);
+    const [year_cnt, setYearCnt] = useState([]);
+    const [regStat_cnt, setRegStatCnt] = useState([]);
+    const [transfereeStat_cnt, setTransfereeStatCnt] = useState([]);
+
+    useEffect(() =>{
+        axios.get('http://127.0.0.1:8000/student/get_all')
+        .then((res) => {
+            setStudentList(res.data)
+        });
+
+        console.log(student_list);
+    }, []);
+
+    useEffect(() => {
+        var cntYear = [0, 0, 0, 0];
+        var cntRegStat = [{ status: "Regular", num: 0 }, { status: "Irregular", num: 0 }];
+        var cntTransStat = [{ status: true, num: 0 }, { status: false, num: 0 }];
+
+        student_list.forEach(student => {
+            cntYear[student["year"] - 1]++;
+            if(student["status"] === "Regular")
+                ++cntRegStat[0]["num"];
+            else
+                ++cntRegStat[1]["num"];
+
+            if(student["is_transferee"] === true)
+                ++cntTransStat[0]["num"];
+            else
+                ++cntTransStat[1]["num"];
+
+        setYearCnt(cntYear);
+        setRegStatCnt(cntRegStat);
+        setTransfereeStatCnt(cntTransStat);
+    });
+    }, [student_list]);
+
+
+
     return (
         <div className={style.curChecklist}>
             <HeaderWebsite pageName={pageName} />
             <div className={style.dashboard}>
                 <div style={{"display":"flex", "gap":"20px", "justifyContent":"space-around"}}>
-                    <NumberStudents title="1st Year Students" number="15" />
-                    <NumberStudents title="2st Year Students" number="16" />
-                    <NumberStudents title="3st Year Students" number="21" />
-                    <NumberStudents title="4st Year Students" number="34" />
-                    <NumberStudents title="Programs" number="4" />
+                    <NumberStudents cntYear={year_cnt} />
+                    <div className={style.block}>
+                        <div className={style.title}>
+                            Programs
+                        </div>
+
+                        <div>4</div>
+                    </div>
+
                 </div>
 
                 <div style={{"display":"flex", "gap":"20px", "justifyContent":"space-around"}}>
@@ -60,15 +103,19 @@ export default function Dashbaord() {
     );
 }
 
-const NumberStudents = ({title, number}) => {
+const NumberStudents = ({cntYear}) => {
     return (
-        <div className={style.block}>
-            <div className={style.title}>
-                {title}
-            </div>
+        cntYear.map((num, index) => (
+            <div className={style.block} key={index}>
+                <div className={style.title}>
+                    {"Year " + (index + 1)}
+                </div>
 
-            <div>{number}</div>
-        </div>
+                <div>{num}</div>
+            </div>
+        ))
+
+
     );
 } 
 

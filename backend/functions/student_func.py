@@ -85,3 +85,11 @@ def search_students(query: str):
 
     return result
 
+def get_students():
+    return students_list
+
+def filter_students(key: str, value: str):
+    filtered = [students for students in students_list
+                if students[key] == value]
+    
+    return filtered

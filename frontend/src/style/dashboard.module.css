@@ -33,3 +33,26 @@
     width: 300px;
     height: 200px;
 }
+
+
+
+.scrollable thead, .scrollable tbody{
+    display: block;
+    width: 100%;
+
+}
+
+.scrollable tbody{
+    height: 200px;
+
+    overflow-y: auto;
+    
+    scrollbar-width: none;
+}
+
+.scrollable tr{
+    display: flex;
+    justify-content: space-between;
+}
+
+

@@ -45,8 +45,6 @@ export default function Dashbaord() {
         .then((res) => {
             setStudentList(res.data)
         });
-
-        console.log(student_list);
     }, []);
 
     useEffect(() => {
@@ -69,6 +67,7 @@ export default function Dashbaord() {
         setYearCnt(cntYear);
         setRegStatCnt(cntRegStat);
         setTransfereeStatCnt(cntTransStat);
+        console.log(student_list);
     });
     }, [student_list]);
 
@@ -96,7 +95,7 @@ export default function Dashbaord() {
                 </div>
 
                 <div style={{"display":"flex", "gap":"20px", "justifyContent":"space-around"}}>
-                    <TableStudents />
+                    <TableStudents student_list={student_list}/>
                 </div>
             </div>
         </div>
@@ -114,14 +113,12 @@ const NumberStudents = ({cntYear}) => {
                 <div>{num}</div>
             </div>
         ))
-
-
     );
 } 
 
-const TableStudents = () => {
+const TableStudents = ({student_list}) => {
     return (
-        <table>
+        <table className={style.scrollable}>
             <thead>
                 <tr>
                     <th></th>
@@ -131,10 +128,10 @@ const TableStudents = () => {
                 </tr>
             </thead>
             <tbody>
-                {students.map((student, index) => (
+                {student_list.map((student, index) => (
                     <tr key={index}>
                         <td>{index + 1}</td>
-                        <td>{student.student_id}</td>
+                        <td>{student.id}</td>
                         <td>{student.year}</td>
                         <td>{student.gwa}</td>
                     </tr>

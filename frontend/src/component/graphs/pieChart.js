@@ -4,10 +4,6 @@ import { RechartsDevtools } from '@recharts/devtools';
 import style from "../../style/dashboard.module.css";
 
 // #region Sample data
-const data = [
-  { name: 'true', value: 400 },
-  { name: 'false', value: 300 },
-];
 
 // #endregion
 const RADIAN = Math.PI / 180;
@@ -30,7 +26,7 @@ const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, per
   );
 };
 
-export default function PieChartWithCustomizedLabel({ isAnimationActive = true }) {
+export default function PieChartWithCustomizedLabel({ isAnimationActive = true, data }) {
   return (
     <div className={style.block + " " + style.graph}>
       <div className={style.title}>
@@ -43,7 +39,7 @@ export default function PieChartWithCustomizedLabel({ isAnimationActive = true }
             labelLine={false}
             label={renderCustomizedLabel}
             fill="#8884d8"
-            dataKey="value"
+            dataKey="num"
             isAnimationActive={isAnimationActive}
           >
             {data.map((entry, index) => (
@@ -54,14 +50,14 @@ export default function PieChartWithCustomizedLabel({ isAnimationActive = true }
         </PieChart>
 
         <div style={{display:"flex"}}>
-          <LegendContent />
+          <LegendContent data={data}/>
         </div>
       </div>
     </div>
   );
 }
 
-const LegendContent = () => {
+const LegendContent = ({data}) => {
   return (
     <div style={{display: "flex", flexDirection: "column", justifyContent: "center",
                  marginRight: "20px", gap: "10px", boxSizing: "border-box"}}>
@@ -71,7 +67,7 @@ const LegendContent = () => {
           <div style={{backgroundColor:COLORS[index], width:"10px", height:"10px", marginTop: "2px"}}>
           </div>
 
-          <span>{entry.name}</span>
+          <span>{entry.status === true ? <>True</> : <>False</>}</span>
         </div>
       
       ))}

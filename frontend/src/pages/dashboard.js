@@ -67,7 +67,7 @@ export default function Dashbaord() {
         setYearCnt(cntYear);
         setRegStatCnt(cntRegStat);
         setTransfereeStatCnt(cntTransStat);
-        console.log(cntRegStat);
+        console.log(cntTransStat);
     });
     }, [student_list]);
 
@@ -91,7 +91,7 @@ export default function Dashbaord() {
 
                 <div style={{"display":"flex", "gap":"20px", "justifyContent":"space-around"}}>
                     <SimpleBarChart data={regStat_cnt}/>
-                    <PieChartWithPaddingAngle />
+                    <PieChartWithPaddingAngle data={transfereeStat_cnt}/>
                 </div>
 
                 <div style={{"display":"flex", "gap":"20px", "justifyContent":"space-around"}}>

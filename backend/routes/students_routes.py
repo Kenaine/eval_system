@@ -32,3 +32,8 @@ def getStudentByID(student_id: str):
 def getAllStudents():
     return student_func.get_students()
 
+@router.get("/filter/{key}/{value}")
+def getFilteredStudents(key: str, value: str):
+    return  student_func.filter_students(key, value)
+
+

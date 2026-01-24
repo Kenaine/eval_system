@@ -40,10 +40,17 @@ export default function Dashbaord() {
     const [regStat_cnt, setRegStatCnt] = useState([]);
     const [transfereeStat_cnt, setTransfereeStatCnt] = useState([]);
 
+    const changeData = async (key, value) => {
+        axios.get(`http://127.0.0.1:8000/student/filter/${key}/${value}`)
+        .then((res) => {
+            setStudentList(res.data);
+        });
+    };
+
     useEffect(() =>{
         axios.get('http://127.0.0.1:8000/student/get_all')
         .then((res) => {
-            setStudentList(res.data)
+            setStudentList(res.data);
         });
     }, []);
 
@@ -67,7 +74,7 @@ export default function Dashbaord() {
         setYearCnt(cntYear);
         setRegStatCnt(cntRegStat);
         setTransfereeStatCnt(cntTransStat);
-        console.log(cntTransStat);
+        
     });
     }, [student_list]);
 
@@ -90,8 +97,8 @@ export default function Dashbaord() {
                 </div>
 
                 <div style={{"display":"flex", "gap":"20px", "justifyContent":"space-around"}}>
-                    <SimpleBarChart data={regStat_cnt}/>
-                    <PieChartWithPaddingAngle data={transfereeStat_cnt}/>
+                    <SimpleBarChart data={regStat_cnt} changeData={changeData}/>
+                    <PieChartWithPaddingAngle data={transfereeStat_cnt} changeData={changeData}/>
                 </div>
 
                 <div style={{"display":"flex", "gap":"20px", "justifyContent":"space-around"}}>

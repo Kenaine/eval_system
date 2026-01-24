@@ -1,4 +1,4 @@
-import { Cell, Legend, Pie, PieChart, PieLabelRenderProps } from 'recharts';
+import { Cell, Sector, Legend, Pie, PieChart, PieLabelRenderProps, Shape } from 'recharts';
 import { RechartsDevtools } from '@recharts/devtools';
 
 import style from "../../style/dashboard.module.css";
@@ -8,6 +8,8 @@ import style from "../../style/dashboard.module.css";
 // #endregion
 const RADIAN = Math.PI / 180;
 const COLORS = ['#0088FE', '#00C49F'];
+const VALUE = [true, false];
+
 
 const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
   if (cx == null || cy == null || innerRadius == null || outerRadius == null) {
@@ -26,7 +28,17 @@ const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, per
   );
 };
 
-export default function PieChartWithCustomizedLabel({ isAnimationActive = true, data }) {
+const customPie = (props) =>{
+  return <Sector {...props} fill={COLORS[props.index]} name="is_transferee" value={VALUE[props.index]} />;
+};
+
+
+
+export default function PieChartWithCustomizedLabel({ isAnimationActive = true, data, changeData }) {
+  const sendData = (sector) => {
+    changeData("is_transferee", sector.status );
+  };
+
   return (
     <div className={style.block + " " + style.graph}>
       <div className={style.title}>
@@ -38,13 +50,12 @@ export default function PieChartWithCustomizedLabel({ isAnimationActive = true, 
             data={data}
             labelLine={false}
             label={renderCustomizedLabel}
-            fill="#8884d8"
             dataKey="num"
+            nameKey="status"
             isAnimationActive={isAnimationActive}
+            shape={customPie}
+            onClick={sendData}
           >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${entry.name}`} fill={COLORS[index % COLORS.length]} />
-            ))}
           </Pie>
           <RechartsDevtools />
         </PieChart>
@@ -59,17 +70,15 @@ export default function PieChartWithCustomizedLabel({ isAnimationActive = true, 
 
 const LegendContent = ({data}) => {
   return (
-    <div style={{display: "flex", flexDirection: "column", justifyContent: "center",
-                 marginRight: "20px", gap: "10px", boxSizing: "border-box"}}>
+    <div className={style.pieLegend}>
       {data.map((entry, index) => (
         <div id={index} style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "5px"
-        }}>
+        }} onClick>
           <div style={{backgroundColor:COLORS[index], width:"10px", height:"10px", marginTop: "2px"}}>
           </div>
 
           <span>{entry.status === true ? <>True</> : <>False</>}</span>
         </div>
-      
       ))}
     </div>
   )

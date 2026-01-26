@@ -3,13 +3,17 @@ import { RechartsDevtools } from '@recharts/devtools';
 
 import style from "../../style/dashboard.module.css";
 
-
+const COLORS = ["#0088FE", "#D98012"];
 
 // #endregion
 const SimpleBarChart = ({data, changeData}) => {
   const sendData = (shape) => {
-    changeData(shape.name, shape.value);
+    changeData("status", shape.status);
   };
+
+  const customBar = (prop) => {
+    return <Rectangle {...prop} fill={COLORS[prop.index]} />
+  }
 
   return (
     <div className={style.block + " " + style.graph}>
@@ -35,9 +39,8 @@ const SimpleBarChart = ({data, changeData}) => {
           return item.name === 'Regular' ? -1 : 1;
         }}/>
         
-        <Bar name="Regular" fill='#0088FE' dataKey="num" barSize={50} activeBar={{ fill: 'pink', stroke: 'blue' }} radius={[10, 10, 0, 0]} onClick={sendData}>
-          <Rectangle name="status" fill="#0088FE" value="Regular"/>
-          <Rectangle name="status" fill="#d98012" value="Irregular"/>
+        <Bar name="Regular" fill='#0088FE' dataKey="num" barSize={50} activeBar={{ fill: 'pink', stroke: 'blue' }} 
+        radius={[10, 10, 0, 0]} onClick={sendData} shape={customBar}>
         </Bar>
         <Bar name= "Irregular" fill='#d98012'/>
         <RechartsDevtools />

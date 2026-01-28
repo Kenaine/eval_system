@@ -20,8 +20,9 @@ const SimpleBarChart = ({data, changeData}) => {
       <div className={style.title}>
         Count of Regular and Irregular Students
       </div>
+
       <BarChart
-        style={{ width: '100%', maxWidth: '300px', maxHeight: '150px', aspectRatio: 1.618, display: 'flexbox', paddingTop:"15px"}}
+        style={{ width: '100%', maxWidth: '300px', maxHeight: '150px', aspectRatio: 1.618, paddingTop:"15px"}}
         responsive
         data={data}
         margin={{
@@ -35,7 +36,7 @@ const SimpleBarChart = ({data, changeData}) => {
         <XAxis dataKey="status" reversed={true}/>
         <YAxis width="auto" />
         <Tooltip />
-        <Legend  verticalAlign='top' reve/>
+        <Legend verticalAlign='top'wrapperStyle={{paddingLeft:"40px"}}/>
         <Bar name="Regular" fill='#0088FE' dataKey="num" barSize={50} activeBar={{ fill: 'pink', stroke: 'blue' }} 
         radius={[10, 10, 0, 0]} onClick={sendData} shape={customBar}>
         </Bar>

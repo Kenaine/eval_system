@@ -9,33 +9,11 @@ import HeaderWebsite from "../component/header";
 import SimpleBarChart from "../component/graphs/barChart";
 import PieChartWithPaddingAngle from "../component/graphs/pieChart";
 
-const students = [
-    {
-        student_id: "2021001",
-        year: "1st Year",
-        gwa: 1.75
-    },
-    {
-        student_id: "2021002",
-        year: "2nd Year",
-        gwa: 2.00
-    },
-    {
-        student_id: "2021003",
-        year: "3rd Year",
-        gwa: 1.50
-    },
-    {
-        student_id: "2021004",
-        year: "4th Year",
-        gwa: 1.25
-    }
-]
-
 export default function Dashbaord() {
     const pageName = "DASHBOARD";
 
     const [student_list, setStudentList] = useState([]);
+    const [total_student, setTotalStudent] = useState(0);
     const [year_cnt, setYearCnt] = useState([]);
     const [regStat_cnt, setRegStatCnt] = useState([]);
     const [transfereeStat_cnt, setTransfereeStatCnt] = useState([]);
@@ -58,6 +36,7 @@ export default function Dashbaord() {
         var cntYear = [0, 0, 0, 0];
         var cntRegStat = [{ status: "Regular", num: 0 }, { status: "Irregular", num: 0 }];
         var cntTransStat = [{ status: true, num: 0 }, { status: false, num: 0 }];
+        var total = 0;
 
         student_list.forEach(student => {
             cntYear[student["year"] - 1]++;
@@ -69,13 +48,15 @@ export default function Dashbaord() {
             if(student["is_transferee"] === true)
                 ++cntTransStat[0]["num"];
             else
-                ++cntTransStat[1]["num"];
+                ++cntTransStat[1]["num"];  
 
+        ++total;
+        });
+
+        setTotalStudent(total);
         setYearCnt(cntYear);
         setRegStatCnt(cntRegStat);
         setTransfereeStatCnt(cntTransStat);
-        
-    });
     }, [student_list]);
 
 
@@ -84,21 +65,26 @@ export default function Dashbaord() {
         <div className={style.curChecklist}>
             <HeaderWebsite pageName={pageName} />
             <div className={style.dashboard}>
-                <div style={{"display":"flex", "gap":"20px", "justifyContent":"space-around"}}>
-                    <NumberStudents cntYear={year_cnt} />
-                    <div className={style.block}>
+                <div style={{display:"flex", gap:"20px"}}>
+                    <div style={{width:"70%", gap: "20px", display: "flex", flexDirection: "column"}}>
+                        <div style={{"display":"flex", "gap":"20px", "justifyContent":"space-around"}}>
+                            <NumberStudents cntYear={year_cnt} total_student={total_student} />
+                            
+                        </div>
+
+                        <div style={{"display":"flex", "gap":"20px", "justifyContent":"space-around"}}>
+                            <SimpleBarChart data={regStat_cnt} changeData={changeData}/>
+                            <PieChartWithPaddingAngle data={transfereeStat_cnt} changeData={changeData}/>
+                        </div>
+                    </div>
+
+                    <div className={style.programs}>
                         <div className={style.title}>
                             Programs
                         </div>
 
                         <div>4</div>
                     </div>
-
-                </div>
-
-                <div style={{"display":"flex", "gap":"20px", "justifyContent":"space-around"}}>
-                    <SimpleBarChart data={regStat_cnt} changeData={changeData}/>
-                    <PieChartWithPaddingAngle data={transfereeStat_cnt} changeData={changeData}/>
                 </div>
 
                 <div style={{"display":"flex", "gap":"20px", "justifyContent":"space-around"}}>
@@ -109,17 +95,24 @@ export default function Dashbaord() {
     );
 }
 
-const NumberStudents = ({cntYear}) => {
+const NumberStudents = ({cntYear, total_student}) => {
     return (
-        cntYear.map((num, index) => (
-            <div className={style.block} key={index}>
-                <div className={style.title}>
-                    {"Year " + (index + 1)}
-                </div>
+        <>
+            {cntYear.map((num, index) => (
+                <div className={style.block} key={index}>
+                    <div className={style.title}>
+                        {"Year " + (index + 1)}
+                    </div>
 
-                <div>{num}</div>
+                    <div>{num}</div>
+                </div>
+            ))}
+            <div className={style.block}>
+                <div className={style.title}>Total Students</div>
+
+                <div>{total_student}</div>
             </div>
-        ))
+        </>
     );
 } 
 
@@ -129,18 +122,22 @@ const TableStudents = ({student_list}) => {
             <thead>
                 <tr>
                     <th></th>
-                    <th>Student ID</th>
-                    <th>Year</th>
-                    <th>GWA</th>
+                    <div className={style.tableData}>
+                        <th>Student ID</th>
+                        <th>Year</th>
+                        <th>GWA</th>
+                    </div>
                 </tr>
             </thead>
             <tbody>
                 {student_list.map((student, index) => (
                     <tr key={index}>
                         <td>{index + 1}</td>
-                        <td>{student.id}</td>
-                        <td>{student.year}</td>
-                        <td>{student.gwa}</td>
+                        <div className={style.tableData}>
+                            <td>{student.id}</td>
+                            <td>{student.year}</td>
+                            <td>{student.gwa}</td>
+                        </div>
                     </tr>
                 ))}
             </tbody>

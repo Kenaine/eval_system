@@ -21,7 +21,7 @@ const SimpleBarChart = ({data, changeData}) => {
         Count of Regular and Irregular Students
       </div>
       <BarChart
-        style={{ width: '300px', maxWidth: '300px', maxHeight: '20vh', aspectRatio: 1.618, display: 'flexbox', paddingTop:"15px"}}
+        style={{ width: '100%', maxWidth: '300px', maxHeight: '150px', aspectRatio: 1.618, display: 'flexbox', paddingTop:"15px"}}
         responsive
         data={data}
         margin={{
@@ -32,13 +32,10 @@ const SimpleBarChart = ({data, changeData}) => {
         }}
       >
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="status" />
+        <XAxis dataKey="status" reversed={true}/>
         <YAxis width="auto" />
         <Tooltip />
-        <Legend  verticalAlign='top' itemSorter={(item) => {
-          return item.name === 'Regular' ? -1 : 1;
-        }}/>
-        
+        <Legend  verticalAlign='top' reve/>
         <Bar name="Regular" fill='#0088FE' dataKey="num" barSize={50} activeBar={{ fill: 'pink', stroke: 'blue' }} 
         radius={[10, 10, 0, 0]} onClick={sendData} shape={customBar}>
         </Bar>

@@ -1,7 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, Rectangle } from 'recharts';
 import { RechartsDevtools } from '@recharts/devtools';
 
-import style from "../../style/dashboard.module.css";
+import style from "../../../style/dashboard.module.css";
 
 const COLORS = ["#0088FE", "#D98012"];
 

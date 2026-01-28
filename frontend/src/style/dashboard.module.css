@@ -46,6 +46,40 @@
     text-align: center;
 }
 
+.programList{
+    list-style-type: none;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    padding: 0;
+}
+
+.programList > li{
+    display: block;
+    margin-bottom: 10px;
+}
+
+.programList > li > input[type="checkbox"]
+{
+    display: none;
+}
+
+.programList > li > input[type="checkbox"] + label{
+    display: block;
+    width: 80%;
+
+    margin: auto;
+
+    border-radius: 10px;
+}
+
+.programList > li > input[type="checkbox"]:checked + label
+{
+    background-color: #a4c6ff;
+}
+
 
 
 .scrollable thead, .scrollable tbody{

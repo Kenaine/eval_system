@@ -6,8 +6,8 @@ import axios from "axios";
 import style from "../style/dashboard.module.css";
 
 import HeaderWebsite from "../component/header";
-import SimpleBarChart from "../component/graphs/barChart";
-import PieChartWithPaddingAngle from "../component/graphs/pieChart";
+import SimpleBarChart from "../component/dashboard/graphs/barChart";
+import PieChartWithPaddingAngle from "../component/dashboard/graphs/pieChart";
 
 export default function Dashbaord() {
     const pageName = "DASHBOARD";
@@ -17,6 +17,9 @@ export default function Dashbaord() {
     const [year_cnt, setYearCnt] = useState([]);
     const [regStat_cnt, setRegStatCnt] = useState([]);
     const [transfereeStat_cnt, setTransfereeStatCnt] = useState([]);
+    const [programs, setPrograms] = useState([]);
+    const [checkedPrograms, setCheckedPrograms] = useState({});
+    
 
     const changeData = async (key, value) => {
         axios.get(`http://127.0.0.1:8000/student/filter/${key}/${value}`)
@@ -25,13 +28,34 @@ export default function Dashbaord() {
         });
     };
 
+    const changeCheckbox = (checkbox) => {
+        var programName = checkbox.target.name;
+        var newCheckedPrograms = {...checkedPrograms};
+        newCheckedPrograms[programName] = !newCheckedPrograms[programName];
+
+        console.log(newCheckedPrograms);
+        setCheckedPrograms(newCheckedPrograms);
+    }
+
     useEffect(() =>{
         axios.get('http://127.0.0.1:8000/student/get_all')
         .then((res) => {
             setStudentList(res.data);
         });
+        
+        const programs = JSON.parse(sessionStorage.getItem("programs"));
+        setPrograms(programs);
+
+        var p = {};
+
+        Object.values(programs).forEach(program => {
+            p[program.id] = true;
+        });
+
+        setCheckedPrograms(p);
     }, []);
 
+    
     useEffect(() => {
         var cntYear = [0, 0, 0, 0];
         var cntRegStat = [{ status: "Regular", num: 0 }, { status: "Irregular", num: 0 }];
@@ -83,7 +107,17 @@ export default function Dashbaord() {
                             Programs
                         </div>
 
-                        <div>4</div>
+                        <ul className={style.programList}>
+                            {Object.values(programs).map((program, index) => (
+                                <li>
+                                    <input defaultChecked={checkedPrograms[program.id]}type="checkbox" id={program.name} name={program.id} 
+                                    value={program.id} onChange={changeCheckbox}/>
+                                    <label htmlFor={program.name}>
+                                        {program.name}
+                                    </label>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                 </div>
 

@@ -1,7 +1,7 @@
 import { Cell, Sector, Legend, Pie, PieChart, PieLabelRenderProps, Shape } from 'recharts';
 import { RechartsDevtools } from '@recharts/devtools';
 
-import style from "../../style/dashboard.module.css";
+import style from "../../../style/dashboard.module.css";
 
 // #region Sample data
 

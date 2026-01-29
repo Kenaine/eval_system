@@ -9,7 +9,10 @@ students_list = []
 student_collection = fs.collection("students").stream()
 
 students_list = [{**student.to_dict(), "id": student.id} for student in student_collection]
-active_filter = {"status": {"value": "", "active": False}, "is_transferee": {"value": False, "active": False}}
+active_filter = {
+    "status": {"value": "", "active": False}, 
+    "is_transferee": {"value": False, "active": False},
+    "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"]}
 
 def addStudent(student: Student):
     student_collection = fs.collection("students")
@@ -90,6 +93,14 @@ def get_students():
     return students_list
 
 def filter_students(key: str, value: str):
+    if key == "program_id":
+        if value in active_filter[key]:
+            active_filter[key].remove(value)
+        else:
+            active_filter[key].append(value)
+
+        return execute_filter()
+            
     if key == "is_transferee":
         value = str_to_bool(value)
 
@@ -115,6 +126,11 @@ def execute_filter():
     pool = students_list
 
     for key, value in active_filter.items():
+        if key == "program_id":
+            pool = [students for students in pool
+                    if students[key] in active_filter[key]]
+            continue
+
         if value["active"] != True:
             continue
 

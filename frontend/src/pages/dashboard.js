@@ -17,9 +17,7 @@ export default function Dashbaord() {
     const [year_cnt, setYearCnt] = useState([]);
     const [regStat_cnt, setRegStatCnt] = useState([]);
     const [transfereeStat_cnt, setTransfereeStatCnt] = useState([]);
-    const [programs, setPrograms] = useState([]);
-    const [checkedPrograms, setCheckedPrograms] = useState({});
-    
+    const [programs, setPrograms] = useState([]);    
 
     const changeData = async (key, value) => {
         axios.get(`http://127.0.0.1:8000/student/filter/${key}/${value}`)
@@ -29,12 +27,7 @@ export default function Dashbaord() {
     };
 
     const changeCheckbox = (checkbox) => {
-        var programName = checkbox.target.name;
-        var newCheckedPrograms = {...checkedPrograms};
-        newCheckedPrograms[programName] = !newCheckedPrograms[programName];
-
-        console.log(newCheckedPrograms);
-        setCheckedPrograms(newCheckedPrograms);
+        changeData(checkbox.target.name, checkbox.target.value);
     }
 
     useEffect(() =>{
@@ -45,14 +38,6 @@ export default function Dashbaord() {
         
         const programs = JSON.parse(sessionStorage.getItem("programs"));
         setPrograms(programs);
-
-        var p = {};
-
-        Object.values(programs).forEach(program => {
-            p[program.id] = true;
-        });
-
-        setCheckedPrograms(p);
     }, []);
 
     
@@ -108,10 +93,10 @@ export default function Dashbaord() {
                         </div>
 
                         <ul className={style.programList}>
-                            {Object.values(programs).map((program, index) => (
+                            {Object.values(programs).map(program => (
                                 <li>
-                                    <input defaultChecked={checkedPrograms[program.id]}type="checkbox" id={program.name} name={program.id} 
-                                    value={program.id} onChange={changeCheckbox}/>
+                                    <input defaultChecked={true} type="checkbox" id={program.name} name="program_id"
+                                    value={program.id} onClick={changeCheckbox}/>
                                     <label htmlFor={program.name}>
                                         {program.name}
                                     </label>

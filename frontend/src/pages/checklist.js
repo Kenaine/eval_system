@@ -20,7 +20,7 @@ export default function Checklist() {
 
     const [currentUser, setCurrentUser] = useUser();
     const [selectedStudent, setSelectedStudent] = useState(null);
-    const [courses, setCourses] = useCourses()
+    const [courses, setCourses] = useState([]);
     const [isViewing, setIsViewing] = useState(false);
 
     const addStudent = async (student) => {

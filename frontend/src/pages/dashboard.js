@@ -31,6 +31,8 @@ export default function Dashbaord() {
     }
 
     useEffect(() =>{
+        axios.put('http://127.0.0.1:8000/student/reset_filter')
+        
         axios.get('http://127.0.0.1:8000/student/get_all')
         .then((res) => {
             setStudentList(res.data);

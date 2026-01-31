@@ -36,4 +36,8 @@ def getAllStudents():
 def getFilteredStudents(key: str, value: str):
     return  student_func.filter_students(key, value)
 
+@router.put("/reset_filter")
+def resetFilter():
+    return student_func.reset_filter()
+
 

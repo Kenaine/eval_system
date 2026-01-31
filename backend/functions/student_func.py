@@ -138,3 +138,10 @@ def execute_filter():
                 if students[key] == value["value"]]
         
     return pool
+
+def reset_filter():
+    global active_filter 
+    active_filter = {
+    "status": {"value": "", "active": False}, 
+    "is_transferee": {"value": False, "active": False},
+    "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"]}

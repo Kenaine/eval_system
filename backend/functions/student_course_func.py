@@ -15,6 +15,7 @@ def addEntry(student_id: str, program_id: str):
             "student_id": student_id,
             "grade": None,
             "remark": "",
+            "evaluated": False
 
         }
         for course in courses

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { FaPencilAlt } from "react-icons/fa";
+import { FaPencilAlt, FaCheck } from "react-icons/fa";
+import { FaXmark } from "react-icons/fa6";
 import style from "../style/table.module.css";
 import axios from "axios";
 
@@ -108,12 +109,13 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                         <th>CREDIT EARNED</th>
                         <th>GRADE</th>
                         <th>REMARK</th>
+                        <th>EVALUATED</th>
                     </tr>
                 </thead>
                 <tbody>
                     {courses?.length === 0 ? (
                         <tr>
-                            <td colSpan="6" style={{ textAlign: "center" }}>
+                            <td colSpan="7" style={{ textAlign: "center" }}>
                                 No courses found.
                             </td>
                         </tr>
@@ -133,7 +135,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                                 if (year !== prevYear || semester !== prevSem) {
                                     rows.push(
                                         <tr key={`label-${index}`} className={style.yearSem}>
-                                            <td colSpan="6" style={{ fontWeight: "bold" }}>
+                                            <td colSpan="7" style={{ fontWeight: "bold" }}>
                                                 {ordinal(year)} Year, {ordinal(semester)} Sem
                                             </td>
                                         </tr>
@@ -180,6 +182,12 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                                             ) : (
                                                 course.remark
                                             )}
+                                        </td>
+                                        <td style={{padding: "0"}}>
+                                            {course.evaluated === false ?
+                                                <FaCheck fill="#00a700" size={25}/> :
+                                                <FaXmark fill="#ea0000" size={25}/>
+                                            }
                                         </td>
                                         {isEditing && (
                                             <td>

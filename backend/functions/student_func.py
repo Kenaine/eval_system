@@ -81,6 +81,7 @@ def search_students(query: str):
     result = [
         {
             "student_id":   student["id"],
+            "id":           student["id"],
             "name":         f"{student["l_name"]}, {student["f_name"]} {student["m_name"] or ''}".strip()
         }
 

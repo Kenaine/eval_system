@@ -19,7 +19,7 @@ export default function Login({checkCredential}) {
                 throw new Error("Invalid login credentials");
             }
 
-            navigate("/curriculum-checklist");
+            navigate("/new");
         }
         catch (err){
             console.error('Login failed: ', err.response?.data || err.message);

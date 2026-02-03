@@ -96,7 +96,7 @@
     scrollbar-width: none;
 }
 
-.tableData{
+.scrollable .tableData{
     width: 100%;
     display: flex;
     justify-content: space-around;

@@ -1,0 +1,142 @@
+.searchContainer{
+    display: flex;
+    flex-direction: row;
+
+    width: 100%;
+
+    justify-content: space-evenly;
+
+    margin-top: 80px;
+}
+
+.section{
+    height: 600px;
+    width: 500px;
+
+    background-color: rgb(240, 240, 240);
+    border-radius: 10px;
+
+    text-align: center;
+}
+
+.searchContainer {
+    position: relative;
+    display: flex;
+    width: 100%;
+}
+
+.searchBar{
+    border: none;
+
+    width: 250px;
+    height: 30px;
+
+    background-color: grey;
+    border-radius: 20px;
+
+    color: white;
+    
+}
+
+.dropdown {
+    position: absolute;
+    top: 100%;
+    left: 100;
+    right: 0;
+    width: 250px;
+    background-color: white;
+    border: 1px solid #ccc;
+    z-index: 10;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dropdownItem {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    transition: background 0.2s;
+}
+
+.dropdownItem:hover {
+    background-color: #f0f0f0;
+}
+
+@media (max-width: 480px) {
+    .searchBar {
+        width: 150px;
+    }
+
+    .dropdown {
+        width: 150px;
+    }
+}
+
+fieldset{
+    border: 0;
+}
+
+
+.searchResult{
+    width: 70%;
+    margin: auto;   
+
+    box-sizing: content-box;
+}
+
+.scrollable thead, .scrollable tbody{
+
+
+}
+
+.searchResult tbody{
+    display: block;
+    height: 125px;
+
+    overflow-y: auto;
+}
+
+.searchResult > thead > tr{
+    display: table;
+    width: 100%;
+}
+
+.searchResult > thead > tr > th:first-child{
+    width: 1%;
+}
+
+.searchResult > thead > tr > th:last-child{
+    width: 69%;
+}
+
+
+.searchResult > tbody > tr > td:first-child{
+    width: 1%;
+}
+
+.searchResult > tbody > tr > td:last-child{
+    width: 69%;
+}
+
+
+.searchResult > tbody > tr{
+    display: table;
+    width: 100%;
+}
+
+.tableData{
+
+}
+
+.scrollable tr{
+
+}
+
+.scrollable td{
+    text-align: center;
+}

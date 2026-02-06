@@ -114,6 +114,10 @@ fieldset{
     width: 69%;
 }
 
+.searchResult > tbody > tr:nth-child(even){
+    background-color: rgb(233, 242, 255);
+}
+
 
 .searchResult > tbody > tr > td:first-child{
     width: 1%;
@@ -139,4 +143,36 @@ fieldset{
 
 .scrollable td{
     text-align: center;
+}
+
+
+.infoSection{
+    display: flex;
+    flex-direction: row;
+
+    justify-content: space-between;
+
+    box-sizing: border-box;
+    margin: 20px;
+}
+.infoSection > .left{
+    display: flex;
+    flex-direction: column;
+
+    text-align: left;
+
+    gap: 10px;
+
+    width: 60%;
+}
+
+.infoSection > .right{
+    display: flex;
+    flex-direction: column;
+
+    text-align: left;
+
+    gap: 10px;
+
+    width: 40%
 }

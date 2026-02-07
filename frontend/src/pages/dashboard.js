@@ -9,6 +9,8 @@ import HeaderWebsite from "../component/header";
 import SimpleBarChart from "../component/dashboard/graphs/barChart";
 import PieChartWithPaddingAngle from "../component/dashboard/graphs/pieChart";
 
+import { API_URL } from "../misc/url";
+
 export default function Dashbaord() {
     const pageName = "DASHBOARD";
 
@@ -20,7 +22,7 @@ export default function Dashbaord() {
     const [programs, setPrograms] = useState([]);    
 
     const changeData = async (key, value) => {
-        axios.get(`http://127.0.0.1:8000/student/filter/${key}/${value}`)
+        axios.get( API_URL + `/student/filter/${key}/${value}`)
         .then((res) => {
             setStudentList(res.data);
         });
@@ -31,9 +33,9 @@ export default function Dashbaord() {
     }
 
     useEffect(() =>{
-        axios.put('http://127.0.0.1:8000/student/reset_filter')
+        axios.put(API_URL + '/student/reset_filter')
         
-        axios.get('http://127.0.0.1:8000/student/get_all')
+        axios.get( API_URL + '/student/get_all')
         .then((res) => {
             setStudentList(res.data);
         });

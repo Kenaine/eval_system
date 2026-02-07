@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import style from "../style/searchbar.module.css";
 
+import { API_URL } from "../misc/url";
+
 export default function StudentSearchBar({onSelectStudent}) {
     const [query, setQuery] = useState("");
     const [results, setResults] = useState([]);
@@ -15,7 +17,7 @@ export default function StudentSearchBar({onSelectStudent}) {
         }
 
         const delayDebounce = setTimeout(() => {
-            axios.get(`http://127.0.0.1:8000/student/search?q=${query}`, {
+            axios.get(API_URL + `/student/search?q=${query}`, {
                 withCredentials: true
             })
             .then((res) => {

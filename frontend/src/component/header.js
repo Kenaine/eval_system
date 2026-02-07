@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Logo from "../imgs/uphsllogo.png";
 import style from "../style/header.module.css"
 import axios from "axios";
+import { API_URL } from "../misc/url";
 
 export default function HeaderWebsite({ pageName }){
     const navigate = useNavigate();
@@ -16,7 +17,7 @@ export default function HeaderWebsite({ pageName }){
 
     const signOut = async () => {
         try {
-            await axios.post("http://127.0.0.1:8000/auth/logout", {}, { withCredentials: true });
+            await axios.post(API_URL + "/auth/logout", {}, { withCredentials: true });
         } catch (err) {
             console.error("Logout failed:", err);
         } finally {

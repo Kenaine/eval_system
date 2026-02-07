@@ -13,6 +13,7 @@ import HeaderWebsite from "../component/header";
 import { BulkGradeUpload } from "../component/student_table";
 
 import { useUser, useCourses } from "../App";
+import { API_URL } from "../misc/url";
 
 export default function Checklist() {
     const pageName = "CURRICULUM CHECKLIST";
@@ -25,7 +26,7 @@ export default function Checklist() {
 
     const addStudent = async (student) => {
         try {
-            await axios.post("http://127.0.0.1:8000/student/add", student, { withCredentials: true });
+            await axios.post( API_URL + "/student/add", student, { withCredentials: true });
             handleStudentSelect(student.student_id);
         } catch (err) {
             console.error("Adding failed:", err);
@@ -35,7 +36,7 @@ export default function Checklist() {
     const editStudent = async (student) => {
         try {
             await axios.put(
-                `http://127.0.0.1:8000/student/edit`,
+                API_URL + `/student/edit`,
                 student,
                 { withCredentials: true }
             );
@@ -47,7 +48,7 @@ export default function Checklist() {
 
     const handleStudentSelect = async (student_id) => {
         try {
-            const res = await axios.get(`http://127.0.0.1:8000/student/get/${student_id}`, {
+            const res = await axios.get( API_URL + `/student/get/${student_id}`, {
                 withCredentials: true,
             });
             setSelectedStudent(res.data.student);

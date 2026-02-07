@@ -4,6 +4,8 @@ import { FaXmark } from "react-icons/fa6";
 import style from "../style/table.module.css";
 import axios from "axios";
 
+import { API_URL } from "../misc/url";
+
 // 🔧 Helper function to add ordinal suffix to numbers (1 -> 1st, 2 -> 2nd, etc.)
 function ordinal(n) {
     const suffixes = ["th", "st", "nd", "rd"];
@@ -45,7 +47,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
         }
 
         try{
-            await axios.patch(`http://127.0.0.1:8000/SC/update-grade/${student_id}-${editedCourse}`,
+            await axios.patch( API_URL + `/SC/update-grade/${student_id}-${editedCourse}`,
                 { grade: gradeToSend, remark: editedRemark },
                 { withCredentials: true }
             )
@@ -239,7 +241,7 @@ export function BulkGradeUpload({ student_id, onSuccess, onClose }) {
 
         try {
             await axios.post(
-                `http://127.0.0.1:8000/SC/update-grades-bulk/${student_id}`,
+                API_URL + `/SC/update-grades-bulk/${student_id}`,
                 formData,
                 {
                     headers: { "Content-Type": "multipart/form-data" },

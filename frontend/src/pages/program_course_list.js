@@ -6,7 +6,7 @@ import ProgramTable from "../component/program_table";
 import LoadingOverlay from "../component/loadingOverlay";
 import axios from "axios";
 
-import { useUser } from "../App";
+import { API_URL } from "../misc/url";
 
 export default function ProgramCourseList() {
   const pageName = "PROGRAM COURSELIST";
@@ -31,7 +31,7 @@ export default function ProgramCourseList() {
 
   const getCourses = async (program_id) => {
     try {
-      const res = await axios.get(`http://127.0.0.1:8000/course/get/${program_id}`, { withCredentials: true });
+      const res = await axios.get( API_URL + `/course/get/${program_id}`, { withCredentials: true });
       const mapped = res.data.map((c, idx) => ({
         ...c,
         hours_lec: c.hours_lec ?? 0,
@@ -91,7 +91,7 @@ export default function ProgramCourseList() {
         };
       });
 
-      await axios.put(`http://127.0.0.1:8000/course/update/${program_id}`, payload, { withCredentials: true });
+      await axios.put( API_URL + `/course/update/${program_id}`, payload, { withCredentials: true });
 
       setOriginalCourses(courses);
       setIsEditing(false);

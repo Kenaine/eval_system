@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import style from "../../style/new_checklist/new_checklist.module.css";
 
+import { API_URL } from "../../misc/url";
+
 export default function NewStudentSearchBar({setStudents}) {
     const [query, setQuery] = useState("");
 
@@ -11,7 +13,7 @@ export default function NewStudentSearchBar({setStudents}) {
             return;
         }
 
-        axios.get(`http://127.0.0.1:8000/student/search?q=${query}`, {
+        axios.get(API_URL + `/student/search?q=${query}`, {
             withCredentials: true
         })
         .then((res) => {

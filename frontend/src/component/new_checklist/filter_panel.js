@@ -27,7 +27,8 @@ export default function FilterPanel() {
                     <>
                         
                         <label htmlFor={year}>
-                            <input type="checkbox" id={year} name={year} value={year}></input> Year {year}
+                            <input type="checkbox" defaultChecked={true} id={year} 
+                            name={year} value={year}></input> Year {year}
                         </label>
                     </>
                 ))}
@@ -35,23 +36,23 @@ export default function FilterPanel() {
             </fieldset>
             <fieldset>
                 <legend>Regular Status</legend>
-                <input type="checkbox" name="reg_status" value="regular"></input>
+                <input defaultChecked={true} type="checkbox" name="reg_status" value="regular"></input>
                 <label htmlFor="reg_status">Regular</label>
 
                 
                 <label htmlFor="irreg_status" value="irregular">
-                    <input type="checkbox" name="irreg_status" value="irregular"></input>
+                    <input type="checkbox" defaultChecked={true} name="irreg_status" value="irregular"></input>
                     Irregular</label>
             </fieldset>
 
             <fieldset>
                 <legend>Transfer Status</legend>
                 <label htmlFor="transferee">
-                    <input type="checkbox" name="transferee" value="true"></input> True
+                    <input type="checkbox" defaultChecked={true} name="transferee" value="true"></input> True
                 </label>
                 
                 <label htmlFor="not_transferee">
-                    <input type="checkbox" name="not_transferee" value="false"></input>
+                    <input type="checkbox" defaultChecked={true} name="not_transferee" value="false"></input>
                     False
                 </label>
             </fieldset>
@@ -62,7 +63,8 @@ export default function FilterPanel() {
                 {Object.values(programs).map(program => (
                     <>
                         <label htmlFor={program.id}>
-                            <input type="checkbox" id={program.id} name={program.id} value={program.id}></input>
+                            <input type="checkbox" defaultChecked={true} 
+                            id={program.id} name={program.id} value={program.id}></input>
                             {program.id}
                         </label>
                     </>

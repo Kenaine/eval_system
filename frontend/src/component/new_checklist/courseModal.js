@@ -1,4 +1,5 @@
 import React from "react";
+import { FaTimes } from "react-icons/fa";
 import style from "../../style/table.module.css";
 
 // Helper function to add ordinal suffix to numbers (1 -> 1st, 2 -> 2nd, etc.)
@@ -10,9 +11,25 @@ function ordinal(n) {
 
 export default function CourseModal({dialogRef, setShowModal, courses = []}){
     return(
-        <dialog ref={dialogRef}>
+        <dialog ref={dialogRef} style={{ marginTop: "20px" }}>
             <div style={{ padding: "20px", maxHeight: "90vh", overflowY: "auto" }}>
-                <h2>Student Courses</h2>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                    <h2 style={{ margin: 0 }}>Student Courses</h2>
+                    <button 
+                        type="button" 
+                        onClick={() => setShowModal(false)}
+                        style={{
+                            background: "none",
+                            border: "none",
+                            fontSize: "24px",
+                            cursor: "pointer",
+                            color: "#333",
+                            padding: 0
+                        }}
+                    >
+                        <FaTimes />
+                    </button>
+                </div>
                 <table className={style.tble}>
                     <thead>
                         <tr>
@@ -78,7 +95,6 @@ export default function CourseModal({dialogRef, setShowModal, courses = []}){
                         )}
                     </tbody>
                 </table>
-                <button type="button" onClick={() => setShowModal(false)} style={{ marginTop: "20px" }}>Close</button>
             </div>
         </dialog>
     );

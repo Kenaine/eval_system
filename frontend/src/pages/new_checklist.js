@@ -35,6 +35,12 @@ export default function NewChecklist() {
         console.log(currentStudent);
     }, [currentStudent]);
 
+    const changeFilter = (key, value) => {
+        // Filter is already updated via API call in FilterPanel
+        // This callback can be used to trigger additional UI updates if needed
+        console.log(`Filter updated: ${key} = ${value}`);
+    }
+
     return (
         <div>
             <CourseModal dialogRef={dialogRef} setShowModal={setShowModal} courses={studentCourses} />
@@ -47,9 +53,9 @@ export default function NewChecklist() {
                         <NewStudentSearchBar setStudents={setStudents}/>
 
                         <fieldset>
-                            <legend>filters</legend>
+                            <legend style={{visibility: "hidden", position: "absolute"}}>filters</legend>
 
-                            <FilterPanel />
+                            <FilterPanel onFilterChange={changeFilter} />
                         </fieldset>
                     </form>
 

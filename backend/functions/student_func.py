@@ -11,7 +11,12 @@ student_collection = fs.collection("students").stream()
 students_list = [{**student.to_dict(), "id": student.id} for student in student_collection]
 active_filter = {
     "status": {"value": "", "active": False}, 
-    "is_transferee": {"value": False, "active": False},
+    "is_transferee": {"value": "", "active": False},
+    "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"]}
+
+search_filter = {
+    "status": ["Regular", "Irregular"], 
+    "is_transferee": ["true", "false"],
     "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"]}
 
 def addStudent(student: Student):
@@ -70,6 +75,7 @@ def getStudent(student_id: str = None):
 
 def search_students(query: str):
     valid_students = []
+
     for student in students_list:
         full_name = " ".join(filter(None, [student["l_name"], student["f_name"], student["m_name"]])).lower()
 
@@ -93,6 +99,42 @@ def search_students(query: str):
 def get_students():
     return students_list
 
+def edit_filter(key: str, value: str):
+    if value in active_filter[key]:
+        search_filter[key].remove(value)
+    else:
+        search_filter[key].append(value)
+
+
+def str_to_bool(value: str):
+    if value == "true":
+        return True
+    elif value == "false":
+        return False
+    
+    return value
+
+def apply_filter():
+    pool = students_list
+
+    for key, value in search_filter.items():
+        print(key)
+
+        pool = [students for students in pool
+                if students[key] in active_filter[key]]
+        
+    return pool
+
+def reset_searchFilter():
+    global active_filter 
+    active_filter = {
+        "status": ["Regular", "Irregular"], 
+        "is_transferee": [True, False],
+        "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"]}
+    
+
+#------------------------------------------------FOR DASHBOARD--------------------------------------------------------
+
 def filter_students(key: str, value: str):
     if key == "program_id":
         if value in active_filter[key]:
@@ -106,22 +148,13 @@ def filter_students(key: str, value: str):
         value = str_to_bool(value)
 
     if active_filter[key]["value"] == value:
-        remove_filter(key)
+        active_filter[key]["value"] = ""
+        active_filter[key]["active"] = False
     else:
         active_filter[key]["value"] = value
         active_filter[key]["active"] = True
 
     return execute_filter()
-
-def str_to_bool(value: str):
-    if value == "true":
-        return True
-    
-    return False
-
-def remove_filter(key: str):
-    active_filter[key]["value"] = ""
-    active_filter[key]["active"] = False
 
 def execute_filter():
     pool = students_list
@@ -144,5 +177,5 @@ def reset_filter():
     global active_filter 
     active_filter = {
     "status": {"value": "", "active": False}, 
-    "is_transferee": {"value": False, "active": False},
+    "is_transferee": {"value": "", "active": False},
     "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"]}

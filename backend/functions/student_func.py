@@ -15,8 +15,9 @@ active_filter = {
     "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"]}
 
 search_filter = {
+    "year": [1, 2, 3, 4],
     "status": ["Regular", "Irregular"], 
-    "is_transferee": ["true", "false"],
+    "is_transferee": [True, False],
     "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"]}
 
 def addStudent(student: Student):
@@ -76,7 +77,9 @@ def getStudent(student_id: str = None):
 def search_students(query: str):
     valid_students = []
 
-    for student in students_list:
+    pool = apply_filter()
+
+    for student in pool:
         full_name = " ".join(filter(None, [student["l_name"], student["f_name"], student["m_name"]])).lower()
 
         if query not in full_name and query not in student["id"]:
@@ -100,7 +103,12 @@ def get_students():
     return students_list
 
 def edit_filter(key: str, value: str):
-    if value in active_filter[key]:
+    if key == "is_transferee":
+        value = str_to_bool(value)
+    elif key == "year":
+        value = int(value)
+
+    if value in search_filter[key]:
         search_filter[key].remove(value)
     else:
         search_filter[key].append(value)
@@ -121,16 +129,17 @@ def apply_filter():
         print(key)
 
         pool = [students for students in pool
-                if students[key] in active_filter[key]]
+                if students[key] in search_filter[key]]
         
     return pool
 
 def reset_searchFilter():
-    global active_filter 
-    active_filter = {
-        "status": ["Regular", "Irregular"], 
-        "is_transferee": [True, False],
-        "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"]}
+    global search_filter 
+    search_filter = {
+    "year": [1, 2, 3, 4],
+    "status": ["Regular", "Irregular"], 
+    "is_transferee": [True, False],
+    "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"]}
     
 
 #------------------------------------------------FOR DASHBOARD--------------------------------------------------------

@@ -71,6 +71,13 @@ def getStudent(student_id: str = None):
     student_data["units_taken"] = units_taken
     student_data["total_units_required"] = total_units
     student_data["role"] = "student"
+    
+    # Convert evaluated timestamp to string if it exists
+    if "evaluated" in student_data and student_data["evaluated"] is not None:
+        if hasattr(student_data["evaluated"], "isoformat"):
+            student_data["evaluated"] = student_data["evaluated"].isoformat()
+        else:
+            student_data["evaluated"] = str(student_data["evaluated"])
 
     return JSONResponse(content={"student": student_data, "courses": courses})
 
@@ -188,3 +195,30 @@ def reset_filter():
     "status": {"value": "", "active": False}, 
     "is_transferee": {"value": "", "active": False},
     "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"]}
+
+#------------------------------------------------FOR EVALUATION--------------------------------------------------------
+
+def evaluateStudent(student_id: str):
+    import datetime
+    
+    student_collection = fs.collection("students")
+    student_ref = student_collection.document(student_id)
+    
+    if not student_ref.get().exists:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Student not found")
+    
+    current_timestamp = str(datetime.datetime.now())
+    student_ref.update({"evaluated": current_timestamp})
+    
+    return JSONResponse(content={"message": "Student evaluated successfully", "timestamp": current_timestamp})
+
+def takeOffEvaluation(student_id: str):
+    student_collection = fs.collection("students")
+    student_ref = student_collection.document(student_id)
+    
+    if not student_ref.get().exists:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Student not found")
+    
+    student_ref.update({"evaluated": None})
+    
+    return JSONResponse(content={"message": "Evaluation removed successfully"})

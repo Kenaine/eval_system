@@ -10,4 +10,5 @@ class Student(BaseModel):
     m_name:         str | None
     year:           int
     status:         str
+    evaluated:      int | None = None
 

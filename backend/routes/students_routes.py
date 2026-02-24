@@ -44,4 +44,12 @@ def editFilter(key: str, value: str):
 def resetFilter():
     return student_func.reset_filter()
 
+@router.post("/evaluate/{student_id}")
+def evaluateStudent(student_id: str):
+    return student_func.evaluateStudent(student_id)
+
+@router.post("/take_off_evaluation/{student_id}")
+def takeOffEvaluation(student_id: str):
+    return student_func.takeOffEvaluation(student_id)
+
 

@@ -11,6 +11,8 @@ import FilterPanel from "../component/new_checklist/filter_panel";
 import SearchResult from "../component/new_checklist/search_result";
 import CourseModal from "../component/new_checklist/courseModal";
 
+import { API_URL } from "../misc/url";
+
 // Helper function to add ordinal suffix to numbers
 function ordinal(n) {
     const suffixes = ["th", "st", "nd", "rd"];
@@ -46,6 +48,42 @@ export default function NewChecklist() {
         // This callback can be used to trigger additional UI updates if needed
         console.log(`Filter updated: ${key} = ${value}`);
     }
+
+    const handleEvaluate = async () => {
+        if (!currentStudent?.id) {
+            alert("Please select a student first");
+            return;
+        }
+
+        await axios.post(API_URL + `/student/evaluate/${currentStudent.id}`)
+        .then((res) =>{
+            alert("Student evaluated successfully");
+            setCurrentStudent({...currentStudent, evaluated: res.data.timestamp});
+        })
+        .catch((error) =>{
+            console.error("Error evaluating student:", error);
+            alert("Failed to evaluate student");
+        });
+    };
+
+    const handleTakeOffEvaluation = async () => {
+        if (!currentStudent?.id) {
+            alert("Please select a student first");
+            return;
+        }
+
+        await axios.post(API_URL + `/student/take_off_evaluation/${currentStudent.id}`)
+        .then((res) =>
+        {
+            alert("Evaluation removed succesfully");
+            setCurrentStudent({...currentStudent, evaluated: null});
+        })
+        .catch((error) =>{
+            console.error("Error removing evaluation:", error);
+            alert("Failed to remove evaluation");
+        });
+
+    };
 
     const handlePrint = () => {
         if (!currentStudent?.id || studentCourses.length === 0) {
@@ -230,6 +268,7 @@ export default function NewChecklist() {
                             </span>
                             <span>Program/Major: {currentStudent?.program_id}</span>
                             <span>Year: {currentStudent?.year} </span>
+                            <span>Evaluated: {currentStudent?.evaluated}</span>
                         </div>
 
                         <div className={style.right}>
@@ -242,11 +281,13 @@ export default function NewChecklist() {
                         
                     </div>
 
-                    <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
+                    <div style={{ display: "flex", gap: "10px", marginTop: "15px", flexWrap: "wrap" }}>
                         <button type="button" id="showCourse" onClick={() => setShowModal(true)}>See Course</button>
                         <button type="button" onClick={handlePrint} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                             <FaPrint /> Print
                         </button>
+                        <button type="button" onClick={handleEvaluate} style={{ backgroundColor: "#4CAF50", color: "white" }}>Evaluate</button>
+                        <button type="button" onClick={handleTakeOffEvaluation} style={{ backgroundColor: "#f44336", color: "white" }}>Take off Evaluation</button>
                     </div>
                 </div>
             </div>

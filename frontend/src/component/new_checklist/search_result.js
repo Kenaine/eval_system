@@ -26,6 +26,7 @@ export default function SearchResult({student_list, setCurrentStudent, setStuden
                     <th></th>
                     <th>Student ID</th>
                     <th>Name</th>
+                    <th>Evaluated</th>
                 </tr>
             </thead>
             <tbody>
@@ -34,6 +35,7 @@ export default function SearchResult({student_list, setCurrentStudent, setStuden
                         <td>{index + 1}</td>
                             <td>{student.id}</td>
                             <td>{student.name}</td>
+                            <td>{student.evaluated}</td>
                     </tr>
                 ))}
             </tbody>

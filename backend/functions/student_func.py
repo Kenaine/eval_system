@@ -98,7 +98,8 @@ def search_students(query: str):
         {
             "student_id":   student["id"],
             "id":           student["id"],
-            "name":         f"{student["l_name"]}, {student["f_name"]} {student["m_name"] or ''}".strip()
+            "name":         f"{student["l_name"]}, {student["f_name"]} {student["m_name"] or ''}".strip(),
+            "evaluated": str(student["evaluated"])
         }
 
         for student in valid_students[:10]
@@ -207,10 +208,10 @@ def evaluateStudent(student_id: str):
     if not student_ref.get().exists:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Student not found")
     
-    current_timestamp = str(datetime.datetime.now())
+    current_timestamp = datetime.datetime.now()
     student_ref.update({"evaluated": current_timestamp})
     
-    return JSONResponse(content={"message": "Student evaluated successfully", "timestamp": current_timestamp})
+    return JSONResponse(content={"message": "Student evaluated successfully", "timestamp": str(current_timestamp)})
 
 def takeOffEvaluation(student_id: str):
     student_collection = fs.collection("students")

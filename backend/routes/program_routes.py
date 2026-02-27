@@ -1,8 +1,8 @@
 from fastapi import APIRouter
-from functions.program_func import  getProgramFirestore
+from functions.program_func import getPrograms
 
 router = APIRouter()
 
 @router.get("/get")
-def getPrograms():
-    return getProgramFirestore()
+def getProgramsRoute():
+    return getPrograms()

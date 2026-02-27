@@ -7,7 +7,10 @@ from routes.student_courses_routes import router as SC_router
 from routes.program_routes import router as program_router
 
 origins = [
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "http://localhost:5000",
+    "https://*.vercel.app",  # Your Vercel frontend
+    "https://*.onrender.com"  # In case you host frontend on Render too
 ]
 
 app = FastAPI()

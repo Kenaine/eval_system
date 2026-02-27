@@ -1,8 +1,6 @@
-from db.firestore import fs
+from db.supabase_client import supabase
 
-#--------------------------Firestore Functions--------------------------
-def getProgramFirestore():
-    docs = fs.collection("programs").stream()
-    ids = [{"id": doc.id, "name": doc.to_dict()["name"], "specialization": doc.to_dict()["specialization"]} for doc in docs]
-
-    return ids
+#--------------------------Supabase Functions--------------------------
+def getPrograms():
+    result = supabase.table("programs").select("program_id", "program_name", "program_specialization").execute()
+    return result.data

@@ -2,30 +2,40 @@ import { useState } from "react";
 import logo from "../imgs/uphsllogo.png";
 import { useNavigate } from "react-router-dom";
 import style from "./../style/login.module.css";
+import { authHelpers } from "../lib/supabase";
 
-export default function Login({checkCredential}) {
+export default function Login() {
     const navigate = useNavigate();
-    const [login_id, setLoginID] = useState('');
+    const [studentId, setStudentId] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
 
     const handleSubmit = async (e) => {
-        try{
-            e.preventDefault(); // Prevent form from reloading page
-            const success = await checkCredential(login_id, password);
-            if (!success){
-                setError("Invalid login credentials");
-                throw new Error("Invalid login credentials");
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+
+        try {
+            const { data, error: signInError } = await authHelpers.signIn(`${studentId.trim()}@uphsl.edu.ph`, password);
+            
+            if (signInError) {
+                setError(signInError.message);
+                console.error('Login failed:', signInError);
+                return;
             }
 
-            navigate("/new");
+            if (data?.session) {
+                sessionStorage.setItem('supabase_token', data.session.access_token);
+                navigate("/new");
+            }
+        } catch (err) {
+            console.error('Login failed:', err);
+            setError("An unexpected error occurred. Please try again.");
+        } finally {
+            setLoading(false);
         }
-        catch (err){
-            console.error('Login failed: ', err.response?.data || err.message);
-            setError("Invalid login credentials");
-        }
-        
     };
 
     return (
@@ -42,11 +52,12 @@ export default function Login({checkCredential}) {
                                 required
                                 className={style.logForm}
                                 type="text"
-                                id="login_id"
-                                name="login_id"
-                                value={login_id}
+                                id="studentId"
+                                name="studentId"
+                                value={studentId}
                                 placeholder=" STUDENT NUMBER"
-                                onChange={(e) => setLoginID(e.target.value)}
+                                onChange={(e) => setStudentId(e.target.value)}
+                                disabled={loading}
                             /> <br />
                             <input
                                 required
@@ -57,6 +68,7 @@ export default function Login({checkCredential}) {
                                 value={password}
                                 placeholder=" PASSWORD"
                                 onChange={(e) => setPassword(e.target.value)}
+                                disabled={loading}
                             />
 
                             {/* Show error below password input */}
@@ -69,8 +81,9 @@ export default function Login({checkCredential}) {
                             <button
                                 className={style.logButton}
                                 type="submit"
+                                disabled={loading}
                             >
-                                <b>SIGN IN</b>
+                                <b>{loading ? 'SIGNING IN...' : 'SIGN IN'}</b>
                             </button>
                         </form>
                     </div>

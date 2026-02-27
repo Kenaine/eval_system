@@ -5,20 +5,20 @@ from fastapi import APIRouter
 
 router = APIRouter()
 
-#--------------------------Firestore Functions--------------------------
+#--------------------------Supabase Functions--------------------------
 @router.post("/add")
-def addCourse(course: CourseSchema):
-    courses_func.addCourseFirestore(course)
+def addCourseRoute(course: CourseSchema):
+    courses_func.addCourse(course)
     return {"message": "Course add successful"}
 
 @router.put("/edit/{course_id}")
-def editCourse(course: CourseSchema, course_id: str):
-    courses_func.editCourseFirestore(course, course_id)
+def editCourseRoute(course: CourseSchema, course_id: str):
+    courses_func.editCourse(course, course_id)
     return {"message": "Course edited succesful"}
 
 @router.delete("/delete/{course_id}")
-def deleteCourse(course_id: str):
-    courses_func.deleteCourseFirestore(course_id)
+def deleteCourseRoute(course_id: str):
+    courses_func.deleteCourse(course_id)
     return {"message": "Course deleted succesful"}
 
 @router.put("/update/{program_id}")

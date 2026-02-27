@@ -1,122 +1,111 @@
 # functions/student_course_func.py
 from fastapi import HTTPException, status
-from db.firestore import fs
-from math import ceil
+from db.supabase_client import supabase
 
 def addEntry(student_id: str, program_id: str):
-    PC_collection = fs.collection("program_course")
-    SC_collection = fs.collection("student_courses")
-
-    courses = PC_collection.where("program_id", "==", program_id).stream()
-
-    student_course = [
+    # Get all courses for the program
+    pc_result = supabase.table("program_course")\
+        .select("course_id")\
+        .eq("program_id", program_id)\
+        .execute()
+    
+    if not pc_result.data:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No courses found for this program")
+    
+    # Create student_course entries (only IDs, no denormalized data)
+    student_courses = [
         {
-            **course.to_dict(),
             "student_id": student_id,
+            "course_id": course["course_id"],
             "grade": None,
-            "remark": "",
-            "evaluated": False
-
+            "remark": ""
         }
-        for course in courses
+        for course in pc_result.data
     ]
-
-    chunk_size = 500
-
-    for chunk in range(ceil(len(student_course) / chunk_size)):
-        batch = fs.batch()
-
-        for i in student_course[chunk * chunk_size : (chunk + 1) * chunk_size]:
-            doc_ref = SC_collection.document()
-            batch.set(doc_ref, i)
-
-        batch.commit()
+    
+    # Insert in bulk
+    result = supabase.table("student_courses").insert(student_courses).execute()
+    return result
 
 def addCourseStudent(course_ids: list[str]):
-    student_course_collection = fs.collection("student_courses")
-    student_collection = fs.collection("students")
-
-    students_docs = student_collection.stream()
-    students_ids = [student.id for student in students_docs]
-
-    batch = fs.batch()
-    chunk_size = 500
-    index = 0
-
+    # Get all students
+    students_result = supabase.table("students").select("student_id").execute()
+    students_ids = [student["student_id"] for student in students_result.data]
+    
+    # Create student_course entries
+    entries = []
     for student_id in students_ids:
-
         for course_id in course_ids:
-            doc_ref = student_course_collection.document()
-            batch.set(doc_ref, {"student_id": student_id, "course_id": course_id, "grade": 0, "remark": None})
-            index += 1
-
-            if index % chunk_size == 0:
-                batch.commit()
-                batch = fs.batch()
-
-    batch.commit()
-
+            entries.append({
+                "student_id": student_id,
+                "course_id": course_id,
+                "grade": None,
+                "remark": ""
+            })
+    
+    # Insert in bulk
+    if entries:
+        result = supabase.table("student_courses").insert(entries).execute()
+    return result
 
 def deleteCourses(course_id: str):
-    SC_collection = fs.collection("student_courses")
-
-    courses = list(SC_collection.where("course_id", "==", course_id).stream())
-
-    if len(courses) == 0:
+    # Delete all student_courses for this course_id
+    result = supabase.table("student_courses")\
+        .delete()\
+        .eq("course_id", course_id)\
+        .execute()
+    
+    if not result.data:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Course not found")
     
-    chunk_size = 500
-
-    for chunk in range(ceil(len(courses) / chunk_size)):
-        batch = fs.batch()
-
-        for course in courses[chunk * chunk_size : (chunk + 1) * chunk_size]:
-            batch.delete(course.reference)
-
-        batch.commit()
+    return result
 
 def deleteStudent(student_id: str):
-    SC_collection = fs.collection("student_courses")
-
-    student_courses = list(SC_collection.where("student_id", "==", student_id).stream())
-
-    if len(student_courses) == 0:
+    # Delete all courses for this student
+    result = supabase.table("student_courses")\
+        .delete()\
+        .eq("student_id", student_id)\
+        .execute()
+    
+    if not result.data:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Student not found")
     
-    chunk_size = 500
-
-    for chunk in range(ceil(len(student_courses) / 4)):
-        batch = fs.batch()
-
-        for course in student_courses[chunk * chunk_size : (chunk + 1) * chunk_size]:
-            batch.delete(course.reference)
-
-        batch.commit()
+    return result
     
 def getStudentCourses(student_id: str, program_id: str):
-    SC_collection = fs.collection("student_courses")
-
-    student_courses = list(SC_collection.where("student_id", "==", student_id).stream())
-
-    if len(student_courses) == 0:
+    # Get student courses with full course details via join
+    result = supabase.table("student_courses")\
+        .select("*, courses(*), program_course!inner(sequence)")\
+        .eq("student_id", student_id)\
+        .eq("program_course.program_id", program_id)\
+        .execute()
+    
+    if not result.data:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Student not found")
     
     courses = []
-
-    for course in student_courses:
-        student_course_dict = course.to_dict()
-
-        courses.append({ "course_id": student_course_dict["course_id"],
-                        "course_name": student_course_dict["course_name"],
-                        "course_units": student_course_dict["course_units"],
-                        "year": student_course_dict["course_year"],
-                        "semester": student_course_dict["course_sem"],
-                        "grade": student_course_dict["grade"],
-                        "remark": student_course_dict["remark"] or "N/A",
-                        "sequence": student_course_dict["sequence"]
-                        })
+    for item in result.data:
+        course_data = item.get("courses", {})
+        program_course = item.get("program_course", [{}])[0] if isinstance(item.get("program_course"), list) else item.get("program_course", {})
         
-    courses.sort(key = lambda x: (x["year"], x["semester"], x["sequence"]))
+        # Calculate total units
+        units_lec = course_data.get("units_lec", 0)
+        units_lab = course_data.get("units_lab", 0)
+        
+        courses.append({
+            "course_id": course_data.get("course_id"),
+            "course_name": course_data.get("course_name"),
+            "course_units": units_lec + units_lab,
+            "units_lec": units_lec,
+            "units_lab": units_lab,
+            "semester": course_data.get("course_sem"),
+            "grade": item.get("grade"),
+            "remark": item.get("remark") or "N/A",
+            "sequence": program_course.get("sequence", 0)
+        })
+    
+    # Sort by sequence
+    courses.sort(key=lambda x: x["sequence"])
         
     return courses
 
@@ -134,51 +123,60 @@ def getGWA(courses):
             total_units += units
 
     if total_units == 0:
-        return 0.0  # or 0.0, or "N/A", depending on your app
+        return 0.0
 
-    return round(total_weighted / total_units, 4)  # Rounded to 4 decimal places
+    return round(total_weighted / total_units, 4)
 
 def updateGrades(course_id: str, student_id: str, grade: float, remark: str):
     if grade == -1.0:
         grade = None
-
-    student_course_collection = fs.collection("student_courses")
-
-    course = list(student_course_collection.where("course_id", "==", course_id).where("student_id", "==", student_id).stream())
-
-    if len(course) == 0:
+    
+    # Find the student_course record
+    course_result = supabase.table("student_courses")\
+        .select("*")\
+        .eq("course_id", course_id)\
+        .eq("student_id", student_id)\
+        .execute()
+    
+    if not course_result.data:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Student/Course not found")
     
-    course[0].reference.update({"grade": grade, "remark": remark})
+    # Update the record
+    result = supabase.table("student_courses")\
+        .update({"grade": grade, "remark": remark})\
+        .eq("course_id", course_id)\
+        .eq("student_id", student_id)\
+        .execute()
+    
+    return result
 
 def updateGradesBulk(student_id: str, grades_list: list):
-    student_course_collection = fs.collection("student_courses")
-    batch = fs.batch()
-    index = 0
-    chunk_size = 500
-    
     for grade_entry in grades_list:
         course_id = grade_entry["course_id"]
         grade = grade_entry["grade"]
-        
         
         if grade == -1.0:
             grade = None
         
         remark = getRemark(grade)
-        courses = list(student_course_collection.where("course_id", "==", course_id).where("student_id", "==", student_id).stream())
         
-        if len(courses) == 0:
+        # Check if course exists for student
+        courses = supabase.table("student_courses")\
+            .select("*")\
+            .eq("course_id", course_id)\
+            .eq("student_id", student_id)\
+            .execute()
+        
+        if not courses.data:
             raise HTTPException(status.HTTP_404_NOT_FOUND, f"Course {course_id} not found for student {student_id}")
         
-        batch.update(courses[0].reference, {"grade": grade, "remark": remark})
-        index += 1
-        
-        if index % chunk_size == 0:
-            batch.commit()
-            batch = fs.batch()
+        # Update the grade
+        supabase.table("student_courses")\
+            .update({"grade": grade, "remark": remark})\
+            .eq("course_id", course_id)\
+            .eq("student_id", student_id)\
+            .execute()
     
-    batch.commit()
     return {"message": "Grades updated successfully"}
 
 def getRemark(grade: float | None) -> str:

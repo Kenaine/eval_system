@@ -13,10 +13,24 @@ export default function FilterPanel({ onFilterChange }) {
     const transferStatus = ["True", "False"];
     const [programs, setPrograms] = useState({});
 
-    useEffect(() =>{
-        const prgms = JSON.parse(sessionStorage.getItem("programs"))
-
-        setPrograms(prgms);
+    useEffect(() => {
+        const prgms = JSON.parse(sessionStorage.getItem("programs"));
+        if (prgms) {
+            setPrograms(prgms);
+        } else {
+            // Fetch programs if not in sessionStorage
+            const token = sessionStorage.getItem('supabase_token');
+            axios.get(API_URL + '/program/get', {
+                headers: token ? { Authorization: `Bearer ${token}` } : {}
+            })
+                .then(res => {
+                    const programsMap = {};
+                    res.data.forEach(p => { programsMap[p.id] = p; });
+                    sessionStorage.setItem("programs", JSON.stringify(programsMap));
+                    setPrograms(programsMap);
+                })
+                .catch(err => console.error("Failed to load programs:", err));
+        }
     }, []);
 
     const handleFilterChange = (e) => {
@@ -93,7 +107,7 @@ export default function FilterPanel({ onFilterChange }) {
             <fieldset>
                 <legend>Programs</legend>
 
-                {Object.values(programs).map(program => (
+                {Object.values(programs || {}).map(program => (
                     <>
                         <label htmlFor={program.id}>
                             <input type="checkbox" defaultChecked={true} 

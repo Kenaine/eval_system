@@ -1,35 +1,30 @@
-from db.firestore import fs
+from db.supabase_client import supabase
 
 def getCourseByProgram(program_id: str):
-    program_courses_collection = fs.collection("program_course")
-
-    courses = program_courses_collection.where("program_id", "==", program_id).stream()
-
-    courses_dict = [course.to_dict() for course in courses]
-
-    courses_dict.sort(key=lambda x: (x["course_year"], x["course_sem"], x["sequence"]))
-
-    return courses_dict
+    # Join program_course with courses to get full course details
+    result = supabase.table("program_course")\
+        .select("*, courses(*)")\
+        .eq("program_id", program_id)\
+        .order("sequence")\
+        .execute()
+    
+    # Flatten the response to include course details
+    courses = []
+    for item in result.data:
+        course_data = item.get("courses", {})
+        courses.append({
+            **course_data,
+            "sequence": item["sequence"]
+        })
+    
+    return courses
 
 def updateOrder(program_id: str, course_ids: list[str]):
-    program_courses_collection = fs.collection("program_course")
-
-    courses = list(program_courses_collection.where("program_id", "==", program_id).stream())
-
-    course_map = {doc.to_dict["course_id"]: doc.reference for doc in courses}
-
-    batch = fs.batch()
-    chunk_size = 500
-
+    # Update sequence for each course in the order provided
     for index, course_id in enumerate(course_ids):
-        if course_id in course_map:
-            batch.update(course_map[course_id], {"sequence": index})
-        else:
-            reference = program_courses_collection.document()
-
-        if (index + 1) % chunk_size == 0:
-            batch.commit()
-            batch = fs.batch()
-
-    batch.commit()
+        supabase.table("program_course")\
+            .update({"sequence": index})\
+            .eq("program_id", program_id)\
+            .eq("course_id", course_id)\
+            .execute()
 

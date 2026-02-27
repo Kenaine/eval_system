@@ -3,12 +3,19 @@ from fastapi.responses import JSONResponse
 from functions.student_course_func import getStudentCourses, getGWA, deleteCourses as DS
 from schema.student_schema import Student
 from schema.user_schema import User
-from db.firestore import fs
+from db.supabase_client import supabase
 
 students_list = []
-student_collection = fs.collection("students").stream()
 
-students_list = [{**student.to_dict(), "id": student.id} for student in student_collection]
+def loadStudents():
+    """Load all students into memory for filtering"""
+    global students_list
+    result = supabase.table("students").select("*").execute()
+    students_list = result.data
+
+# Load students on module import
+loadStudents()
+
 active_filter = {
     "status": {"value": "", "active": False}, 
     "is_transferee": {"value": "", "active": False},
@@ -21,52 +28,57 @@ search_filter = {
     "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"]}
 
 def addStudent(student: Student):
-    student_collection = fs.collection("students")
-
     student_info = student.model_dump()
-
-    students_list.append(student.model_dump())
-
-    del student_info["id"]
-    student_collection.document(student.id).set(student_info)
+    
+    result = supabase.table("students").insert(student_info).execute()
+    
+    # Reload students list
+    loadStudents()
+    
+    return result
 
 def editStudent(student: Student):
-    student_collection = fs.collection("students")
-
     student_info = student.model_dump()
-    del student_info["id"]
-
-    student_collection.document(student.id).set(student_info)
+    student_id = student_info["student_id"]
+    
+    result = supabase.table("students").update(student_info).eq("student_id", student_id).execute()
+    
+    # Reload students list
+    loadStudents()
+    
+    return result
 
 def deleteStudent(student_id: str):
-    student = fs.collection("students").document(student_id)
-
-    if not student.get().exists:
+    # Check if student exists
+    student = supabase.table("students").select("*").eq("student_id", student_id).execute()
+    
+    if not student.data:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Student not found")
     
-    student.delete()
+    result = supabase.table("students").delete().eq("student_id", student_id).execute()
+    
+    # Reload students list
+    loadStudents()
+    
+    return result
 
 def getStudent(student_id: str = None):
     if not student_id:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Admin must specify a student ID.")
     
-    student_collection = fs.collection("students")
+    result = supabase.table("students").select("*").eq("student_id", student_id).execute()
     
-    student_doc = student_collection.document(student_id)
-    student = student_doc.get()
-
-    if not student.exists:
+    if not result.data:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Student not found")
     
-    student_data = student.to_dict()
+    student_data = result.data[0]
 
-    courses = getStudentCourses(student_doc.id, student_data["program_id"])
+    courses = getStudentCourses(student_id, student_data["program_id"])
 
     total_units = sum(course["course_units"] for course in courses)
     units_taken = sum(course["course_units"] for course in courses if course["remark"] == "Passed")
     gwa = getGWA(courses)
 
-    student_data["id"] = student.id
     student_data["gwa"] = gwa
     student_data["units_taken"] = units_taken
     student_data["total_units_required"] = total_units
@@ -87,19 +99,18 @@ def search_students(query: str):
     pool = apply_filter()
 
     for student in pool:
-        full_name = " ".join(filter(None, [student["l_name"], student["f_name"], student["m_name"]])).lower()
+        full_name = " ".join(filter(None, [student["l_name"], student["f_name"], student.get("m_name", "")])).lower()
 
-        if query not in full_name and query not in student["id"]:
+        if query not in full_name and query not in student["student_id"]:
             continue
 
         valid_students.append(student)
 
     result = [
         {
-            "student_id":   student["id"],
-            "id":           student["id"],
-            "name":         f"{student["l_name"]}, {student["f_name"]} {student["m_name"] or ''}".strip(),
-            "evaluated": str(student["evaluated"])
+            "student_id":   student["student_id"],
+            "name":         f"{student['l_name']}, {student['f_name']} {student.get('m_name', '') or ''}".strip(),
+            "evaluated":    str(student.get("evaluated", ""))
         }
 
         for student in valid_students[:10]
@@ -202,24 +213,30 @@ def reset_filter():
 def evaluateStudent(student_id: str):
     import datetime
     
-    student_collection = fs.collection("students")
-    student_ref = student_collection.document(student_id)
+    # Check if student exists
+    student = supabase.table("students").select("*").eq("student_id", student_id).execute()
     
-    if not student_ref.get().exists:
+    if not student.data:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Student not found")
     
-    current_timestamp = datetime.datetime.now()
-    student_ref.update({"evaluated": current_timestamp})
+    current_timestamp = int(datetime.datetime.now().timestamp() * 1000)  # Convert to milliseconds
+    result = supabase.table("students").update({"evaluated": current_timestamp}).eq("student_id", student_id).execute()
+    
+    # Reload students list
+    loadStudents()
     
     return JSONResponse(content={"message": "Student evaluated successfully", "timestamp": str(current_timestamp)})
 
 def takeOffEvaluation(student_id: str):
-    student_collection = fs.collection("students")
-    student_ref = student_collection.document(student_id)
+    # Check if student exists
+    student = supabase.table("students").select("*").eq("student_id", student_id).execute()
     
-    if not student_ref.get().exists:
+    if not student.data:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Student not found")
     
-    student_ref.update({"evaluated": None})
+    result = supabase.table("students").update({"evaluated": None}).eq("student_id", student_id).execute()
+    
+    # Reload students list
+    loadStudents()
     
     return JSONResponse(content={"message": "Evaluation removed successfully"})

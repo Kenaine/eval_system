@@ -1,8 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from schema.student_schema import Student
-from schema.user_schema import User
 from functions import student_func
-from functions.auth_func import getCurrentUser, checkRole
 from services.student_services import addStudentHelper
 
 

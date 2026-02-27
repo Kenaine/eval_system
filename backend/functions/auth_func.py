@@ -1,89 +1,111 @@
-from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException, status, Request
-from schema.user_schema import User
-from passlib.context import CryptContext
-from jose import JWTError, jwt
-from datetime import timedelta
-import datetime
+from typing import Optional
 
-from db.firestore import fs
+from db.supabase_client import supabase
 
-pwd_contx = CryptContext(schemes=['bcrypt'])
-
-SECRET_KEY = "your-secret-key"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 120
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-
-def login(user_id: str, passwd: str):
+def get_user_from_token(request: Request) -> dict:
+    """
+    Extract and verify Supabase Auth token from request headers.
+    Returns the user data if authenticated.
+    """
+    auth_header = request.headers.get("Authorization")
     
-    user_collection = fs.collection("users")
-
-    user = user_collection.document(user_id).get()
-
-    if not user.exists:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "User not found")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing or invalid authorization header"
+        )
     
-    user = user.to_dict()
-
-    if not pwd_contx.verify(passwd, user["hashed_pass"]):
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "ID/Password is wrong")
+    token = auth_header.split(" ")[1]
     
-    token = createToken({"sub": user_id}, timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
-
-    return {
-        "access_token": token,
-        "token_type":   "bearer",
-        "student_id":   user_id,
-        "role":         user["role"]
-    }
-
-def getCurrentUser(request: Request):
-    user_collection = fs.collection("users")
-
-    token = request.cookies.get("access_token")
-
-    if token is None:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="No token found in cookies")
-
     try:
-        jwt_decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        login_id = jwt_decoded.get("sub")
+        # Verify the JWT token with Supabase
+        user_response = supabase.auth.get_user(token)
+        
+        if not user_response or not user_response.user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or expired token"
+            )
+        
+        return user_response.user
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Authentication failed: {str(e)}"
+        )
 
-        if not login_id:
-            raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload")
-        
-        user = user_collection.document(login_id).get()
-        
-        if not user.exists:
-            raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="User not found")
-        
-        user_dict = user.to_dict()
-        user_dict["login_id"] = login_id
-        
-        return user_dict
-
-    except JWTError:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Failed to decode token")
+def get_current_user(request: Request = None) -> dict:
+    """
+    Dependency to get the currently authenticated user.
+    """
+    if request is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="No request context"
+        )
     
-def getCurrentUserRole(user: User = Depends(getCurrentUser)):
-    return user["role"]
+    return get_user_from_token(request)
 
-def checkRole(roles: list[str]):
-    def checker(role: str = Depends(getCurrentUserRole)):
+def get_user_profile(user_id: str) -> Optional[dict]:
+    """
+    Get user profile from profiles table.
+    """
+    result = supabase.table("profiles").select("*").eq("id", user_id).execute()
+    
+    if not result.data:
+        return None
+    
+    return result.data[0]
+
+def get_current_user_profile(request: Request) -> dict:
+    """
+    Get profile of currently authenticated user.
+    """
+    user = get_current_user(request)
+    profile = get_user_profile(user.id)
+    
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User profile not found"
+        )
+    
+    return profile
+
+def get_current_user_role(request: Request) -> str:
+    """
+    Get role of currently authenticated user.
+    """
+    profile = get_current_user_profile(request)
+    return profile.get("role", "student")
+
+def check_role(roles: list[str]):
+    """
+    Dependency to check if user has required role.
+    """
+    def checker(request: Request):
+        role = get_current_user_role(request)
         if role not in roles:
-            raise HTTPException(status.HTTP_403_FORBIDDEN, "User is not authorized to do current action")
-        
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"User role '{role}' not authorized. Required roles: {roles}"
+            )
         return role
-        
+    
     return Depends(checker)
 
-def createToken(user: dict, expire: timedelta | None = None):
-    to_encode = user.copy()
+def is_admin(request: Request) -> bool:
+    """
+    Check if current user is an admin.
+    """
+    try:
+        role = get_current_user_role(request)
+        return role == "admin"
+    except:
+        return False
 
-    if expire:
-        expr = datetime.datetime.now(datetime.timezone.utc) + expire
     else:
         expr = datetime.datetime.now(datetime.timezone.utc) + timedelta(15)
     to_encode.update({"exp": expr})

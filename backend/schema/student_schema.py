@@ -1,14 +1,15 @@
 from pydantic import BaseModel
 
 class Student(BaseModel):
-    id:             str
-    email:          str
-    dept:           str
+    student_id:     str
     program_id:     str
-    f_name:         str
-    l_name:         str
-    m_name:         str | None
-    year:           int
-    status:         str
+    archived:       bool = False
     evaluated:      int | None = None
+    f_name:         str
+    gwa:            float | None = None
+    is_transferee:  bool = False
+    l_name:         str
+    m_name:         str | None = None
+    status:         str
+    year:           int
 

@@ -46,7 +46,7 @@ export default function AddStudent({ onSubmit }) {
   useEffect(() => {
     const progrs = JSON.parse(sessionStorage.getItem("programs"));
 
-    setPrograms(progrs);
+    setPrograms(progrs || {});
 
     if(showModal){
       document.body.style.overflow = "hidden";

@@ -41,7 +41,7 @@ export default function Dashbaord() {
         });
         
         const programs = JSON.parse(sessionStorage.getItem("programs"));
-        setPrograms(programs);
+        setPrograms(programs || {});
     }, []);
 
     

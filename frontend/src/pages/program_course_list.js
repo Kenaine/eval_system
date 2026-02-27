@@ -26,7 +26,7 @@ export default function ProgramCourseList() {
   useEffect(() => {
     const programs = JSON.parse(sessionStorage.getItem("programs"));
 
-    setPrograms(programs);
+    setPrograms(programs || {});
   }, []);
 
   const getCourses = async (program_id) => {

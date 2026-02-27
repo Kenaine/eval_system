@@ -67,7 +67,7 @@ export default function EditStudent({ onSubmit, student, isViewing }) {
     useEffect(() => {
         const progrs = JSON.parse(sessionStorage.getItem("programs"));
 
-        setPrograms(progrs);
+        setPrograms(progrs || {});
     }, []);
 
     return (

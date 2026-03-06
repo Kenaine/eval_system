@@ -9,8 +9,6 @@ from routes.program_routes import router as program_router
 origins = [
     "http://localhost:3000",
     "http://localhost:5000",
-    "https://*.vercel.app",  # Your Vercel frontend
-    "https://*.onrender.com"  # In case you host frontend on Render too
 ]
 
 app = FastAPI()
@@ -23,6 +21,7 @@ app.include_router(program_router, prefix="/program", tags=["program"])
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=r"https://.*\.(vercel\.app|onrender\.com)",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]

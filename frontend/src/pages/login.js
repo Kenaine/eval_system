@@ -2,11 +2,11 @@ import { useState } from "react";
 import logo from "../imgs/uphsllogo.png";
 import { useNavigate } from "react-router-dom";
 import style from "./../style/login.module.css";
-import { authHelpers } from "../lib/supabase";
+import apiClient from "../lib/api";
 
 export default function Login() {
     const navigate = useNavigate();
-    const [studentId, setStudentId] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -18,21 +18,37 @@ export default function Login() {
         setLoading(true);
 
         try {
-            const { data, error: signInError } = await authHelpers.signIn(`${studentId.trim()}@uphsl.edu.ph`, password);
+            // Call backend login endpoint
+            const response = await apiClient.post('/auth/login', {
+                username: username.trim(),
+                password: password
+            });
             
-            if (signInError) {
-                setError(signInError.message);
-                console.error('Login failed:', signInError);
-                return;
-            }
-
-            if (data?.session) {
-                sessionStorage.setItem('supabase_token', data.session.access_token);
+            if (response.data?.access_token) {
+                // Store token in session storage
+                sessionStorage.setItem('supabase_token', response.data.access_token);
+                
+                // Store user profile if available
+                if (response.data.profile) {
+                    sessionStorage.setItem('user_profile', JSON.stringify(response.data.profile));
+                }
+                
+                // Navigate to main page
                 navigate("/new");
+            } else {
+                setError("Login failed. Please try again.");
             }
         } catch (err) {
             console.error('Login failed:', err);
-            setError("An unexpected error occurred. Please try again.");
+            
+            // Handle error response
+            if (err.response?.data?.detail) {
+                setError(err.response.data.detail);
+            } else if (err.response?.status === 401) {
+                setError("Invalid username or password");
+            } else {
+                setError("An unexpected error occurred. Please try again.");
+            }
         } finally {
             setLoading(false);
         }
@@ -52,11 +68,11 @@ export default function Login() {
                                 required
                                 className={style.logForm}
                                 type="text"
-                                id="studentId"
-                                name="studentId"
-                                value={studentId}
-                                placeholder=" STUDENT NUMBER"
-                                onChange={(e) => setStudentId(e.target.value)}
+                                id="username"
+                                name="username"
+                                value={username}
+                                placeholder=" USERNAME / STUDENT ID"
+                                onChange={(e) => setUsername(e.target.value)}
                                 disabled={loading}
                             /> <br />
                             <input
@@ -73,7 +89,13 @@ export default function Login() {
 
                             {/* Show error below password input */}
                             {error && (
-                                <div style={{ color: 'red', marginTop: '10px', marginBottom: '-10px' }}>
+                                <div style={{ 
+                                    color: 'red', 
+                                    marginTop: '10px', 
+                                    marginBottom: '10px',
+                                    fontSize: '14px',
+                                    wordBreak: 'break-word'
+                                }}>
                                     {error}
                                 </div>
                             )}

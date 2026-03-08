@@ -10,7 +10,7 @@ export default function EditStudent({ onSubmit, student, isViewing }) {
     const [programs, setPrograms] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({
-        id: "",
+        student_id: "",
         email: "",
         dept: "",
         program_id: "",
@@ -51,7 +51,7 @@ export default function EditStudent({ onSubmit, student, isViewing }) {
     useEffect(() => {
         if (student) {
             setFormData({
-                id: student.id || "",
+                student_id: student.student_id || "",
                 email: student.email || "",
                 dept: student.dept || "",
                 program_id: student.program_id || "",

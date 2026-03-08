@@ -7,7 +7,6 @@ import Dashbaord from "./pages/dashboard";
 import NewChecklist from "./pages/new_checklist";
 import './App.css';
 import apiClient from "./lib/api";
-import { supabase, authHelpers } from "./lib/supabase";
 
 const UserContext = createContext(null)
 const CoursesContext = createContext(null)
@@ -16,39 +15,15 @@ const ProgramFunc = createContext(null)
 function App() {
   const [currentUser, setCurrentUser] = useState(null); 
   const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  // Check for existing session on mount
+  // Restore session from sessionStorage on mount (custom JWT flow)
   useEffect(() => {
-    checkUser();
-    
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        setCurrentUser(session.user);
-        sessionStorage.setItem('supabase_token', session.access_token);
-      } else {
-        setCurrentUser(null);
-        sessionStorage.removeItem('supabase_token');
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const checkUser = async () => {
-    try {
-      const { data: { session } } = await authHelpers.getSession();
-      if (session?.user) {
-        setCurrentUser(session.user);
-        sessionStorage.setItem('supabase_token', session.access_token);
-      }
-    } catch (error) {
-      console.error('Error checking user:', error);
-    } finally {
-      setLoading(false);
+    const token = sessionStorage.getItem('supabase_token');
+    if (token) {
+      const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
+      setCurrentUser(profile);
     }
-  };
+  }, []);
 
   const programGet = async () => {
     try {
@@ -73,10 +48,6 @@ function App() {
   }; 
 
   
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <ProgramFunc.Provider value={programGet}>
       <UserContext.Provider value={[currentUser, setCurrentUser]}>

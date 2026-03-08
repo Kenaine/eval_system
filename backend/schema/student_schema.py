@@ -4,6 +4,8 @@ class Student(BaseModel):
     student_id:     str
     program_id:     str
     archived:       bool = False
+    dept:           str | None = None
+    email:          str | None = None
     evaluated:      int | None = None
     f_name:         str
     gwa:            float | None = None

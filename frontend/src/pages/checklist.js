@@ -40,7 +40,7 @@ export default function Checklist() {
                 student,
                 { withCredentials: true }
             );
-            handleStudentSelect(student.id);
+            handleStudentSelect(student.student_id);
         } catch (err) {
             console.error("Editing failed:", err);
         }
@@ -89,7 +89,7 @@ export default function Checklist() {
 
                     <div className={style.studentResidency}>
                         <div className={style.lBlock}>
-                            <span>Student ID: {currentUser?.id ?? selectedStudent?.id ?? "N/A"}</span>
+                            <span>Student ID: {currentUser?.student_id ?? selectedStudent?.student_id ?? "N/A"}</span>
                             <span>
                                 Student Name: {currentUser?.l_name ?? selectedStudent?.l_name ?? "N/A"},  
                                 {currentUser?.f_name ?? selectedStudent?.f_name ?? ""}
@@ -108,7 +108,7 @@ export default function Checklist() {
                     </div>
 
                     <CourseTable
-                        student_id={selectedStudent?.id}
+                        student_id={selectedStudent?.student_id}
                         courses={courses}
                         role={currentUser?.role}
                         onSelectStudent={handleStudentSelect}

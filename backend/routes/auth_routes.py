@@ -129,3 +129,51 @@ def login(credentials: LoginRequest):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Login failed: {str(e)}"
         )
+
+
+class PasswordChangeRequest(BaseModel):
+    new_password: str
+
+
+@router.post("/edit-password/{username}")
+def edit_password(username: str, request: PasswordChangeRequest):
+    """
+    Change password for a user in user_credentials table.
+    Ported from course_checklist editPass, adapted for user_credentials table.
+    """
+    result = supabase.table("user_credentials").select("*").eq("username", username).execute()
+
+    if not result.data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+
+    # Respect bcrypt 72-byte limit (same guard as login)
+    safe_password = request.new_password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
+    hashed = pwd_context.hash(safe_password)
+
+    supabase.table("user_credentials").update({
+        "hashed_password": hashed
+    }).eq("username", username).execute()
+
+    return {"message": "Password updated successfully"}
+
+
+@router.delete("/delete-user/{username}")
+def delete_user(username: str):
+    """
+    Delete a user from user_credentials table.
+    Ported from course_checklist deleteUser, adapted for user_credentials table.
+    """
+    result = supabase.table("user_credentials").select("*").eq("username", username).execute()
+
+    if not result.data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+
+    supabase.table("user_credentials").delete().eq("username", username).execute()
+
+    return {"message": "User deleted successfully"}

@@ -9,7 +9,7 @@ export default function AddStudent({ onSubmit }) {
   const [programs, setPrograms] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
-    id: "",
+    student_id: "",
     email: "",
     dept: "",
     program_id: "",
@@ -31,7 +31,7 @@ export default function AddStudent({ onSubmit }) {
     onSubmit(formData);
     setShowModal(false);
     setFormData({
-      id: "",
+      student_id: "",
       email: "",
       dept: "",
       program_id: "",

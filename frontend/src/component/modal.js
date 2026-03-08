@@ -9,7 +9,7 @@ export default function Modal({title, programs, formData, handleSubmit, handleCh
                 <h3>{title}</h3>
                 <form onSubmit={handleSubmit} className={style.modalForm}>
                 {isEdit === false && (
-                    <input name="id" value={formData.id} onChange={handleChange} placeholder="Student ID" required />
+                    <input name="student_id" value={formData.student_id} onChange={handleChange} placeholder="Student ID" required />
                 )}
                 <input name="email" value={formData.email} onChange={handleChange} placeholder="Email" required />
                 <input name="dept" value={formData.dept} onChange={handleChange} placeholder="Department" required />

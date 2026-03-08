@@ -9,6 +9,7 @@ import StudentSearchBar from "../component/searchBar";
 import CourseTable from "../component/student_table";
 import AddStudent from "../component/addStudent";
 import EditStudent from "../component/editStudent";
+import BulkUploadStudent from "../component/bulkUploadStudent";
 import HeaderWebsite from "../component/header";
 import { BulkGradeUpload } from "../component/student_table";
 
@@ -74,6 +75,9 @@ export default function Checklist() {
                         <span className={style.buttons}>
 
                             <AddStudent onSubmit={addStudent} />
+                            {currentUser?.role !== "student" && (
+                              <BulkUploadStudent onSuccess={() => {}} />
+                            )}
                             <EditStudent
                                 onSubmit={editStudent}
                                 student={selectedStudent}

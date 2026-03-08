@@ -1,7 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+import csv
+import io
+from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File
+from fastapi.responses import JSONResponse
 from schema.student_schema import Student
 from functions import student_func
-from services.student_services import addStudentHelper
+from services.student_services import addStudentHelper, bulkAddStudents
 
 
 router = APIRouter()
@@ -50,4 +53,35 @@ def evaluateStudent(student_id: str):
 def takeOffEvaluation(student_id: str):
     return student_func.takeOffEvaluation(student_id)
 
+
+@router.post("/bulk-upload")
+async def bulk_upload_students(file: UploadFile = File(...)):
+    """
+    Accept a CSV file and insert each row as a student.
+    Required columns: student_id, f_name, l_name, program_id, year, status
+    Optional columns: m_name, is_transferee, dept, email, gwa, evaluated, archived
+
+    Returns a summary: { inserted, failed, errors: [{row, reason}] }
+    """
+    if not file.filename.endswith(".csv"):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Only .csv files are accepted")
+
+    content = await file.read()
+    try:
+        text = content.decode("utf-8-sig")  # strip BOM if present
+    except UnicodeDecodeError:
+        text = content.decode("latin-1")
+
+    reader = csv.DictReader(io.StringIO(text))
+    required = {"student_id", "f_name", "l_name", "program_id", "year", "status"}
+    if not required.issubset(set(reader.fieldnames or [])):
+        missing = required - set(reader.fieldnames or [])
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            f"CSV missing required columns: {', '.join(sorted(missing))}"
+        )
+
+    rows = list(reader)
+    results = bulkAddStudents(rows)
+    return JSONResponse(status_code=207, content=results)
 

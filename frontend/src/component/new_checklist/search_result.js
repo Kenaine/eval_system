@@ -1,21 +1,18 @@
 import React from "react";
-import axios from "axios";
+import apiClient from "../../lib/api";
 
 import style from "../../style/new_checklist/new_checklist.module.css";
-
-import { API_URL } from "../../misc/url";
 
 export default function SearchResult({student_list, setCurrentStudent, setStudentCourses}){
 
     const getStudent = async (student_id) => {
         try {
-            const res = await axios.get(API_URL + `/student/get/${student_id}`, {
-                withCredentials: true,
-            });
+            const res = await apiClient.get(`/student/get/${student_id}`);
             setCurrentStudent(res.data.student);
             setStudentCourses(res.data.courses);
         } catch (err) {
             console.error("Failed to fetch student details: ", err);
+            alert("Failed to load student information. Please try again.");
         }
     }
 

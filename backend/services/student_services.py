@@ -13,7 +13,7 @@ def addStudentHelper(student: Student):
     # bcrypt-hashed automatically on the student's first login.
     supabase.table("user_credentials").insert({
         "username":       student.student_id,
-        "hashed_password": f"TEMP_{student.student_id}",
+        "hashed_password": "TEMP_#Uphsl123",
         "role":           "student",
         "student_id":     student.student_id,
         "full_name":      f"{student.f_name} {student.l_name}"

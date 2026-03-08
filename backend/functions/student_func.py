@@ -95,13 +95,14 @@ def getStudent(student_id: str = None):
 
 def search_students(query: str):
     valid_students = []
+    query = query.lower()  # normalise once so name comparison is case-insensitive
 
     pool = apply_filter()
 
     for student in pool:
         full_name = " ".join(filter(None, [student["l_name"], student["f_name"], student.get("m_name", "")])).lower()
 
-        if query not in full_name and query not in student["student_id"]:
+        if query not in full_name and query not in student["student_id"].lower():
             continue
 
         valid_students.append(student)

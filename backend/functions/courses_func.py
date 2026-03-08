@@ -5,6 +5,11 @@ from fastapi import HTTPException, status
 from db.supabase_client import supabase
 
 #--------------------------Supabase Functions--------------------------
+def getAllCourses():
+    """Get all courses from the courses table"""
+    result = supabase.table("courses").select("*").execute()
+    return result.data
+
 def addCourse(course: CourseSchema):
     course_dict = course.model_dump()
     

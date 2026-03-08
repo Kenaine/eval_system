@@ -6,6 +6,10 @@ from fastapi import APIRouter
 router = APIRouter()
 
 #--------------------------Supabase Functions--------------------------
+@router.get("/getAll")
+def getAllCourses():
+    return courses_func.getAllCourses()
+
 @router.post("/add")
 def addCourseRoute(course: CourseSchema):
     courses_func.addCourse(course)

@@ -73,24 +73,29 @@ def deleteStudent(student_id: str):
     return result
     
 def getStudentCourses(student_id: str, program_id: str):
-    # Get student courses with full course details via join
+    # Get student courses with full course details via left join
     result = supabase.table("student_courses")\
-        .select("*, courses(*), program_course!inner(sequence)")\
+        .select("*, courses(*), program_course(sequence)")\
         .eq("student_id", student_id)\
-        .eq("program_course.program_id", program_id)\
         .execute()
     
-    if not result.data:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Student not found")
-    
+    # Filter by program_id if program_course data exists, otherwise include all
     courses = []
     for item in result.data:
         course_data = item.get("courses", {})
-        program_course = item.get("program_course", [{}])[0] if isinstance(item.get("program_course"), list) else item.get("program_course", {})
+        program_course_data = item.get("program_course")
+        
+        # If program_course is a list, get first item; if None, use empty dict
+        if isinstance(program_course_data, list):
+            program_course = program_course_data[0] if program_course_data else {}
+        elif program_course_data is None:
+            program_course = {}
+        else:
+            program_course = program_course_data
         
         # Calculate total units
-        units_lec = course_data.get("units_lec", 0)
-        units_lab = course_data.get("units_lab", 0)
+        units_lec = course_data.get("units_lec", 0) or 0
+        units_lab = course_data.get("units_lab", 0) or 0
         
         courses.append({
             "course_id": course_data.get("course_id"),
@@ -99,6 +104,7 @@ def getStudentCourses(student_id: str, program_id: str):
             "units_lec": units_lec,
             "units_lab": units_lab,
             "semester": course_data.get("course_sem"),
+            "year": course_data.get("course_year", 1),
             "grade": item.get("grade"),
             "remark": item.get("remark") or "N/A",
             "sequence": program_course.get("sequence", 0)

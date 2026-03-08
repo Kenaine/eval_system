@@ -268,26 +268,32 @@ export default function NewChecklist() {
                             </span>
                             <span>Program/Major: {currentStudent?.program_id}</span>
                             <span>Year: {currentStudent?.year} </span>
-                            <span>Evaluated: {currentStudent?.evaluated}</span>
+                            <span>Evaluated: {currentStudent?.evaluated || 'Not evaluated'}</span>
                         </div>
 
                         <div className={style.right}>
                             <span>Status: {currentStudent?.status} </span>
-                            <span>Total Units: {currentStudent?.units_taken} </span>
-                            <span>GWA: {currentStudent?.gwa} </span>
-                            <span>Course Total Units: {currentStudent?.total_units_required}</span>
+                            <span>Total Units: {currentStudent?.units_taken || 0} </span>
+                            <span>GWA: {currentStudent?.gwa || 0} </span>
+                            <span>Course Total Units: {currentStudent?.total_units_required || 0}</span>
                         </div>
 
                         
                     </div>
 
-                    <div style={{ display: "flex", gap: "10px", marginTop: "15px", flexWrap: "wrap" }}>
-                        <button type="button" id="showCourse" onClick={() => setShowModal(true)}>See Course</button>
-                        <button type="button" onClick={handlePrint} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <div className={style.buttonGroup}>
+                        <button className={style.btnPrimary} type="button" onClick={() => setShowModal(true)}>
+                            See Course
+                        </button>
+                        <button className={style.btnSecondary} type="button" onClick={handlePrint}>
                             <FaPrint /> Print
                         </button>
-                        <button type="button" onClick={handleEvaluate} style={{ backgroundColor: "#4CAF50", color: "white" }}>Evaluate</button>
-                        <button type="button" onClick={handleTakeOffEvaluation} style={{ backgroundColor: "#f44336", color: "white" }}>Take off Evaluation</button>
+                        <button className={style.btnSuccess} type="button" onClick={handleEvaluate}>
+                            Evaluate
+                        </button>
+                        <button className={style.btnDanger} type="button" onClick={handleTakeOffEvaluation}>
+                            Take off Evaluation
+                        </button>
                     </div>
                 </div>
             </div>

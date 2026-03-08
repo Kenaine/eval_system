@@ -114,11 +114,6 @@ fieldset{
     width: 69%;
 }
 
-.searchResult > tbody > tr:nth-child(even){
-    background-color: rgb(233, 242, 255);
-}
-
-
 .searchResult > tbody > tr > td:first-child{
     width: 1%;
 }
@@ -127,10 +122,22 @@ fieldset{
     width: 69%;
 }
 
-
 .searchResult > tbody > tr{
     display: table;
     width: 100%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.searchResult > tbody > tr:hover{
+    background-color: #e3f2fd;
+    transform: scale(1.01);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.searchResult > tbody > tr:active{
+    background-color: #bbdefb;
+    transform: scale(0.99);
 }
 
 .tableData{

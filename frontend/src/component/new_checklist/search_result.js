@@ -31,9 +31,9 @@ export default function SearchResult({student_list, setCurrentStudent, setStuden
             </thead>
             <tbody>
                 {student_list.map((student, index) => (
-                    <tr key={index} onClick={() => getStudent(student.id)}>
+                    <tr key={index} onClick={() => getStudent(student.student_id)}>
                         <td>{index + 1}</td>
-                            <td>{student.id}</td>
+                            <td>{student.student_id}</td>
                             <td>{student.name}</td>
                             <td>{student.evaluated}</td>
                     </tr>

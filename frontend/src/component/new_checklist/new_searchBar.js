@@ -1,9 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { FaSearch } from "react-icons/fa";
 import style from "../../style/new_checklist/new_checklist.module.css";
-
-import { API_URL } from "../../misc/url";
+import apiClient from "../../lib/api";
 
 export default function NewStudentSearchBar({setStudents}) {
     const [inputValue, setInputValue] = useState("");
@@ -14,9 +12,7 @@ export default function NewStudentSearchBar({setStudents}) {
             return;
         }
 
-        axios.get(API_URL + `/student/search?q=${inputValue}`, {
-            withCredentials: true
-        })
+        apiClient.get(`/student/search?q=${inputValue}`)
         .then((res) => {
             setStudents(res.data);
         })

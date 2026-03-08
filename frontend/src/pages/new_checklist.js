@@ -50,12 +50,12 @@ export default function NewChecklist() {
     }
 
     const handleEvaluate = async () => {
-        if (!currentStudent?.id) {
+        if (!currentStudent?.student_id) {
             alert("Please select a student first");
             return;
         }
 
-        await axios.post(API_URL + `/student/evaluate/${currentStudent.id}`)
+        await axios.post(API_URL + `/student/evaluate/${currentStudent.student_id}`)
         .then((res) =>{
             alert("Student evaluated successfully");
             setCurrentStudent({...currentStudent, evaluated: res.data.timestamp});
@@ -67,12 +67,12 @@ export default function NewChecklist() {
     };
 
     const handleTakeOffEvaluation = async () => {
-        if (!currentStudent?.id) {
+        if (!currentStudent?.student_id) {
             alert("Please select a student first");
             return;
         }
 
-        await axios.post(API_URL + `/student/take_off_evaluation/${currentStudent.id}`)
+        await axios.post(API_URL + `/student/take_off_evaluation/${currentStudent.student_id}`)
         .then((res) =>
         {
             alert("Evaluation removed succesfully");
@@ -86,7 +86,7 @@ export default function NewChecklist() {
     };
 
     const handlePrint = () => {
-        if (!currentStudent?.id || studentCourses.length === 0) {
+        if (!currentStudent?.student_id || studentCourses.length === 0) {
             alert("Please select a student first");
             return;
         }
@@ -202,7 +202,7 @@ export default function NewChecklist() {
             <body>
                 <h1>Curriculum Checklist</h1>
                 <div class="student-info">
-                    <p><strong>Student ID:</strong> ${currentStudent?.id}</p>
+                    <p><strong>Student ID:</strong> ${currentStudent?.student_id}</p>
                     <p><strong>Name:</strong> ${studentName}</p>
                     <p><strong>Program:</strong> ${currentStudent?.program_id}</p>
                     <p><strong>Year:</strong> ${currentStudent?.year}</p>
@@ -260,7 +260,7 @@ export default function NewChecklist() {
                     <h2>Student Information</h2>
                     <div className={style.infoSection}>
                         <div className={style.left}>
-                            <span>Student ID: {currentStudent?.id} </span>
+                            <span>Student ID: {currentStudent?.student_id} </span>
                             <span>
                                 Student Name: {Object.keys(currentStudent).length !== 0 ?
                                 currentStudent?.l_name + ", " + currentStudent?.f_name + " " + currentStudent?.m_name :

@@ -94,30 +94,36 @@ def getStudent(student_id: str = None):
     return JSONResponse(content={"student": student_data, "courses": courses})
 
 def search_students(query: str):
+    """
+    Search students by name or student_id directly from the database.
+    Intentionally bypasses the in-memory students_list and apply_filter() —
+    the checklist search bar searches all students regardless of the
+    new_checklist filter panel state.
+    """
+    query_lower = query.lower()
+
+    # Always query the DB so externally-added students are found immediately
+    db_result = supabase.table("students") \
+        .select("student_id, f_name, l_name, m_name, evaluated") \
+        .execute()
+
     valid_students = []
-    query = query.lower()  # normalise once so name comparison is case-insensitive
+    for student in db_result.data:
+        full_name = " ".join(
+            filter(None, [student.get("l_name"), student.get("f_name"), student.get("m_name")])
+        ).lower()
 
-    pool = apply_filter()
+        if query_lower in full_name or query_lower in student["student_id"].lower():
+            valid_students.append(student)
 
-    for student in pool:
-        full_name = " ".join(filter(None, [student["l_name"], student["f_name"], student.get("m_name", "")])).lower()
-
-        if query not in full_name and query not in student["student_id"].lower():
-            continue
-
-        valid_students.append(student)
-
-    result = [
+    return [
         {
-            "student_id":   student["student_id"],
-            "name":         f"{student['l_name']}, {student['f_name']} {student.get('m_name', '') or ''}".strip(),
-            "evaluated":    str(student.get("evaluated", ""))
+            "student_id":   s["student_id"],
+            "name":         f"{s['l_name']}, {s['f_name']} {s.get('m_name', '') or ''}".strip(),
+            "evaluated":    str(s.get("evaluated", ""))
         }
-
-        for student in valid_students[:10]
+        for s in valid_students[:10]
     ]
-
-    return result
 
 def get_students():
     return students_list

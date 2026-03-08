@@ -1,119 +1,178 @@
 :root {
-    --header-height: 90px;
-    --header-padding: 20px;
+    --taskbar-height: 60px;
+    --taskbar-padding: 0 20px;
     --logo-font-size: 15px;
-    --button-height: 30px;
-    --button-width: 100px;
-    --banner-width: 500px;
-    --banner-font-size: 40px;
-    --banner-padding: 1rem;
-    --banner-radius: 20px;
-    --banner-margin: 10px;
-    --drop-icon-size: 30px;
-    --drop-icon-width: 5rem;
-    --drop-icon-bottom: -30px;
-    --center-calc: calc(-80.5px * 2);
+    --icon-size: 24px;
+    --nav-gap: 8px;
 }
 
-header{
+.taskbar{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    text-align: center;
     align-items: center;
-    position: relative;
-    z-index: 1;
+    position: sticky;
+    top: 0;
+    z-index: 100;
     box-sizing: border-box;
-    height: var(--header-height);
+    height: var(--taskbar-height);
     width: 100%;
-    padding: var(--header-padding);
+    padding: var(--taskbar-padding);
+    background-color: #f3f3f3;
+    border-bottom: 1px solid #e0e0e0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
+
 .logo{
     display: flex;
     align-items: center;
     font-size: var(--logo-font-size);
+    color: #1c4da1;
+    font-weight: 600;
 }
 
 .logo b{
     margin-left: -10px;
 }
 
-.signOut{
-    border: none;
-    border-style: solid;
-    border-color: #1c4da1;
-    border-width: 2px;
-    border-radius: 20px;
-    background-color: white;
-    height: var(--button-height);
-    width: var(--button-width);
-    color: #1c4da1;
-    font-weight: 300;
+.navIcons{
+    display: flex;
+    flex-direction: row;
+    gap: var(--nav-gap);
+    align-items: center;
+    height: 100%;
+}
+
+.navItem{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
     cursor: pointer;
-    transition: background-color 0.5s ease-in-out;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    position: relative;
+    min-width: 60px;
+}
+
+.navItem:hover{
+    background-color: rgba(28, 77, 161, 0.08);
+}
+
+.navItem.active{
+    background-color: rgba(28, 77, 161, 0.12);
+}
+
+.navItem.active::after{
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: #1c4da1;
+    border-radius: 3px 3px 0 0;
+}
+
+.icon{
+    font-size: var(--icon-size);
+    color: #1c4da1;
+    margin-bottom: 4px;
+}
+
+.iconLabel{
+    font-size: 11px;
+    color: #1c4da1;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.signOut{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 6px;
+    background-color: transparent;
+    height: 40px;
+    width: 40px;
+    color: #1c4da1;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
 .signOut:hover{
-    background-color: #1c4da1;
-    color: white;
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
 }
 
-.center{
-    display: flex;
-    position: absolute;
-    top: 0px;
-    left: 50%;
-    transform: translate(-50%, var(--center-calc));
-    transition: transform 0.5s ease-in-out;
-    justify-content: center;
-    align-items: center;
+/* Responsive design */
+@media (max-width: 1024px) {
+    :root {
+        --taskbar-height: 55px;
+        --icon-size: 22px;
+        --nav-gap: 6px;
+    }
+    
+    .navItem{
+        padding: 6px 12px;
+        min-width: 50px;
+    }
+    
+    .iconLabel{
+        font-size: 10px;
+    }
 }
 
-.banner{
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow: visible;
-    width: var(--banner-width);
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-size: var(--banner-font-size);
-    font-weight: 600;
-    background-color: #1c4da1;
-    border-bottom-left-radius: var(--banner-radius);
-    border-bottom-right-radius: var(--banner-radius);
-    padding: var(--banner-padding);
-    z-index: 2;
+@media (max-width: 768px) {
+    :root {
+        --taskbar-height: 50px;
+        --icon-size: 20px;
+        --nav-gap: 4px;
+    }
+    
+    .navItem{
+        padding: 4px 8px;
+        min-width: 45px;
+    }
+    
+    .iconLabel{
+        font-size: 9px;
+    }
+    
+    .signOut{
+        height: 36px;
+        width: 36px;
+        font-size: 18px;
+    }
 }
 
-.banner a,
-.banner span{
-    cursor: pointer;
-    margin: var(--banner-margin);
+@media (max-width: 600px) {
+    :root {
+        --taskbar-padding: 0 10px;
+        --logo-font-size: 12px;
+        --icon-size: 18px;
+        --nav-gap: 2px;
+    }
+    
+    .navItem{
+        padding: 4px 6px;
+        min-width: 40px;
+    }
+    
+    .iconLabel{
+        display: none;
+    }
+    
+    .signOut{
+        height: 32px;
+        width: 32px;
+        font-size: 16px;
+    }
 }
 
-.drop_icon{
-    border-bottom-left-radius: var(--banner-radius);
-    border-bottom-right-radius: var(--banner-radius);
-    background-color: #1c4da1;
-    color: white;
-    font-size: var(--drop-icon-size);
-    position: absolute;
-    bottom: var(--drop-icon-bottom);
-    left: 50%;
-    transform: translateX(-50%);
-    cursor: pointer;
-    width: var(--drop-icon-width);
-    padding-top: 5px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.center.animated{
-    transform: translate(-50%, 0%);
-}
 
 /* iPad (768px and up) */
 @media (max-width: 1024px) {

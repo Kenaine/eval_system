@@ -57,10 +57,10 @@ function App() {
             <Router>
               <Routes>
                 <Route path="/" element={<Login />} />
-                <Route path="/curriculum-checklist" element={<Checklist />} />
-                <Route path="/program-courselist" element={<ProgramCourseList />} />
-                <Route path="/dashboard" element={<Dashbaord />} />
                 <Route path="/new" element={<NewChecklist />} />
+                <Route path="/dashboard" element={<Dashbaord />} />
+                <Route path="/program-courselist" element={<ProgramCourseList />} />
+                <Route path="/curriculum-checklist" element={<Checklist />} />
                 <Route path="/course-list" element={<CourseList />} />
                 <Route path="/curriculum-list" element={<CurriculumList />} />
               </Routes>

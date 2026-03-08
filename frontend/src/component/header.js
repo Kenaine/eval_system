@@ -1,19 +1,18 @@
 import react, { useState } from "react";
-import { FaArrowCircleDown, FaArrowCircleUp, FaChevronDown } from "react-icons/fa";
+import { FaHome, FaChartLine, FaList, FaClipboardCheck, FaBook, FaGraduationCap, FaSignOutAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Logo from "../imgs/uphsllogo.png";
 import style from "../style/header.module.css"
 
 export default function HeaderWebsite({ pageName }){
     const navigate = useNavigate();
-    const [isDown, setIsDown] = useState(false);
     const pageList = [
-        { link: "Dashboard", path: "/dashboard" }, 
-        { link: "Program Courselist", path: "/program-courselist" }, 
-        { link: "Curriculum Checklist", path: "/curriculum-checklist" },
-        { link: "New Checklist", path: "/new" },
-        { link: "Course List", path: "/course-list" },
-        { link: "Curriculum List", path: "/curriculum-list" }
+        { link: "New Checklist", path: "/new", icon: FaHome, label: "Home" }, 
+        { link: "Dashboard", path: "/dashboard", icon: FaChartLine, label: "Dashboard" }, 
+        { link: "Program Courselist", path: "/program-courselist", icon: FaList, label: "Programs" }, 
+        { link: "Curriculum Checklist", path: "/curriculum-checklist", icon: FaClipboardCheck, label: "Checklist" },
+        { link: "Course List", path: "/course-list", icon: FaBook, label: "Courses" },
+        { link: "Curriculum List", path: "/curriculum-list", icon: FaGraduationCap, label: "Curriculum" }
     ];
 
     const signOut = () => {
@@ -23,37 +22,36 @@ export default function HeaderWebsite({ pageName }){
         navigate("/");
     };
 
-    const setBannerDown = () =>{
-        setIsDown(!isDown);
-    }
-
-    const handleBannerClick = (page) => {
+    const handleNavClick = (page) => {
         navigate(page.path);
     };
 
-    // Filter out the current page from the list
-    const filteredPages = pageList.filter(page => page.link.toLowerCase() !== pageName.toLowerCase());
-
     return(
-        <header>
+        <header className={style.taskbar}>
             <div className={style.logo}>
                 <b>--UNIVERSITY</b>
             </div>
-            <div className={isDown ? `${style.center} ${style.animated}` : style.center}>
-                <div className={style.banner}>
-                    {filteredPages.map((page) => (
-                        <span key={page.link} onClick={() => handleBannerClick(page)}>
-                            {page.link}
-                        </span>
-                    ))}
-                    <a onClick={setBannerDown}>{pageName}</a>
-                    <div className={style.drop_icon} onClick={setBannerDown}>
-                        <FaChevronDown />
-                    </div>
-                </div>
-            </div>
-            <button className={style.signOut} type="button" onClick={signOut}>
-                SIGN OUT
+            
+            <nav className={style.navIcons}>
+                {pageList.map((page) => {
+                    const Icon = page.icon;
+                    const isActive = page.link.toLowerCase() === pageName.toLowerCase();
+                    return (
+                        <div 
+                            key={page.link} 
+                            className={`${style.navItem} ${isActive ? style.active : ''}`}
+                            onClick={() => handleNavClick(page)}
+                            title={page.label}
+                        >
+                            <Icon className={style.icon} />
+                            <span className={style.iconLabel}>{page.label}</span>
+                        </div>
+                    );
+                })}
+            </nav>
+
+            <button className={style.signOut} type="button" onClick={signOut} title="Sign Out">
+                <FaSignOutAlt />
             </button>
         </header>
     );

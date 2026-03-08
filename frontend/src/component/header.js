@@ -1,10 +1,8 @@
-import react, { useState, useEffect, use } from "react";
+import react, { useState } from "react";
 import { FaArrowCircleDown, FaArrowCircleUp, FaChevronDown } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Logo from "../imgs/uphsllogo.png";
 import style from "../style/header.module.css"
-import axios from "axios";
-import { API_URL } from "../misc/url";
 
 export default function HeaderWebsite({ pageName }){
     const navigate = useNavigate();
@@ -12,17 +10,15 @@ export default function HeaderWebsite({ pageName }){
     const pageList = [
         { link: "Dashboard", path: "/dashboard" }, 
         { link: "Program Courselist", path: "/program-courselist" }, 
-        { link: "Curriculum Checklist", path: "/curriculum-checklist" }
+        { link: "Curriculum Checklist", path: "/curriculum-checklist" },
+        { link: "New Checklist", path: "/new" }
     ];
 
-    const signOut = async () => {
-        try {
-            await axios.post(API_URL + "/auth/logout", {}, { withCredentials: true });
-        } catch (err) {
-            console.error("Logout failed:", err);
-        } finally {
-            navigate("/");
-        }
+    const signOut = () => {
+        sessionStorage.removeItem('supabase_token');
+        sessionStorage.removeItem('user_profile');
+        sessionStorage.removeItem('programs');
+        navigate("/");
     };
 
     const setBannerDown = () =>{
@@ -32,23 +28,6 @@ export default function HeaderWebsite({ pageName }){
     const handleBannerClick = (page) => {
         navigate(page.path);
     };
-
-    const validateToken = async () => {
-        try {
-            const response = await fetch("http://localhost:8000/auth/validate-token", {
-                method: "GET",
-                withCredentials: true,
-            });
-
-            if (!response.valid) {
-                signOut();
-            }
-
-        } catch (error) {
-            console.error("Error validating token:", error);
-            signOut();
-        }
-    }
 
     // Filter out the current page from the list
     const filteredPages = pageList.filter(page => page.link.toLowerCase() !== pageName.toLowerCase());

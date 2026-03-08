@@ -21,7 +21,7 @@ function ordinal(n) {
 }
 
 export default function NewChecklist() {
-    const pageName = "CURRICULUM CHECKLIST";
+    const pageName = "NEW CHECKLIST";
     const [students, setStudents] = useState([]);
     const [currentStudent, setCurrentStudent] = useState({});
     const [studentCourses, setStudentCourses] = useState([]);

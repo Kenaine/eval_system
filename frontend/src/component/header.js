@@ -11,7 +11,9 @@ export default function HeaderWebsite({ pageName }){
         { link: "Dashboard", path: "/dashboard" }, 
         { link: "Program Courselist", path: "/program-courselist" }, 
         { link: "Curriculum Checklist", path: "/curriculum-checklist" },
-        { link: "New Checklist", path: "/new" }
+        { link: "New Checklist", path: "/new" },
+        { link: "Course List", path: "/course-list" },
+        { link: "Curriculum List", path: "/curriculum-list" }
     ];
 
     const signOut = () => {

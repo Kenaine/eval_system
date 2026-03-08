@@ -69,7 +69,40 @@ def getStudent(student_id: str = None):
     result = supabase.table("students").select("*").eq("student_id", student_id).execute()
     
     if not result.data:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Student not found")
+        # Fallback: check if student exists in user_credentials only
+        cred_result = supabase.table("user_credentials") \
+            .select("student_id, username, full_name, role") \
+            .eq("role", "student") \
+            .execute()
+        
+        # Find matching student by student_id or username
+        student_cred = None
+        for c in cred_result.data:
+            if c.get("student_id") == student_id or c.get("username") == student_id:
+                student_cred = c
+                break
+        
+        if not student_cred:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Student not found")
+        
+        # Return minimal student data for user_credentials-only students
+        return JSONResponse(content={
+            "student": {
+                "student_id": student_cred.get("student_id") or student_cred.get("username"),
+                "f_name": student_cred.get("full_name", "").split()[0] if student_cred.get("full_name") else "",
+                "l_name": " ".join(student_cred.get("full_name", "").split()[1:]) if student_cred.get("full_name") else "",
+                "m_name": "",
+                "program_id": "N/A",
+                "year": "N/A",
+                "status": "N/A",
+                "gwa": 0,
+                "units_taken": 0,
+                "total_units_required": 0,
+                "evaluated": None,
+                "role": "student"
+            },
+            "courses": []
+        })
     
     student_data = result.data[0]
 

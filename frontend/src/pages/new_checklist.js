@@ -244,12 +244,7 @@ export default function NewChecklist() {
                     <h2>Search Student</h2>
                     <form onSubmit={(e) => e.preventDefault()}>
                         <NewStudentSearchBar setStudents={setStudents}/>
-
-                        <fieldset>
-                            <legend style={{visibility: "hidden", position: "absolute"}}>filters</legend>
-
-                            <FilterPanel onFilterChange={changeFilter} />
-                        </fieldset>
+                        <FilterPanel onFilterChange={changeFilter} />
                     </form>
 
                     <SearchResult student_list={students} setCurrentStudent={setCurrentStudent} setStudentCourses={setStudentCourses} />

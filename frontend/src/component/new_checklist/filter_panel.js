@@ -1,17 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { FaPrint } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import axios from "axios";
 import { API_URL } from "../../misc/url";
-
-
+import style from "../../style/new_checklist/new_checklist.module.css";
 
 export default function FilterPanel({ onFilterChange }) {
-    const pageName = "CURRICULUM CHECKLIST";
     const yearLevel = [1, 2, 3, 4];
-    const regStatus = ["Regular", "Irregular"];
-    const transferStatus = ["True", "False"];
     const [programs, setPrograms] = useState({});
+    const [filtersExpanded, setFiltersExpanded] = useState(false);
 
     useEffect(() => {
         const prgms = JSON.parse(sessionStorage.getItem("programs"));
@@ -46,77 +42,95 @@ export default function FilterPanel({ onFilterChange }) {
     };
 
     return (
-        <>
-            <fieldset>
-                <legend>Year Number</legend>
-                {yearLevel.map(year => (
-                    <>
-                        
-                        <label htmlFor={year}>
-                            <input type="checkbox" defaultChecked={true} id={year} 
-                            name="year" value={year} onChange={handleFilterChange}></input> Year {year}
-                        </label>
-                    </>
-                ))}
+        <div className={style.filterPanel}>
+            <button 
+                className={style.filterToggle}
+                onClick={() => setFiltersExpanded(!filtersExpanded)}
+                type="button"
+            >
+                <span>Advanced Filters</span>
+                {filtersExpanded ? <FaChevronUp /> : <FaChevronDown />}
+            </button>
+            
+            {filtersExpanded && (
+                <div className={style.filterGrid}>
+                    <fieldset className={style.compactFieldset}>
+                        <legend>Year</legend>
+                        <div className={style.filterRow}>
+                            {yearLevel.map(year => (
+                                <label key={year} htmlFor={`year-${year}`}>
+                                    <input type="checkbox" defaultChecked={true} id={`year-${year}`} 
+                                    name="year" value={year} onChange={handleFilterChange} />
+                                    {year}
+                                </label>
+                            ))}
+                        </div>
+                    </fieldset>
 
-            </fieldset>
-            <fieldset>
-                <legend>Regular Status</legend>
-                <input defaultChecked={true} type="checkbox" 
-                id="reg_status" name="status" value="Regular" onChange={handleFilterChange}></input>
-                <label htmlFor="reg_status">Regular</label>
+                    <fieldset className={style.compactFieldset}>
+                        <legend>Status</legend>
+                        <div className={style.filterRow}>
+                            <label htmlFor="reg_status">
+                                <input type="checkbox" defaultChecked={true} 
+                                id="reg_status" name="status" value="Regular" onChange={handleFilterChange} />
+                                Regular
+                            </label>
+                            <label htmlFor="irregular">
+                                <input type="checkbox" defaultChecked={true} 
+                                id="irregular" name="status" value="Irregular" onChange={handleFilterChange} />
+                                Irregular
+                            </label>
+                        </div>
+                    </fieldset>
 
-                
-                <label htmlFor="irreg_status">
-                    <input type="checkbox" defaultChecked={true} 
-                    id="irregular" name="status" value="Irregular" onChange={handleFilterChange}></input>
-                    Irregular
-                </label>
-            </fieldset>
+                    <fieldset className={style.compactFieldset}>
+                        <legend>Transfer</legend>
+                        <div className={style.filterRow}>
+                            <label htmlFor="transferee">
+                                <input type="checkbox" defaultChecked={true} 
+                                id="transferee" name="is_transferee" value="true" onChange={handleFilterChange} /> 
+                                Yes
+                            </label>
+                            <label htmlFor="not_transferee">
+                                <input type="checkbox" defaultChecked={true} 
+                                id="not_transferee" name="is_transferee" value="false" onChange={handleFilterChange} />
+                                No
+                            </label>
+                        </div>
+                    </fieldset>
 
-            <fieldset>
-                <legend>Transfer Status</legend>
-                <label htmlFor="transferee">
-                    <input type="checkbox" defaultChecked={true} 
-                    id="transferee" name="is_transferee" value="true" onChange={handleFilterChange}></input> 
-                    True
-                </label>
-                
-                <label htmlFor="not_transferee">
-                    <input type="checkbox" defaultChecked={true} 
-                    id="not_transferee" name="is_transferee" value="false" onChange={handleFilterChange}></input>
-                    False
-                </label>
-            </fieldset>
+                    <fieldset className={style.compactFieldset}>
+                        <legend>Archived</legend>
+                        <div className={style.filterRow}>
+                            <label htmlFor="archived">
+                                <input type="checkbox" defaultChecked={true} 
+                                id="archived" name="archived" value="true" onChange={handleFilterChange} />
+                                Yes
+                            </label>
+                            <label htmlFor="not_archived">
+                                <input type="checkbox" defaultChecked={true}
+                                id="not_archived" name="archived" value="false" onChange={handleFilterChange} />
+                                No
+                            </label>
+                        </div>
+                    </fieldset>
 
-            <fieldset>
-                <legend>Archival Status</legend>
-                <label htmlFor="archived">
-                    <input type="checkbox" defaultChecked={true} 
-                    id="archived" name="archived" value="true" onChange={handleFilterChange}></input>
-                    True
-                </label>
-
-                <label htmlFor="not_archived">
-                    <input type="checkbox" defaultChecked={true}
-                    id="not_archived" name="archived" value="false" onChange={handleFilterChange}></input>
-                    False
-                </label>
-            </fieldset>
-
-            <fieldset>
-                <legend>Programs</legend>
-
-                {Object.values(programs || {}).map(program => (
-                    <>
-                        <label htmlFor={program.id}>
-                            <input type="checkbox" defaultChecked={true} 
-                            id={program.id} name="program_id" value={program.id} onChange={handleFilterChange}></input>
-                            {program.id}
-                        </label>
-                    </>
-                ))}
-            </fieldset>
-        </>
+                    {Object.keys(programs).length > 0 && (
+                        <fieldset className={`${style.compactFieldset} ${style.fullWidth}`}>
+                            <legend>Programs</legend>
+                            <div className={style.filterRow}>
+                                {Object.values(programs || {}).map(program => (
+                                    <label key={program.id} htmlFor={`prog-${program.id}`}>
+                                        <input type="checkbox" defaultChecked={true} 
+                                        id={`prog-${program.id}`} name="program_id" value={program.id} onChange={handleFilterChange} />
+                                        {program.id}
+                                    </label>
+                                ))}
+                            </div>
+                        </fieldset>
+                    )}
+                </div>
+            )}
+        </div>
     );
 }

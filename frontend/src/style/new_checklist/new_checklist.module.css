@@ -14,7 +14,6 @@
     border-radius: 16px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.05);
     padding: 2rem;
-    min-height: 600px;
     display: flex;
     flex-direction: column;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -86,6 +85,96 @@ fieldset label {
 }
 
 fieldset label:hover {
+    color: #4f46e5;
+}
+
+/* Compact Filter Panel */
+.filterPanel {
+    margin-bottom: 1rem;
+}
+
+.filterToggle {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.filterToggle:hover {
+    border-color: #4f46e5;
+    background: linear-gradient(135deg, #eef2ff 0%, #ddd6fe 100%);
+    color: #4f46e5;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.filterGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.compactFieldset {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin: 0;
+    background: white;
+}
+
+.compactFieldset.fullWidth {
+    grid-column: 1 / -1;
+}
+
+.compactFieldset legend {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 0.75rem;
+    padding: 0 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.filterRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.filterRow label {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #2d3748;
+    transition: color 0.2s ease;
+    white-space: nowrap;
+}
+
+.filterRow label:hover {
     color: #4f46e5;
 }
 
@@ -171,7 +260,7 @@ fieldset input[type="checkbox"]:hover {
 
 .searchResult tbody {
     display: block;
-    max-height: 280px;
+    max-height: 420px;
     overflow-y: auto;
     background: white;
 }
@@ -388,6 +477,10 @@ fieldset input[type="checkbox"]:hover {
     .buttonGroup button {
         width: 100%;
         min-width: auto;
+    }
+    
+    .filterGrid {
+        grid-template-columns: 1fr;
     }
     
     fieldset label {

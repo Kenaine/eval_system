@@ -86,7 +86,7 @@ export default function NewChecklist() {
     };
 
     const handlePrint = () => {
-        if (!currentStudent?.student_id || studentCourses.length === 0) {
+        if (!currentStudent?.student_id) {
             alert("Please select a student first");
             return;
         }
@@ -101,31 +101,42 @@ export default function NewChecklist() {
 
         // Build course table rows with year/semester headers
         let courseTableRows = "";
-        let prevYear = null;
-        let prevSem = null;
-
-        sortedCourses.forEach((course) => {
-            if (course.year !== prevYear || course.semester !== prevSem) {
-                courseTableRows += `
-                    <tr style="background-color: #f0f0f0; font-weight: bold;">
-                        <td colspan="6">${ordinal(course.year)} Year, ${ordinal(course.semester)} Sem</td>
-                    </tr>
-                `;
-                prevYear = course.year;
-                prevSem = course.semester;
-            }
-
-            courseTableRows += `
+        
+        if (sortedCourses.length === 0) {
+            courseTableRows = `
                 <tr>
-                    <td>${course.course_id}</td>
-                    <td>${course.course_name}</td>
-                    <td>${course.course_units}</td>
-                    <td>${course.grade === null ? "-" : course.course_units}</td>
-                    <td>${course.grade ?? "-"}</td>
-                    <td>${course.remark}</td>
+                    <td colspan="6" style="text-align: center; padding: 2rem; color: #666;">
+                        No courses enrolled yet
+                    </td>
                 </tr>
             `;
-        });
+        } else {
+            let prevYear = null;
+            let prevSem = null;
+
+            sortedCourses.forEach((course) => {
+                if (course.year !== prevYear || course.semester !== prevSem) {
+                    courseTableRows += `
+                        <tr style="background-color: #f0f0f0; font-weight: bold;">
+                            <td colspan="6">${ordinal(course.year)} Year, ${ordinal(course.semester)} Sem</td>
+                        </tr>
+                    `;
+                    prevYear = course.year;
+                    prevSem = course.semester;
+                }
+
+                courseTableRows += `
+                    <tr>
+                        <td>${course.course_id}</td>
+                        <td>${course.course_name}</td>
+                        <td>${course.course_units}</td>
+                        <td>${course.grade === null ? "-" : course.course_units}</td>
+                        <td>${course.grade ?? "-"}</td>
+                        <td>${course.remark}</td>
+                    </tr>
+                `;
+            });
+        }
 
         const printContent = `
             <!DOCTYPE html>

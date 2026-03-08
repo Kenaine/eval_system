@@ -95,35 +95,53 @@ def getStudent(student_id: str = None):
 
 def search_students(query: str):
     """
-    Search students by name or student_id directly from the database.
-    Intentionally bypasses the in-memory students_list and apply_filter() —
-    the checklist search bar searches all students regardless of the
-    new_checklist filter panel state.
+    Search students by name or student_id.
+    Primary source: students table (has full record).
+    Fallback: user_credentials (role='student') for users not yet in students table.
+    Results are merged and deduplicated by student_id.
     """
     query_lower = query.lower()
+    seen_ids = set()
+    results = []
 
-    # Always query the DB so externally-added students are found immediately
+    # --- Primary: students table ---
     db_result = supabase.table("students") \
         .select("student_id, f_name, l_name, m_name, evaluated") \
         .execute()
 
-    valid_students = []
-    for student in db_result.data:
+    for s in db_result.data:
         full_name = " ".join(
-            filter(None, [student.get("l_name"), student.get("f_name"), student.get("m_name")])
+            filter(None, [s.get("l_name"), s.get("f_name"), s.get("m_name")])
         ).lower()
+        if query_lower in full_name or query_lower in s["student_id"].lower():
+            sid = s["student_id"]
+            seen_ids.add(sid)
+            results.append({
+                "student_id": sid,
+                "name": f"{s['l_name']}, {s['f_name']} {s.get('m_name', '') or ''}".strip(),
+                "evaluated": str(s.get("evaluated", ""))
+            })
 
-        if query_lower in full_name or query_lower in student["student_id"].lower():
-            valid_students.append(student)
+    # --- Fallback: user_credentials (catches users not yet in students table) ---
+    cred_result = supabase.table("user_credentials") \
+        .select("student_id, full_name, username") \
+        .eq("role", "student") \
+        .execute()
 
-    return [
-        {
-            "student_id":   s["student_id"],
-            "name":         f"{s['l_name']}, {s['f_name']} {s.get('m_name', '') or ''}".strip(),
-            "evaluated":    str(s.get("evaluated", ""))
-        }
-        for s in valid_students[:10]
-    ]
+    for c in cred_result.data:
+        sid = c.get("student_id") or c.get("username")
+        if not sid or sid in seen_ids:
+            continue
+        full_name = (c.get("full_name") or "").lower()
+        if query_lower in full_name or query_lower in sid.lower():
+            seen_ids.add(sid)
+            results.append({
+                "student_id": sid,
+                "name": c.get("full_name") or sid,
+                "evaluated": ""
+            })
+
+    return results[:10]
 
 def get_students():
     return students_list

@@ -15,10 +15,10 @@ export default function Modal({title, programs, formData, handleSubmit, handleCh
                 <input name="dept" value={formData.dept} onChange={handleChange} placeholder="Department" required />
                 <select name="program_id" value={formData.program_id} onChange={handleChange} required>
                     <option value="">Select Program</option>
-                    {Object.values(programs).map((program) => {
+                    {programs.map((program) => {
                     return (
-                    <option key={program.id} value={program.id}>
-                        {program.name}
+                    <option key={program.program_id} value={program.program_id}>
+                        {program.program_name}
                     </option>
                     );
                     })}

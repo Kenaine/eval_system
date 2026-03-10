@@ -41,7 +41,7 @@ export default function Dashbaord() {
         });
         
         const programs = JSON.parse(sessionStorage.getItem("programs"));
-        setPrograms(programs || {});
+        setPrograms(programs || []);
     }, []);
 
     
@@ -97,12 +97,12 @@ export default function Dashbaord() {
                         </div>
 
                         <ul className={style.programList}>
-                            {Object.values(programs).map(program => (
+                            {programs.map(program => (
                                 <li>
-                                    <input defaultChecked={true} type="checkbox" id={program.name} name="program_id"
-                                    value={program.id} onClick={changeCheckbox}/>
-                                    <label htmlFor={program.name}>
-                                        {program.name}
+                                    <input defaultChecked={true} type="checkbox" id={program.program_name} name="program_id"
+                                    value={program.program_id} onClick={changeCheckbox}/>
+                                    <label htmlFor={program.program_name}>
+                                        {program.program_name}
                                     </label>
                                 </li>
                             ))}

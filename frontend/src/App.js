@@ -31,18 +31,10 @@ function App() {
     try {
       const progrms = await apiClient.get("/program/get");
 
-      const programsMap = {};
+      // Store as array - programs have program_id, program_name, program_specialization
+      sessionStorage.setItem("programs", JSON.stringify(progrms.data));
 
-      progrms.data.forEach((p) => {
-        programsMap[p.id] = p;
-
-      });
-
-      sessionStorage.setItem("programs", JSON.stringify(programsMap));
-
-
-      return programsMap;
-
+      return progrms.data;
 
     } catch (err) {
       console.error("Getting programs failed: ", err);

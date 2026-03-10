@@ -23,7 +23,7 @@ export default function CurriculumList() {
 
     useEffect(() => {
         const prgms = JSON.parse(sessionStorage.getItem("programs"));
-        setPrograms(prgms)
+        setPrograms(prgms || [])
     }, []);
 
     const handleProgramChange = async (e) => {
@@ -208,9 +208,9 @@ export default function CurriculumList() {
                                 }}
                             >
                                 <option value="">-- Choose a program --</option>
-                                {Object.values(programs).map((program) => (
-                                    <option key={program.id} value={program.id}>
-                                        {program.name}
+                                {programs.map((program) => (
+                                    <option key={program.program_id} value={program.program_id}>
+                                        {program.program_name}
                                     </option>
                                 ))}
                             </select>

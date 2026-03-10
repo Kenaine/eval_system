@@ -6,7 +6,7 @@ import style from "../../style/new_checklist/new_checklist.module.css";
 
 export default function FilterPanel({ onFilterChange }) {
     const yearLevel = [1, 2, 3, 4];
-    const [programs, setPrograms] = useState({});
+    const [programs, setPrograms] = useState([]);
     const [filtersExpanded, setFiltersExpanded] = useState(false);
 
     useEffect(() => {
@@ -20,10 +20,9 @@ export default function FilterPanel({ onFilterChange }) {
                 headers: token ? { Authorization: `Bearer ${token}` } : {}
             })
                 .then(res => {
-                    const programsMap = {};
-                    res.data.forEach(p => { programsMap[p.id] = p; });
-                    sessionStorage.setItem("programs", JSON.stringify(programsMap));
-                    setPrograms(programsMap);
+                    // Store as array - programs have program_id, program_name, program_specialization
+                    sessionStorage.setItem("programs", JSON.stringify(res.data));
+                    setPrograms(res.data);
                 })
                 .catch(err => console.error("Failed to load programs:", err));
         }
@@ -115,15 +114,15 @@ export default function FilterPanel({ onFilterChange }) {
                         </div>
                     </fieldset>
 
-                    {Object.keys(programs).length > 0 && (
+                    {programs.length > 0 && (
                         <fieldset className={`${style.compactFieldset} ${style.fullWidth}`}>
                             <legend>Programs</legend>
                             <div className={style.filterRow}>
-                                {Object.values(programs || {}).map(program => (
-                                    <label key={program.id} htmlFor={`prog-${program.id}`}>
+                                {programs.map(program => (
+                                    <label key={program.program_id} htmlFor={`prog-${program.program_id}`}>
                                         <input type="checkbox" defaultChecked={true} 
-                                        id={`prog-${program.id}`} name="program_id" value={program.id} onChange={handleFilterChange} />
-                                        {program.id}
+                                        id={`prog-${program.program_id}`} name="program_id" value={program.program_id} onChange={handleFilterChange} />
+                                        {program.program_id}
                                     </label>
                                 ))}
                             </div>

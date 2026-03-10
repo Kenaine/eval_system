@@ -26,7 +26,7 @@ export default function ProgramCourseList() {
   useEffect(() => {
     const programs = JSON.parse(sessionStorage.getItem("programs"));
 
-    setPrograms(programs || {});
+    setPrograms(programs || []);
   }, []);
 
   const getCourses = async (program_id) => {
@@ -124,15 +124,15 @@ export default function ProgramCourseList() {
           disabled={isEditing}
         >
           <option value="">Select Program</option>
-          {Object.values(programs).map((program) => (
-            <option key={program.id} value={program.id}>
-              {program.name}
+          {programs.map((program) => (
+            <option key={program.program_id} value={program.program_id}>
+              {program.program_name}
             </option>
           ))}
         </select>
 
         <div>
-          Specialization: {programs[program_id]?.specialization || "N/A"}
+          Specialization: {programs.find(p => p.program_id === program_id)?.program_specialization || "N/A"}
         </div>
 
         <div className={style.programDetail}>

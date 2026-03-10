@@ -1,7 +1,7 @@
 .page.loginPage{
     margin: 0;
     padding: 0;
-    background-color: #007BFF;
+    background: linear-gradient(135deg, #1e4c8f 0%, #2d5aa3 100%);
     height: 100vh;
     display: flex;
     justify-content: center;
@@ -27,8 +27,8 @@
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     align-items: center;
-    background-color: #1c4da1;
-    color: white;
+    background-color: #1e4c8f;
+    color: #fdb827;
     font-weight: 900;
 }
 
@@ -47,7 +47,7 @@
 }
 
 .login .leftBlock{
-    background-color: #f7c305;
+    background-color: #fdb827;
     border-bottom-left-radius: 8px;
 }
 

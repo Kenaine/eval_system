@@ -44,8 +44,8 @@
 
 .courseBody select:focus{
     outline: none;
-    border-color: #1c4da1;
-    box-shadow: 0 0 3px #1c4da1;
+    border-color: #1e4c8f;
+    box-shadow: 0 0 5px rgba(30, 76, 143, 0.3);
 }
 
 .programDetail{
@@ -63,12 +63,13 @@
     position: relative;
     justify-content: center;
     text-align: center;
-    color: #1c4da1;
+    color: #1e4c8f;
     font-size: var(--heading-font-size);
 }
 
 .yearSem{
-    color: #1c4da1;
+    color: #1e4c8f;
+    font-weight: 600;
 }
 
 .editButton{
@@ -78,7 +79,7 @@
     transform: translateY(-50%);
     gap: var(--gap-size);
     position: absolute;
-    color: #1c4da1;
+    color: #1e4c8f;
     margin-left: auto;
 }
 
@@ -97,17 +98,19 @@
 /* Action buttons/icons */
 .buttons {
   padding: var(--button-padding);
-  background-color: #1c4da1;
+  background: linear-gradient(135deg, #1e4c8f 0%, #2d5aa3 100%);
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-size: var(--button-font-size);
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .buttons:hover {
-  background-color: #163b7a;
+  background: linear-gradient(135deg, #2d5aa3 0%, #1e4c8f 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .buttonLoc{
@@ -117,7 +120,7 @@
     transform: translateY(-50%);
     gap: var(--gap-size);
     position: absolute;
-    color: #1c4da1;
+    color: #1e4c8f;
     margin-left: auto;
 }
 

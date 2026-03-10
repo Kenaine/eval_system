@@ -18,17 +18,17 @@
     height: var(--taskbar-height);
     width: 100%;
     padding: var(--taskbar-padding);
-    background-color: #f3f3f3;
-    border-bottom: 1px solid #e0e0e0;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    background-color: #1e4c8f;
+    border-bottom: 3px solid #fdb827;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .logo{
     display: flex;
     align-items: center;
     font-size: var(--logo-font-size);
-    color: #1c4da1;
-    font-weight: 600;
+    color: #fdb827;
+    font-weight: 700;
 }
 
 .logo b{
@@ -57,11 +57,11 @@
 }
 
 .navItem:hover{
-    background-color: rgba(28, 77, 161, 0.08);
+    background-color: rgba(253, 184, 39, 0.15);
 }
 
 .navItem.active{
-    background-color: rgba(28, 77, 161, 0.12);
+    background-color: rgba(253, 184, 39, 0.25);
 }
 
 .navItem.active::after{
@@ -71,19 +71,19 @@
     left: 0;
     right: 0;
     height: 3px;
-    background-color: #1c4da1;
+    background-color: #fdb827;
     border-radius: 3px 3px 0 0;
 }
 
 .icon{
     font-size: var(--icon-size);
-    color: #1c4da1;
+    color: #ffffff;
     margin-bottom: 4px;
 }
 
 .iconLabel{
     font-size: 11px;
-    color: #1c4da1;
+    color: #ffffff;
     font-weight: 500;
     white-space: nowrap;
 }
@@ -97,7 +97,7 @@
     background-color: transparent;
     height: 40px;
     width: 40px;
-    color: #1c4da1;
+    color: #fdb827;
     font-size: 20px;
     cursor: pointer;
     transition: background-color 0.2s ease;

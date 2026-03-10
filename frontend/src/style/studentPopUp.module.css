@@ -17,12 +17,13 @@
   width: 500px;
   max-width: 90%;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  border: 2px solid #1c4da1;
+  border: 2px solid #1e4c8f;
+  border-top: 4px solid #fdb827;
 }
 
 .modalContent h3 {
   text-align: center;
-  color: #1c4da1;
+  color: #1e4c8f;
   margin-bottom: 1rem;
   font-size: 1.5rem;
   font-weight: 600;
@@ -48,8 +49,8 @@
 .modalForm input:focus,
 .modalForm select:focus {
   outline: none;
-  border-color: #1c4da1;
-  box-shadow: 0 0 3px #1c4da1;
+  border-color: #1e4c8f;
+  box-shadow: 0 0 5px rgba(30, 76, 143, 0.3);
 }
 
 .modalForm button {
@@ -62,21 +63,23 @@
 }
 
 .modalForm button[type="submit"] {
-  background-color: #1c4da1;
+  background: linear-gradient(135deg, #1e4c8f 0%, #2d5aa3 100%);
   color: white;
 }
 
 .modalForm button[type="submit"]:hover {
-  background-color: #163c7c;
+  background: linear-gradient(135deg, #2d5aa3 0%, #1e4c8f 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .modalForm button[type="button"] {
   background-color: white;
-  color: #1c4da1;
-  border: 2px solid #1c4da1;
+  color: #1e4c8f;
+  border: 2px solid #1e4c8f;
 }
 
 .modalForm button[type="button"]:hover {
-  background-color: #1c4da1;
+  background-color: #1e4c8f;
   color: white;
 }

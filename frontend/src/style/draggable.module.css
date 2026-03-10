@@ -11,7 +11,7 @@ table {
 }
 
 thead tr {
-  background-color: #1c4da1;
+  background: linear-gradient(135deg, #1e4c8f 0%, #2d5aa3 100%);
   color: white;
   font-weight: bold;
 }
@@ -69,36 +69,39 @@ table select {
 table input[type="text"]:focus,
 table select:focus {
   outline: none;
-  border-color: #1c4da1;
-  box-shadow: 0 0 3px #1c4da1;
+  border-color: #1e4c8f;
+  box-shadow: 0 0 3px #1e4c8f;
 }
 
 /* Action buttons/icons */
 table button {
   padding: 4px 10px;
-  background-color: #1c4da1;
+  background: linear-gradient(135deg, #1e4c8f 0%, #2d5aa3 100%);
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 table button:hover {
-  background-color: #163b7a;
+  background: linear-gradient(135deg, #2d5aa3 0%, #1e4c8f 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 table svg {
-  color: #1c4da1;
+  color: #1e4c8f;
   transition: color 0.3s ease;
 }
 
 table svg:hover {
-  color: #163b7a;
+  color: #fdb827;
 }
 
 .yearSem {
-  color: #163b7a;
+  color: #1e4c8f;
+  font-weight: 600;
 }
 
 /* 🖐️ Only the drag icon gets grab cursor */
@@ -126,13 +129,13 @@ table select {
 table input[type="text"]:focus,
 table select:focus {
     outline: none;
-    border-color: #1c4da1;
-    box-shadow: 0 0 5px rgba(28, 77, 161, 0.4);
+    border-color: #1e4c8f;
+    box-shadow: 0 0 5px rgba(30, 76, 143, 0.4);
 }
 
 table input[type="text"]:hover,
 table select:hover {
-    border-color: #1c4da1;
+    border-color: #1e4c8f;
 }
 
 /* 👇 New rule for number inputs */
@@ -150,10 +153,10 @@ table input[type="number"] {
 
 table input[type="number"]:focus {
     outline: none;
-    border-color: #1c4da1;
-    box-shadow: 0 0 5px rgba(28, 77, 161, 0.4);
+    border-color: #1e4c8f;
+    box-shadow: 0 0 5px rgba(30, 76, 143, 0.4);
 }
 
 table input[type="number"]:hover {
-    border-color: #1c4da1;
+    border-color: #1e4c8f;
 }

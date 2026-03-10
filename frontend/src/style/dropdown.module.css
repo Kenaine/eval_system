@@ -13,6 +13,6 @@
 .modalForm input:focus,
 .modalForm select:focus {
   outline: none;
-  border-color: #1c4da1;
-  box-shadow: 0 0 3px #1c4da1;
+  border-color: #1e4c8f;
+  box-shadow: 0 0 5px rgba(30, 76, 143, 0.3);
 }

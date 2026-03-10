@@ -403,12 +403,12 @@ fieldset input[type="checkbox"]:hover {
 }
 
 .btnPrimary {
-    background: linear-gradient(135deg, #1e4c8f 0%, #2d5aa3 100%);
+    background: linear-gradient(135deg, #1e4c8f 0%, #fdb827 100%);
     color: white;
 }
 
 .btnPrimary:hover {
-    background: linear-gradient(135deg, #2d5aa3 0%, #1e4c8f 100%);
+    background: linear-gradient(135deg, #fdb827 0%, #1e4c8f 100%);
 }
 
 .btnSecondary {

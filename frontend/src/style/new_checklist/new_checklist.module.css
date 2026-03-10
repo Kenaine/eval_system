@@ -208,8 +208,8 @@ fieldset input[type="checkbox"]:checked::after {
 }
 
 fieldset input[type="checkbox"]:hover {
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    border-color: #1e4c8f;
+    box-shadow: 0 0 0 3px rgba(30, 76, 143, 0.1);
 }
 
 /* Search Results Table */
@@ -222,7 +222,7 @@ fieldset input[type="checkbox"]:hover {
 }
 
 .searchResult thead {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e4c8f 0%, #2d5aa3 100%);
 }
 
 .searchResult thead tr {
@@ -292,13 +292,13 @@ fieldset input[type="checkbox"]:hover {
 }
 
 .searchResult tbody tr:hover {
-    background: linear-gradient(90deg, #eef2ff 0%, #e0e7ff 100%);
+    background: linear-gradient(90deg, #e8f0ff 0%, #f0f4ff 100%);
     transform: translateX(4px);
-    box-shadow: -4px 0 0 #4f46e5;
+    box-shadow: -4px 0 0 #1e4c8f;
 }
 
 .searchResult tbody tr:active {
-    background: #ddd6fe;
+    background: #d4e2f4;
     transform: translateX(2px);
 }
 
@@ -362,7 +362,7 @@ fieldset input[type="checkbox"]:hover {
     content: '';
     width: 4px;
     height: 20px;
-    background: #4f46e5;
+    background: #1e4c8f;
     margin-right: 0.75rem;
     border-radius: 2px;
 }
@@ -403,12 +403,12 @@ fieldset input[type="checkbox"]:hover {
 }
 
 .btnPrimary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e4c8f 0%, #2d5aa3 100%);
     color: white;
 }
 
 .btnPrimary:hover {
-    background: linear-gradient(135deg, #5568d3 0%, #63408a 100%);
+    background: linear-gradient(135deg, #2d5aa3 0%, #1e4c8f 100%);
 }
 
 .btnSecondary {

@@ -73,26 +73,29 @@ def deleteStudent(student_id: str):
     return result
     
 def getStudentCourses(student_id: str, program_id: str):
-    # Get student courses with full course details via join
+    # Get student courses with course details
     result = supabase.table("student_courses")\
-        .select("grade, remark, courses(course_id, course_name, units_lec, units_lab, course_sem, course_year), program_course(sequence, program_id)")\
+        .select("grade, remark, course_id, courses(course_id, course_name, units_lec, units_lab, course_sem, course_year)")\
         .eq("student_id", student_id)\
         .execute()
+    
+    # Get program course data separately for the program
+    program_courses_result = supabase.table("program_course")\
+        .select("course_id, sequence")\
+        .eq("program_id", program_id)\
+        .execute()
+    
+    # Create a map of course_id to sequence
+    sequence_map = {pc["course_id"]: pc["sequence"] for pc in program_courses_result.data}
     
     # Filter and map the results
     courses = []
     for item in result.data:
+        course_id = item.get("course_id")
         course_data = item.get("courses", {})
-        program_course_data = item.get("program_course")
         
-        # Handle program_course as list or dict
-        if isinstance(program_course_data, list):
-            program_course = program_course_data[0] if program_course_data else {}
-        else:
-            program_course = program_course_data or {}
-        
-        # Filter by program_id
-        if program_course.get("program_id") != program_id:
+        # Only include courses that are in this program
+        if course_id not in sequence_map:
             continue
         
         # Calculate total units
@@ -109,7 +112,7 @@ def getStudentCourses(student_id: str, program_id: str):
             "year": course_data.get("course_year", 1),
             "grade": item.get("grade"),
             "remark": item.get("remark") or "N/A",
-            "sequence": program_course.get("sequence", 0)
+            "sequence": sequence_map.get(course_id, 0)
         })
     
     # Sort by sequence

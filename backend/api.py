@@ -11,6 +11,8 @@ from routes.curriculum_courses_routes import router as curriculum_courses_router
 origins = [
     "http://localhost:3000",
     "http://localhost:5000",
+    "https://eval-system-eight.vercel.app",
+    "https://eval-system-arle.onrender.com"
 ]
 
 app = FastAPI()
@@ -25,7 +27,6 @@ app.include_router(curriculum_courses_router, prefix="/currCourse", tags=["curri
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_origin_regex=r"https://.*\.(vercel\.app|onrender\.com)",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]

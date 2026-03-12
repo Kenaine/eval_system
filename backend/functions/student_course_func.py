@@ -90,11 +90,13 @@ def getStudentCourses(student_id: str, program_id: str):
     if not course_ids:
         return []
     
-    # 2. Get course details for these courses
+    # 2. Get ALL course details (we'll filter in Python)
     courses_result = supabase.table("courses")\
         .select("course_id, course_name, units_lec, units_lab, course_sem, course_year")\
-        .in_("course_id", course_ids)\
         .execute()
+    
+    # Filter to only the courses the student has
+    course_map = {c["course_id"]: c for c in courses_result.data if c["course_id"] in course_ids}
     
     # 3. Get program_course data for this program
     program_courses_result = supabase.table("program_course")\
@@ -103,7 +105,6 @@ def getStudentCourses(student_id: str, program_id: str):
         .execute()
     
     # Create lookup maps
-    course_map = {c["course_id"]: c for c in courses_result.data}
     sequence_map = {pc["course_id"]: pc["sequence"] for pc in program_courses_result.data}
     grade_map = {sc["course_id"]: {"grade": sc.get("grade"), "remark": sc.get("remark")} for sc in student_courses_result.data}
     

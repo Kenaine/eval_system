@@ -73,15 +73,13 @@ def deleteStudent(student_id: str):
     return result
     
 def getStudentCourses(student_id: str, program_id: str):
-    # Get student courses with full course details via join, with ordering at DB level
+    # Get student courses with full course details via join
     result = supabase.table("student_courses")\
-        .select("grade, remark, courses(course_id, course_name, units_lec, units_lab, course_sem, course_year), program_course!inner(sequence, program_id)")\
+        .select("grade, remark, courses(course_id, course_name, units_lec, units_lab, course_sem, course_year), program_course(sequence, program_id)")\
         .eq("student_id", student_id)\
-        .eq("program_course.program_id", program_id)\
-        .order("program_course(sequence)")\
         .execute()
     
-    # Map the results efficiently
+    # Filter and map the results
     courses = []
     for item in result.data:
         course_data = item.get("courses", {})
@@ -92,6 +90,10 @@ def getStudentCourses(student_id: str, program_id: str):
             program_course = program_course_data[0] if program_course_data else {}
         else:
             program_course = program_course_data or {}
+        
+        # Filter by program_id
+        if program_course.get("program_id") != program_id:
+            continue
         
         # Calculate total units
         units_lec = course_data.get("units_lec", 0) or 0
@@ -109,6 +111,9 @@ def getStudentCourses(student_id: str, program_id: str):
             "remark": item.get("remark") or "N/A",
             "sequence": program_course.get("sequence", 0)
         })
+    
+    # Sort by sequence
+    courses.sort(key=lambda x: x["sequence"])
         
     return courses
 

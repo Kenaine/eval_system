@@ -96,25 +96,28 @@ def getStudent(student_id: str = None):
 def search_students(query: str):
     """
     Search students by name or student_id in the students table only.
-    Optimized with database-level filtering.
     """
-    query_pattern = f"%{query}%"
-    
-    # Search by student_id OR by name fields using database-level pattern matching
+    query_lower = query.lower()
+    results = []
+
+    # Query students table - limit to reduce data transfer
     db_result = supabase.table("students") \
         .select("student_id, f_name, l_name, m_name, evaluated") \
-        .or_(f"student_id.ilike.{query_pattern},f_name.ilike.{query_pattern},l_name.ilike.{query_pattern},m_name.ilike.{query_pattern}") \
-        .limit(10) \
+        .limit(100) \
         .execute()
-    
-    results = [
-        {
-            "student_id": s["student_id"],
-            "name": f"{s['l_name']}, {s['f_name']} {s.get('m_name', '') or ''}".strip(),
-            "evaluated": str(s.get("evaluated", ""))
-        }
-        for s in db_result.data
-    ]
+
+    for s in db_result.data:
+        full_name = " ".join(
+            filter(None, [s.get("l_name"), s.get("f_name"), s.get("m_name")])
+        ).lower()
+        if query_lower in full_name or query_lower in s["student_id"].lower():
+            results.append({
+                "student_id": s["student_id"],
+                "name": f"{s['l_name']}, {s['f_name']} {s.get('m_name', '') or ''}".strip(),
+                "evaluated": str(s.get("evaluated", ""))
+            })
+            if len(results) >= 10:
+                break
 
     return results
 

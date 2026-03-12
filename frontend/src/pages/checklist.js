@@ -52,11 +52,18 @@ export default function Checklist() {
             const res = await axios.get( API_URL + `/student/get/${student_id}`, {
                 withCredentials: true,
             });
-            setSelectedStudent(res.data.student);
-            setCourses(res.data.courses);
-            setIsViewing(true);
+            
+            if (res.data && res.data.student) {
+                setSelectedStudent(res.data.student);
+                setCourses(res.data.courses || []);
+                setIsViewing(true);
+            } else {
+                console.error("Invalid response format:", res.data);
+                alert("Failed to load student data");
+            }
         } catch (err) {
             console.error("Failed to fetch student details: ", err);
+            alert(`Error: ${err.response?.data?.detail || err.message || "Failed to load student"}`);
         }
     };
 

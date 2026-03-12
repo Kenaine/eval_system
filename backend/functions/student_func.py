@@ -66,32 +66,55 @@ def getStudent(student_id: str = None):
     if not student_id:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Admin must specify a student ID.")
     
-    result = supabase.table("students").select("*").eq("student_id", student_id).execute()
-    
-    if not result.data:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Student not found")
-    
-    student_data = result.data[0]
+    try:
+        result = supabase.table("students").select("*").eq("student_id", student_id).execute()
+        
+        if not result.data:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Student not found")
+        
+        student_data = result.data[0]
 
-    courses = getStudentCourses(student_id, student_data["program_id"])
+        # Check if student has any courses in student_courses
+        check_courses = supabase.table("student_courses")\
+            .select("course_id")\
+            .eq("student_id", student_id)\
+            .limit(1)\
+            .execute()
+        
+        # Only auto-populate courses for regular students (not irregular, not transferee)
+        is_regular = student_data.get("status", "").upper() == "REGULAR"
+        is_transferee = student_data.get("is_transferee", False)
+        
+        if not check_courses.data and is_regular and not is_transferee:
+            from functions.student_course_func import addEntry
+            addEntry(student_id, student_data["program_id"])
+        
+        courses = getStudentCourses(student_id, student_data["program_id"])
 
-    total_units = sum(course["course_units"] for course in courses)
-    units_taken = sum(course["course_units"] for course in courses if course["remark"] == "Passed")
-    gwa = getGWA(courses)
+        total_units = sum(course["course_units"] for course in courses)
+        units_taken = sum(course["course_units"] for course in courses if course["remark"] == "Passed")
+        gwa = getGWA(courses)
 
-    student_data["gwa"] = gwa
-    student_data["units_taken"] = units_taken
-    student_data["total_units_required"] = total_units
-    student_data["role"] = "student"
-    
-    # Convert evaluated timestamp to string if it exists
-    if "evaluated" in student_data and student_data["evaluated"] is not None:
-        if hasattr(student_data["evaluated"], "isoformat"):
-            student_data["evaluated"] = student_data["evaluated"].isoformat()
-        else:
-            student_data["evaluated"] = str(student_data["evaluated"])
+        student_data["gwa"] = gwa
+        student_data["units_taken"] = units_taken
+        student_data["total_units_required"] = total_units
+        student_data["role"] = "student"
+        
+        # Convert evaluated timestamp to string if it exists
+        if "evaluated" in student_data and student_data["evaluated"] is not None:
+            if hasattr(student_data["evaluated"], "isoformat"):
+                student_data["evaluated"] = student_data["evaluated"].isoformat()
+            else:
+                student_data["evaluated"] = str(student_data["evaluated"])
 
-    return JSONResponse(content={"student": student_data, "courses": courses})
+        return JSONResponse(content={"student": student_data, "courses": courses})
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error in getStudent for {student_id}: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, f"Error fetching student: {str(e)}")
 
 def search_students(query: str):
     """

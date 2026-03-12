@@ -73,45 +73,62 @@ def deleteStudent(student_id: str):
     return result
     
 def getStudentCourses(student_id: str, program_id: str):
-    # Get student courses with course details
-    result = supabase.table("student_courses")\
-        .select("grade, remark, course_id, courses(course_id, course_name, units_lec, units_lab, course_sem, course_year)")\
+    # Do three separate simple queries instead of complex joins
+    
+    # 1. Get student_courses for this student
+    student_courses_result = supabase.table("student_courses")\
+        .select("course_id, grade, remark")\
         .eq("student_id", student_id)\
         .execute()
     
-    # Get program course data separately for the program
+    if not student_courses_result.data:
+        return []
+    
+    # Get list of course_ids
+    course_ids = [sc["course_id"] for sc in student_courses_result.data]
+    
+    if not course_ids:
+        return []
+    
+    # 2. Get course details for these courses
+    courses_result = supabase.table("courses")\
+        .select("course_id, course_name, units_lec, units_lab, course_sem, course_year")\
+        .in_("course_id", course_ids)\
+        .execute()
+    
+    # 3. Get program_course data for this program
     program_courses_result = supabase.table("program_course")\
         .select("course_id, sequence")\
         .eq("program_id", program_id)\
         .execute()
     
-    # Create a map of course_id to sequence
+    # Create lookup maps
+    course_map = {c["course_id"]: c for c in courses_result.data}
     sequence_map = {pc["course_id"]: pc["sequence"] for pc in program_courses_result.data}
+    grade_map = {sc["course_id"]: {"grade": sc.get("grade"), "remark": sc.get("remark")} for sc in student_courses_result.data}
     
-    # Filter and map the results
+    # Build final course list - only include courses in this program
     courses = []
-    for item in result.data:
-        course_id = item.get("course_id")
-        course_data = item.get("courses", {})
-        
-        # Only include courses that are in this program
+    for course_id in course_ids:
         if course_id not in sequence_map:
-            continue
+            continue  # Skip courses not in this program
         
-        # Calculate total units
+        course_data = course_map.get(course_id, {})
+        grade_data = grade_map.get(course_id, {})
+        
         units_lec = course_data.get("units_lec", 0) or 0
         units_lab = course_data.get("units_lab", 0) or 0
         
         courses.append({
-            "course_id": course_data.get("course_id"),
+            "course_id": course_id,
             "course_name": course_data.get("course_name"),
             "course_units": units_lec + units_lab,
             "units_lec": units_lec,
             "units_lab": units_lab,
             "semester": course_data.get("course_sem"),
             "year": course_data.get("course_year", 1),
-            "grade": item.get("grade"),
-            "remark": item.get("remark") or "N/A",
+            "grade": grade_data.get("grade"),
+            "remark": grade_data.get("remark") or "N/A",
             "sequence": sequence_map.get(course_id, 0)
         })
     

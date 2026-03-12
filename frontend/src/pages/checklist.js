@@ -80,6 +80,8 @@ export default function Checklist() {
 
                 <div className={style.studentDetail}>
                     <h3>
+                        STUDENT RESIDENCY EVALUATION
+                        <span className={style.buttons}>
                             {currentUser?.role !== "student" && (
                                 <>
                                     <AddStudent onSubmit={addStudent} />
@@ -90,9 +92,7 @@ export default function Checklist() {
                                         isViewing={isViewing}
                                     />
                                 </>
-                            )}  student={selectedStudent}
-                                isViewing={isViewing}
-                            />
+                            )}
                             <FaPrint
                                 style={{ cursor: "pointer" }}
                                 title="Print"

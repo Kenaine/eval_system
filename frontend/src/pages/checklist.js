@@ -60,27 +60,37 @@ export default function Checklist() {
         }
     };
 
+    // Auto-load student's own data if they're logged in as a student
+    useEffect(() => {
+        if (currentUser?.role === "student" && currentUser?.student_id) {
+            handleStudentSelect(currentUser.student_id);
+        }
+    }, [currentUser]);
+
     return (
         <div className={style.curChecklist}>
             <HeaderWebsite pageName={pageName} />
 
             <div className={style.studentBody}>
-                <div className={style.studentSearchBarWrapper}>
+                {currentUser?.role !== "student" && (
+                    <div className={style.studentSearchBarWrapper}>
                         <StudentSearchBar onSelectStudent={handleStudentSelect} />
-                </div>
+                    </div>
+                )}
 
                 <div className={style.studentDetail}>
                     <h3>
-                        STUDENT RESIDENCY EVALUATION
-                        <span className={style.buttons}>
-
-                            <AddStudent onSubmit={addStudent} />
                             {currentUser?.role !== "student" && (
-                              <BulkUploadStudent onSuccess={() => {}} />
-                            )}
-                            <EditStudent
-                                onSubmit={editStudent}
-                                student={selectedStudent}
+                                <>
+                                    <AddStudent onSubmit={addStudent} />
+                                    <BulkUploadStudent onSuccess={() => {}} />
+                                    <EditStudent
+                                        onSubmit={editStudent}
+                                        student={selectedStudent}
+                                        isViewing={isViewing}
+                                    />
+                                </>
+                            )}  student={selectedStudent}
                                 isViewing={isViewing}
                             />
                             <FaPrint

@@ -69,40 +69,7 @@ def getStudent(student_id: str = None):
     result = supabase.table("students").select("*").eq("student_id", student_id).execute()
     
     if not result.data:
-        # Fallback: check if student exists in user_credentials only
-        cred_result = supabase.table("user_credentials") \
-            .select("student_id, username, full_name, role") \
-            .eq("role", "student") \
-            .execute()
-        
-        # Find matching student by student_id or username
-        student_cred = None
-        for c in cred_result.data:
-            if c.get("student_id") == student_id or c.get("username") == student_id:
-                student_cred = c
-                break
-        
-        if not student_cred:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, "Student not found")
-        
-        # Return minimal student data for user_credentials-only students
-        return JSONResponse(content={
-            "student": {
-                "student_id": student_cred.get("student_id") or student_cred.get("username"),
-                "f_name": student_cred.get("full_name", "").split()[0] if student_cred.get("full_name") else "",
-                "l_name": " ".join(student_cred.get("full_name", "").split()[1:]) if student_cred.get("full_name") else "",
-                "m_name": "",
-                "program_id": "N/A",
-                "year": "N/A",
-                "status": "N/A",
-                "gwa": 0,
-                "units_taken": 0,
-                "total_units_required": 0,
-                "evaluated": None,
-                "role": "student"
-            },
-            "courses": []
-        })
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Student not found")
     
     student_data = result.data[0]
 
@@ -128,16 +95,12 @@ def getStudent(student_id: str = None):
 
 def search_students(query: str):
     """
-    Search students by name or student_id.
-    Primary source: students table (has full record).
-    Fallback: user_credentials (role='student') for users not yet in students table.
-    Results are merged and deduplicated by student_id.
+    Search students by name or student_id in the students table only.
     """
     query_lower = query.lower()
-    seen_ids = set()
     results = []
 
-    # --- Primary: students table ---
+    # Query students table
     db_result = supabase.table("students") \
         .select("student_id, f_name, l_name, m_name, evaluated") \
         .execute()
@@ -147,31 +110,10 @@ def search_students(query: str):
             filter(None, [s.get("l_name"), s.get("f_name"), s.get("m_name")])
         ).lower()
         if query_lower in full_name or query_lower in s["student_id"].lower():
-            sid = s["student_id"]
-            seen_ids.add(sid)
             results.append({
-                "student_id": sid,
+                "student_id": s["student_id"],
                 "name": f"{s['l_name']}, {s['f_name']} {s.get('m_name', '') or ''}".strip(),
                 "evaluated": str(s.get("evaluated", ""))
-            })
-
-    # --- Fallback: user_credentials (catches users not yet in students table) ---
-    cred_result = supabase.table("user_credentials") \
-        .select("student_id, full_name, username") \
-        .eq("role", "student") \
-        .execute()
-
-    for c in cred_result.data:
-        sid = c.get("student_id") or c.get("username")
-        if not sid or sid in seen_ids:
-            continue
-        full_name = (c.get("full_name") or "").lower()
-        if query_lower in full_name or query_lower in sid.lower():
-            seen_ids.add(sid)
-            results.append({
-                "student_id": sid,
-                "name": c.get("full_name") or sid,
-                "evaluated": ""
             })
 
     return results[:10]

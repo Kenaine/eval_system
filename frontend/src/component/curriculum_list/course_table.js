@@ -37,6 +37,14 @@ export default function CourseTable({ courses, onReorder, curriculum, onDelete }
     coursesByYearSem[key].push(course);
   });
 
+  // Get all year-sem combinations that have courses, sorted properly
+  const sortedYearSems = Object.keys(coursesByYearSem).sort((a, b) => {
+    const [yearA, semA] = a.split('-').map(Number);
+    const [yearB, semB] = b.split('-').map(Number);
+    if (yearA !== yearB) return yearA - yearB;
+    return semA - semB;
+  });
+
   return (
     <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <SortableContext
@@ -58,32 +66,28 @@ export default function CourseTable({ courses, onReorder, curriculum, onDelete }
             </tr>
           </thead>
           <tbody>
-            {Array.from({ length: 4 }, (_, yearIdx) =>
-              Array.from({ length: 2 }, (_, semIdx) => {
-                const year = yearIdx + 1;   
-                const sem = semIdx + 1;
-                const key = `${year}-${sem}`;
-                const yearSemCourses = coursesByYearSem[key] || [];
+            {sortedYearSems.map((key) => {
+              const [year, sem] = key.split('-').map(Number);
+              const yearSemCourses = coursesByYearSem[key];
 
-                return (
-                  <React.Fragment key={key}>
-                    <tr style={{ backgroundColor: "#d6eaff", fontWeight: "bold" }}>
-                      <td colSpan="9" style={{ padding: "0.75rem" }}>
-                        {ordinal(year)} Year, {ordinal(sem)} Sem
-                      </td>
-                    </tr>
-                    {yearSemCourses.map((course) => (
-                      <SortableCourseRow 
-                        key={course.course_id} 
-                        course={course} 
-                        curriculum={curriculum}
-                        onDelete={onDelete}
-                      />
-                    ))}
-                  </React.Fragment>
-                );
-              })
-            )}
+              return (
+                <React.Fragment key={key}>
+                  <tr style={{ backgroundColor: "#d6eaff", fontWeight: "bold" }}>
+                    <td colSpan="9" style={{ padding: "0.75rem" }}>
+                      {ordinal(year)} Year, {ordinal(sem)} Sem
+                    </td>
+                  </tr>
+                  {yearSemCourses.map((course) => (
+                    <SortableCourseRow 
+                      key={course.course_id} 
+                      course={course} 
+                      curriculum={curriculum}
+                      onDelete={onDelete}
+                    />
+                  ))}
+                </React.Fragment>
+              );
+            })}
           </tbody>
         </table>
       </SortableContext>

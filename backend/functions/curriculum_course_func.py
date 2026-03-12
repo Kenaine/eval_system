@@ -15,10 +15,13 @@ def getCurrCourse(curriculum: str):
     
     curriculum_id = curr_result.data[0]["id"]
     
-    # Get all curriculum_course entries with course details
+    # Get all curriculum_course entries with course details, sorted properly
     result = supabase.table("curriculum_course") \
         .select("*, courses(*)") \
         .eq("curriculum_id", curriculum_id) \
+        .order("course_year") \
+        .order("course_sem") \
+        .order("sequence") \
         .execute()
     
     # Flatten the response
@@ -57,6 +60,19 @@ def addCourse(course: CurriculumCourse):
         )
     
     curriculum_id = curr_result.data[0]["id"]
+    
+    # Check if course already exists in this curriculum
+    existing = supabase.table("curriculum_course") \
+        .select("*") \
+        .eq("curriculum_id", curriculum_id) \
+        .eq("course_id", course.course_id) \
+        .execute()
+    
+    if existing.data:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Course '{course.course_id}' already exists in curriculum '{course.curriculum}'"
+        )
     
     # Insert the curriculum_course entry
     try:

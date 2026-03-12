@@ -92,7 +92,7 @@ def getStudentCourses(student_id: str, program_id: str):
     
     # 2. Get ALL course details (we'll filter in Python)
     courses_result = supabase.table("courses")\
-        .select("course_id, course_name, units_lec, units_lab, course_sem, course_year")\
+        .select("course_id, course_name, units_lec, units_lab, course_sem")\
         .execute()
     
     # Filter to only the courses the student has
@@ -116,6 +116,10 @@ def getStudentCourses(student_id: str, program_id: str):
         
         course_data = course_map.get(course_id, {})
         grade_data = grade_map.get(course_id, {})
+        sequence = sequence_map.get(course_id, 0)
+        
+        # Calculate year from sequence (approx 10 courses per year)
+        year = min((sequence // 10) + 1, 4)
         
         units_lec = course_data.get("units_lec", 0) or 0
         units_lab = course_data.get("units_lab", 0) or 0
@@ -127,10 +131,10 @@ def getStudentCourses(student_id: str, program_id: str):
             "units_lec": units_lec,
             "units_lab": units_lab,
             "semester": course_data.get("course_sem"),
-            "year": course_data.get("course_year", 1),
+            "year": year,
             "grade": grade_data.get("grade"),
             "remark": grade_data.get("remark") or "N/A",
-            "sequence": sequence_map.get(course_id, 0)
+            "sequence": sequence
         })
     
     # Sort by sequence

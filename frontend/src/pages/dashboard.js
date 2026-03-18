@@ -157,7 +157,7 @@ const TableStudents = ({student_list}) => {
                     <tr key={index}>
                         <td>{index + 1}</td>
                         <div className={style.tableData}>
-                            <td>{student.id}</td>
+                            <td>{student.student_id}</td>
                             <td>{student.year}</td>
                             <td>{student.gwa}</td>
                         </div>

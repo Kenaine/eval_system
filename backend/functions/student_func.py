@@ -118,16 +118,33 @@ def getStudent(student_id: str = None):
 
 def search_students(query: str):
     """
-    Search students by name or student_id in the students table only.
+    Search students by name or student_id in the students table only, applying active filters.
     """
     query_lower = query.lower()
     results = []
 
-    # Query students table - limit to reduce data transfer
-    db_result = supabase.table("students") \
-        .select("student_id, f_name, l_name, m_name, evaluated") \
-        .limit(100) \
-        .execute()
+    # Start building the query with base selection
+    query_builder = supabase.table("students") \
+        .select("student_id, f_name, l_name, m_name, evaluated, status, is_transferee, program_id, year")
+    
+    # Apply search filters
+    if search_filter.get("status"):
+        # Filter by status values in search_filter
+        query_builder = query_builder.in_("status", search_filter["status"])
+    
+    if search_filter.get("is_transferee") is not None:
+        # Filter by is_transferee values in search_filter
+        query_builder = query_builder.in_("is_transferee", search_filter["is_transferee"])
+    
+    if search_filter.get("program_id"):
+        # Filter by program_id values in search_filter
+        query_builder = query_builder.in_("program_id", search_filter["program_id"])
+    
+    if search_filter.get("year"):
+        # Filter by year values in search_filter
+        query_builder = query_builder.in_("year", search_filter["year"])
+    
+    db_result = query_builder.limit(100).execute()
 
     for s in db_result.data:
         full_name = " ".join(

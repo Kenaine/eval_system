@@ -8,7 +8,8 @@ from db.supabase_client import supabase
 def getAllCourses():
     """Get all courses from the courses table"""
     result = supabase.table("courses").select("*").execute()
-    return result.data
+    # Sort by course_id
+    return sorted(result.data, key=lambda x: x.get("course_id", ""))
 
 def addCourse(course: CourseSchema):
     course_dict = course.model_dump()

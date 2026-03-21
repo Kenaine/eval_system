@@ -50,6 +50,7 @@ export default function CurriculumList() {
 
         await apiClient.get(`/currCourse/get_courses`, {
             params: {
+                program: selectedProgram,
                 curriculum: e.target.value
             }
         })

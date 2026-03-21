@@ -2,11 +2,12 @@ from fastapi import HTTPException, status
 from db.supabase_client import supabase
 from schema.curriculum_course_schema import CurriculumCourse
 
-def getCurrCourse(curriculum: str):
+def getCurrCourse(program: str, curriculum: str):
     """Get all courses for a specific curriculum"""
-    # First get the curriculum ID by name
+    # First get the curriculum ID by name and program
     curr_result = supabase.table("curriculum") \
         .select("id") \
+        .eq("program_id", program) \
         .eq("name", curriculum) \
         .execute()
     

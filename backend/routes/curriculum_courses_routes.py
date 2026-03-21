@@ -5,8 +5,8 @@ from fastapi import APIRouter
 router = APIRouter()
 
 @router.get("/get_courses")
-def getCurrCourses(curriculum: str):
-    return curriculum_course_func.getCurrCourse(curriculum)
+def getCurrCourses(program: str, curriculum: str):
+    return curriculum_course_func.getCurrCourse(program, curriculum)
 
 @router.post("/add-course")
 def addCourse(course: CurriculumCourse):

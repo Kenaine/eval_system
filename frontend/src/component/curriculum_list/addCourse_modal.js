@@ -32,9 +32,8 @@ export default function AddCourseModal({allCourses, handleAddCourse, setShowAddM
             }
         ]);
         
+        // Only clear the course selection, keep year/sem
         setSelectedCourseId("");
-        setSelectedYear(1);
-        setSelectedSem(1);
     }
 
     function removeFromList(index){
@@ -87,28 +86,6 @@ export default function AddCourseModal({allCourses, handleAddCourse, setShowAddM
             }}>
                 <h2 style={{ marginTop: 0 }}>Add Courses</h2>
                 
-                <div style={{ marginBottom: "1rem" }}>
-                    <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold" }}>
-                        Select Course:
-                    </label>
-                    <select
-                        value={selectedCourseId}
-                        onChange={(e) => setSelectedCourseId(e.target.value)}
-                        style={{
-                            width: "100%",
-                            padding: "0.5rem",
-                            fontSize: "1rem",
-                        }}
-                    >
-                        <option value="">-- Choose a course --</option>
-                        {allCourses.map((course) => (
-                            <option key={course.course_id} value={course.course_id}>
-                                {course.course_id} - {course.course_name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
                 <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
                     <div style={{ flex: 1 }}>
                         <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold" }}>
@@ -147,6 +124,28 @@ export default function AddCourseModal({allCourses, handleAddCourse, setShowAddM
                             <option value={2}>2nd Semester</option>
                         </select>
                     </div>
+                </div>
+
+                <div style={{ marginBottom: "1rem" }}>
+                    <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold" }}>
+                        Select Course:
+                    </label>
+                    <select
+                        value={selectedCourseId}
+                        onChange={(e) => setSelectedCourseId(e.target.value)}
+                        style={{
+                            width: "100%",
+                            padding: "0.5rem",
+                            fontSize: "1rem",
+                        }}
+                    >
+                        <option value="">-- Choose a course --</option>
+                        {allCourses.map((course) => (
+                            <option key={course.course_id} value={course.course_id}>
+                                {course.course_id} - {course.course_name}
+                            </option>
+                        ))}
+                    </select>
                 </div>
 
                 <button

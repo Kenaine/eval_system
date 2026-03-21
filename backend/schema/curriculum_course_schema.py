@@ -14,7 +14,9 @@ class CurriculumCourse(BaseModel):
     hours_lab:      int
     sequence:       int
     curriculum:     str
+    program_id:     str
 
 class DeleteCurriculumCourse(BaseModel):
     course_id:  str
     curriculum: str
+    program_id: str

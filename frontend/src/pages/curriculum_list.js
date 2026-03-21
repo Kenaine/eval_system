@@ -26,6 +26,16 @@ export default function CurriculumList() {
         setPrograms(prgms || [])
     }, []);
 
+    useEffect(() => {
+        // Listen for batch course additions
+        const handleCoursesAdded = (event) => {
+            setCourses([...courses, ...event.detail]);
+        };
+        
+        window.addEventListener('coursesAdded', handleCoursesAdded);
+        return () => window.removeEventListener('coursesAdded', handleCoursesAdded);
+    }, [courses]);
+
     const handleProgramChange = async (e) => {
         const programId = e.target.value;
         setSelectedProgram(programId);
@@ -77,20 +87,22 @@ export default function CurriculumList() {
         setShowAddModal(true);
     };
 
-    const handleAddCourse = async (selectedCourseId, selectedYear, selectedSem) => {
+    const handleAddCourse = async (selectedCourseId, selectedYear, selectedSem, currentCourses = null) => {
         if (!selectedCourseId) {
             alert("Please select a course");
-            return;
+            return null;
         }
 
         const selectedCourse = allCourses.find((c) => c.course_id === selectedCourseId);
         if (!selectedCourse) {
             alert("Invalid course selection");
-            return;
+            return null;
         }
 
+        // Use provided courses list for sequence calculation, or fall back to state
+        const coursesToCheck = currentCourses !== null ? currentCourses : courses;
         // Calculate sequence: find max sequence in the selected year/sem
-        const coursesInYearSem = courses.filter(
+        const coursesInYearSem = coursesToCheck.filter(
             (c) => c.course_year === selectedYear && c.course_sem === selectedSem
         );
         const maxSequence =
@@ -114,15 +126,15 @@ export default function CurriculumList() {
                 units_lab: selectedCourse.units_lab || 0,
                 sequence: newSequence,
                 curriculum: selectedCurriculum,
+                program_id: selectedProgram
             };
 
             await apiClient.post(`/currCourse/add-course`, newCourseData);
-            setCourses([...courses, newCourseData]);
-            
-            setShowAddModal(false);
+            return newCourseData;
         } catch (err) {
             console.error("Failed to add course:", err);
-            alert("Failed to add course");
+            alert("Failed to add course: ", err);
+            return null;
         }
     };
 
@@ -130,7 +142,8 @@ export default function CurriculumList() {
         try {
             await apiClient.post(`/currCourse/delete-course`, {
                 course_id: courseId,
-                curriculum: curriculum
+                curriculum: curriculum,
+                program_id: selectedProgram
             });
             setCourses(courses.filter((c) => c.course_id !== courseId));
         } catch (err) {

@@ -52,6 +52,7 @@ def addCourse(course: CurriculumCourse):
     curr_result = supabase.table("curriculum") \
         .select("id") \
         .eq("name", course.curriculum) \
+        .eq("program_id", course.program_id) \
         .execute()
     
     if not curr_result.data:
@@ -92,11 +93,12 @@ def addCourse(course: CurriculumCourse):
             detail=f"Failed to add course: {str(e)}"
         )
 
-def deleteCourse(course_id: str, curriculum: str):
+def deleteCourse(course_id: str, program_id: str, curriculum: str):
     """Delete a course from a curriculum"""
     # Get curriculum ID from name
     curr_result = supabase.table("curriculum") \
         .select("id") \
+        .eq("program_id", program_id) \
         .eq("name", curriculum) \
         .execute()
     

@@ -14,4 +14,4 @@ def addCourse(course: CurriculumCourse):
 
 @router.post("/delete-course")
 def deleteCourse(course: DeleteCurriculumCourse):
-    return curriculum_course_func.deleteCourse(course.course_id, course.curriculum)
+    return curriculum_course_func.deleteCourse(course.course_id, course.program_id, course.curriculum)

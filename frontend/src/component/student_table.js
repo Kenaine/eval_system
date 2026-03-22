@@ -284,7 +284,12 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                                             style.defaultRow
                                     }>
                                         <td>{course.course_id}</td>
-                                        <td>{course.course_name}</td>
+                                        <td>
+                                            <span className={style.printOnlyInline}>
+                                                {ordinal(year)} Year, {ordinal(semester)} Sem — 
+                                            </span>
+                                            {course.course_name}
+                                        </td>
                                         <td>{course.course_units}</td>
                                         <td>{effectiveRemark === "Passed" ? course.course_units : "-"}</td>
                                         <td>

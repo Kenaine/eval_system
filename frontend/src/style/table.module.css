@@ -198,9 +198,18 @@ table svg:hover {
     font-weight: 600;
 }
 
+.printOnlyInline {
+    display: none;
+}
+
 @media print{
     .printHideActions {
         display: none !important;
+    }
+
+    .printOnlyInline {
+        display: inline !important;
+        font-weight: 700;
     }
 
   .tble th:last-child,

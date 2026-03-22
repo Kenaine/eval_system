@@ -3,16 +3,19 @@ import axios from "axios";
 import Modal from "./modal";
 import { FaPlus } from "react-icons/fa";
 import { createPortal } from "react-dom";
+import apiClient from "../lib/api";
 
 export default function AddStudent({ onSubmit }) {
   let title = "Add New Student";
   const [programs, setPrograms] = useState([]);
+  const [curriculums, setCurriculums] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     student_id: "",
     email: "",
     dept: "",
     program_id: "",
+    curriculum: "",
     f_name: "",
     l_name: "",
     m_name: "",
@@ -22,6 +25,11 @@ export default function AddStudent({ onSubmit }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "program_id") {
+      setFormData({ ...formData, program_id: value, curriculum: "" });
+      return;
+    }
 
     setFormData({ ...formData, [name]: value });
   };
@@ -35,6 +43,7 @@ export default function AddStudent({ onSubmit }) {
       email: "",
       dept: "",
       program_id: "",
+      curriculum: "",
       f_name: "",
       l_name: "",
       m_name: "",
@@ -61,6 +70,23 @@ export default function AddStudent({ onSubmit }) {
 
   }, [showModal])
 
+  useEffect(() => {
+    if (!showModal || !formData.program_id) {
+      setCurriculums([]);
+      return;
+    }
+
+    apiClient
+      .get(`/curriculum/get/${formData.program_id}`)
+      .then((res) => {
+        setCurriculums(Array.isArray(res.data) ? res.data : []);
+      })
+      .catch((err) => {
+        console.error("Failed to load curriculums:", err);
+        setCurriculums([]);
+      });
+  }, [formData.program_id, showModal]);
+
   return (
     <>
       <FaPlus
@@ -72,7 +98,9 @@ export default function AddStudent({ onSubmit }) {
                     <Modal title={title} programs={programs} formData={formData} 
                           handleSubmit={handleSubmit} handleChange={handleChange} 
                           onClose={() => setShowModal(false)}
-                          isEdit={false} />
+                          isEdit={false}
+                          curriculums={curriculums}
+                          showCurriculumSelect={true} />
                           , document.body
       )}
     </>

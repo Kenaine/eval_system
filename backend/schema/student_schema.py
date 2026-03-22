@@ -3,6 +3,8 @@ from pydantic import BaseModel
 class Student(BaseModel):
     student_id:     str
     program_id:     str
+    curriculum:     str | None = None
+    curriculum_id:  int | None = None
     archived:       bool = False
     dept:           str | None = None
     email:          str | None = None

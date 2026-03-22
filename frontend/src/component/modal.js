@@ -2,7 +2,7 @@ import { react } from "react";
 import style from "../style/studentPopUp.module.css";
 
 
-export default function Modal({title, programs, formData, handleSubmit, handleChange, onClose, isEdit}){
+export default function Modal({title, programs, formData, handleSubmit, handleChange, onClose, isEdit, curriculums = [], showCurriculumSelect = false}){
     return(
         <div className={style.modalOverlay}>
             <div className={style.modalContent}>
@@ -23,6 +23,22 @@ export default function Modal({title, programs, formData, handleSubmit, handleCh
                     );
                     })}
                 </select>
+                {showCurriculumSelect && (
+                    <select
+                        name="curriculum"
+                        value={formData.curriculum || ""}
+                        onChange={handleChange}
+                        required
+                        disabled={!formData.program_id}
+                    >
+                        <option value="">Select Curriculum</option>
+                        {curriculums.map((curriculum) => (
+                            <option key={curriculum.id || curriculum.name} value={curriculum.name}>
+                                {curriculum.name}
+                            </option>
+                        ))}
+                    </select>
+                )}
                 <input name="f_name" value={formData.f_name} onChange={handleChange} placeholder="First Name" required />
                 <input name="l_name" value={formData.l_name} onChange={handleChange} placeholder="Last Name" required />
                 <input name="m_name" value={formData.m_name} onChange={handleChange} placeholder="Middle Name" />

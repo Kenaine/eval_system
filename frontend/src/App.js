@@ -1,4 +1,4 @@
-import {BrowserRouter as Router, Routes, Route} from "react-router-dom"
+import {BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom"
 import { createContext, useContext, useState, useEffect } from "react";
 import Login from "./pages/login"
 import Checklist from "./pages/checklist"
@@ -9,6 +9,7 @@ import CourseList from "./pages/course_list";
 import CurriculumList from "./pages/curriculum_list";
 import './App.css';
 import apiClient from "./lib/api";
+import { isStudent } from "./lib/auth";
 
 const UserContext = createContext(null)
 const CoursesContext = createContext(null)
@@ -17,6 +18,17 @@ const ProgramFunc = createContext(null)
 function App() {
   const [currentUser, setCurrentUser] = useState(null); 
   const [courses, setCourses] = useState([]);
+
+  const ProtectedRoute = ({ children, adminOnly = false }) => {
+    const token = sessionStorage.getItem('supabase_token');
+    if (!token) return <Navigate to="/" replace />;
+
+    if (adminOnly && isStudent(currentUser?.role)) {
+      return <Navigate to="/curriculum-checklist" replace />;
+    }
+
+    return children;
+  };
 
   // Restore session from sessionStorage on mount (custom JWT flow)
   useEffect(() => {
@@ -49,12 +61,13 @@ function App() {
             <Router>
               <Routes>
                 <Route path="/" element={<Login />} />
-                <Route path="/new" element={<NewChecklist />} />
-                <Route path="/dashboard" element={<Dashbaord />} />
-                <Route path="/program-courselist" element={<ProgramCourseList />} />
-                <Route path="/curriculum-checklist" element={<Checklist />} />
-                <Route path="/course-list" element={<CourseList />} />
-                <Route path="/curriculum-list" element={<CurriculumList />} />
+                <Route path="/new" element={<ProtectedRoute adminOnly={true}><NewChecklist /></ProtectedRoute>} />
+                <Route path="/dashboard" element={<ProtectedRoute adminOnly={true}><Dashbaord /></ProtectedRoute>} />
+                <Route path="/program-courselist" element={<ProtectedRoute adminOnly={true}><ProgramCourseList /></ProtectedRoute>} />
+                <Route path="/curriculum-checklist" element={<ProtectedRoute><Checklist /></ProtectedRoute>} />
+                <Route path="/course-list" element={<ProtectedRoute adminOnly={true}><CourseList /></ProtectedRoute>} />
+                <Route path="/curriculum-list" element={<ProtectedRoute adminOnly={true}><CurriculumList /></ProtectedRoute>} />
+                <Route path="*" element={<Navigate to={sessionStorage.getItem('supabase_token') ? "/curriculum-checklist" : "/"} replace />} />
               </Routes>
             </Router>
         </CoursesContext.Provider>

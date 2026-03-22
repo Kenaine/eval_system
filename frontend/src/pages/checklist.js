@@ -15,6 +15,7 @@ import { BulkGradeUpload } from "../component/student_table";
 
 import { useUser, useCourses } from "../App";
 import { API_URL } from "../misc/url";
+import { isAdmin, isStudent } from "../lib/auth";
 
 export default function Checklist() {
     const pageName = "CURRICULUM CHECKLIST";
@@ -24,6 +25,8 @@ export default function Checklist() {
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [courses, setCourses] = useState([]);
     const [isViewing, setIsViewing] = useState(false);
+    const studentView = isStudent(currentUser?.role);
+    const adminView = isAdmin(currentUser?.role);
 
     const addStudent = async (student) => {
         try {
@@ -69,17 +72,17 @@ export default function Checklist() {
 
     // Auto-load student's own data if they're logged in as a student
     useEffect(() => {
-        if (currentUser?.role === "student" && currentUser?.student_id) {
+        if (studentView && currentUser?.student_id) {
             handleStudentSelect(currentUser.student_id);
         }
-    }, [currentUser]);
+    }, [studentView, currentUser]);
 
     return (
         <div className={style.curChecklist}>
             <HeaderWebsite pageName={pageName} />
 
             <div className={style.studentBody}>
-                {currentUser?.role !== "student" && (
+                {adminView && (
                     <div className={style.studentSearchBarWrapper}>
                         <StudentSearchBar onSelectStudent={handleStudentSelect} />
                     </div>
@@ -89,7 +92,7 @@ export default function Checklist() {
                     <h3>
                         STUDENT RESIDENCY EVALUATION
                         <span className={style.buttons}>
-                            {currentUser?.role !== "student" && (
+                            {adminView && (
                                 <>
                                     <AddStudent onSubmit={addStudent} />
                                     <BulkUploadStudent onSuccess={() => {}} />
@@ -100,11 +103,13 @@ export default function Checklist() {
                                     />
                                 </>
                             )}
-                            <FaPrint
-                                style={{ cursor: "pointer" }}
-                                title="Print"
-                                onClick={() => window.print()}
-                            />
+                            {(studentView || adminView) && (
+                                <FaPrint
+                                    style={{ cursor: "pointer" }}
+                                    title="Print"
+                                    onClick={() => window.print()}
+                                />
+                            )}
                         </span>
                     </h3>
 

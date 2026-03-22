@@ -8,10 +8,10 @@ import apiClient from "../lib/api";
  * Lets the admin upload a CSV to bulk-insert students.
  *
  * Required CSV columns:
- *   student_id, f_name, l_name, program_id, year, status
+ *   student_id, email, dept, program_id, curriculum, f_name, l_name, year, status
  *
  * Optional CSV columns:
- *   m_name, is_transferee, dept, email, gwa, evaluated, archived
+ *   m_name, is_transferee, gwa, evaluated, archived
  */
 export default function BulkUploadStudent({ onSuccess }) {
   const fileInputRef = useRef(null);
@@ -46,8 +46,8 @@ export default function BulkUploadStudent({ onSuccess }) {
   };
 
   const downloadTemplate = () => {
-    const header = "student_id,f_name,m_name,l_name,program_id,year,status,is_transferee,dept,email";
-    const example = "2024-00001,Juan,Santos,Dela Cruz,BSCS,1,Regular,false,CCS,juan@example.com";
+    const header = "student_id,email,dept,program_id,curriculum,f_name,m_name,l_name,year,status,is_transferee";
+    const example = "2024-00001,juan@example.com,CCS,BSCS,2022 - 2023,Juan,Santos,Dela Cruz,1,Regular,false";
     const blob = new Blob([header + "\n" + example], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

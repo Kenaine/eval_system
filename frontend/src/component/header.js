@@ -3,9 +3,12 @@ import { FaHome, FaChartLine, FaList, FaClipboardCheck, FaBook, FaGraduationCap,
 import { useNavigate } from "react-router-dom";
 import Logo from "../imgs/uphsllogo.png";
 import style from "../style/header.module.css"
+import { useUser } from "../App";
+import { isStudent } from "../lib/auth";
 
 export default function HeaderWebsite({ pageName }){
     const navigate = useNavigate();
+    const [currentUser] = useUser() || [];
     const pageList = [
         { link: "New Checklist", path: "/new", icon: FaHome, label: "Home" }, 
         { link: "Dashboard", path: "/dashboard", icon: FaChartLine, label: "Dashboard" }, 
@@ -14,6 +17,9 @@ export default function HeaderWebsite({ pageName }){
         { link: "Course List", path: "/course-list", icon: FaBook, label: "Courses" },
         { link: "Curriculum List", path: "/curriculum-list", icon: FaGraduationCap, label: "Curriculum" }
     ];
+    const visiblePages = isStudent(currentUser?.role)
+        ? pageList.filter((page) => page.path === "/curriculum-checklist")
+        : pageList;
 
     const signOut = () => {
         sessionStorage.removeItem('supabase_token');
@@ -33,7 +39,7 @@ export default function HeaderWebsite({ pageName }){
             </div>
             
             <nav className={style.navIcons}>
-                {pageList.map((page) => {
+                {visiblePages.map((page) => {
                     const Icon = page.icon;
                     const isActive = page.link.toLowerCase() === pageName.toLowerCase();
                     return (

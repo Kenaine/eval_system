@@ -1,10 +1,11 @@
-import React, { useState } from "react";
-import { FaPencilAlt, FaCheck } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import { FaCheck } from "react-icons/fa";
 import { FaXmark } from "react-icons/fa6";
 import style from "../style/table.module.css";
 import axios from "axios";
 
 import { API_URL } from "../misc/url";
+import { isAdmin } from "../lib/auth";
 
 // 🔧 Helper function to add ordinal suffix to numbers (1 -> 1st, 2 -> 2nd, etc.)
 function ordinal(n) {
@@ -14,18 +15,16 @@ function ordinal(n) {
 }
 
 export default function CourseTable({ student_id, courses, role, onSelectStudent }) {
-    const [editedCourse, setEditedCourse] = useState("");
-    const [editIndex, setEditIndex] = useState(null);
-    const [editedGrade, setEditedGrade] = useState("");
-    const [editedRemark, setEditedRemark] = useState("");
     const [showBulkUpload, setShowBulkUpload] = useState(false);
+    const [isEditGradesMode, setIsEditGradesMode] = useState(false);
+    const [draftCourses, setDraftCourses] = useState([]);
+    const [isSavingGrades, setIsSavingGrades] = useState(false);
 
-    const handleEditClick = (index, course_id, grade, remark) => {
-        setEditIndex(index);
-        setEditedCourse(course_id)
-        setEditedGrade(grade ?? "");
-        setEditedRemark(remark ? remark: "Passed");
-    };
+    useEffect(() => {
+        if (!isEditGradesMode) {
+            setDraftCourses(courses || []);
+        }
+    }, [courses, isEditGradesMode]);
 
     const refreshStudentData = async () => {
         setShowBulkUpload(false);
@@ -37,31 +36,148 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
         }
     };
 
-    const handleSave = async () => {
-        // Handle saving here
-        //console.log("Saving grade:", editedGrade, "remark:", editedRemark);
-        let gradeToSend = editedGrade
-        
-        if (!editedGrade || editedGrade === "-") {
-            gradeToSend = "-1.0"
+    const normalizeGradeForCompare = (value) => {
+        const raw = String(value ?? "").trim();
+        if (raw === "" || raw === "-") {
+            return null;
         }
 
-        try{
-            await axios.patch( API_URL + `/SC/update-grade/${student_id}-${editedCourse}`,
-                { grade: gradeToSend, remark: editedRemark },
-                { withCredentials: true }
-            )
-        }
-        catch(err){
-            console.error("Editing failed: ", editedGrade);
+        const parsed = Number(raw);
+        if (Number.isNaN(parsed)) {
+            return raw;
         }
 
-        courses[editIndex].grade = gradeToSend;
-        courses[editIndex].remark = editedRemark;
+        if (parsed === -1) {
+            return null;
+        }
 
-        setEditedCourse("");
-        setEditIndex(null);
+        return Number(parsed.toFixed(2));
     };
+
+    const deriveRemarkFromGrade = (value) => {
+        const raw = String(value ?? "").trim();
+        if (raw === "" || raw === "-") {
+            return "N/A";
+        }
+
+        const parsed = Number(raw);
+        if (Number.isNaN(parsed)) {
+            return "N/A";
+        }
+
+        return parsed <= 3 ? "Passed" : "Failed";
+    };
+
+    const isValidGrade = (value) => {
+        const raw = String(value ?? "").trim();
+        if (raw === "" || raw === "-") {
+            return true;
+        }
+
+        if (!/^\d+(\.\d{1,2})?$/.test(raw)) {
+            return false;
+        }
+
+        const parsed = Number(raw);
+        if (Number.isNaN(parsed)) {
+            return false;
+        }
+
+        return parsed >= 1 && parsed <= 5;
+    };
+
+    const toApiGrade = (value) => {
+        const raw = String(value ?? "").trim();
+        if (raw === "" || raw === "-") {
+            return -1.0;
+        }
+        return Number(raw);
+    };
+
+    const handleGradeChange = (courseId, value) => {
+        setDraftCourses((prev) =>
+            prev.map((course) =>
+                course.course_id === courseId ? { ...course, grade: value } : course
+            )
+        );
+    };
+
+    const handleIncompleteToggle = (courseId, checked) => {
+        setDraftCourses((prev) =>
+            prev.map((course) =>
+                course.course_id === courseId
+                    ? { ...course, forceIncomplete: checked, grade: checked ? "" : course.grade }
+                    : course
+            )
+        );
+    };
+
+    const toggleEditGrades = async () => {
+        if (!student_id) {
+            return;
+        }
+
+        if (!isEditGradesMode) {
+            setDraftCourses((courses || []).map((course) => ({
+                ...course,
+                grade: course.grade ?? "",
+                remark: course.remark ?? "N/A",
+                forceIncomplete: String(course.remark || "").toLowerCase() === "incomplete"
+            })));
+            setIsEditGradesMode(true);
+            return;
+        }
+
+        const originalByCourseId = new Map((courses || []).map((course) => [course.course_id, course]));
+        const changedCourses = (draftCourses || []).filter((course) => {
+            const original = originalByCourseId.get(course.course_id);
+            if (!original) return false;
+
+            const originalIncomplete = String(original.remark || "").toLowerCase() === "incomplete";
+            const currentIncomplete = course.forceIncomplete === true;
+
+            return (
+                normalizeGradeForCompare(original.grade) !== normalizeGradeForCompare(course.grade) ||
+                originalIncomplete !== currentIncomplete
+            );
+        });
+
+        const invalidCourse = changedCourses.find((course) => !isValidGrade(course.grade));
+        if (invalidCourse) {
+            alert(`Invalid grade for ${invalidCourse.course_id}. Use values from 1.00 to 5.00 only.`);
+            return;
+        }
+
+        if (changedCourses.length === 0) {
+            setIsEditGradesMode(false);
+            return;
+        }
+
+        setIsSavingGrades(true);
+        try {
+            for (const course of changedCourses) {
+                await axios.patch(
+                    API_URL + `/SC/update-grade/${student_id}-${course.course_id}`,
+                    {
+                        grade: course.forceIncomplete ? -1.0 : toApiGrade(course.grade),
+                        remark: course.forceIncomplete ? "Incomplete" : deriveRemarkFromGrade(course.grade),
+                        force_incomplete: course.forceIncomplete === true
+                    },
+                    { withCredentials: true }
+                );
+            }
+
+            setIsEditGradesMode(false);
+            await refreshStudentData();
+        } catch (err) {
+            console.error("Saving edited grades failed:", err);
+            alert(err.response?.data?.detail || "Failed to save edited grades");
+        } finally {
+            setIsSavingGrades(false);
+        }
+    };
+
+    const displayedCourses = isEditGradesMode ? draftCourses : courses;
 
     return (
         <>
@@ -83,14 +199,25 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                     <span>Failed</span>
                 </div>
 
-                {role && role === "admin" && (
-                    <button 
-                        className={style.button} 
-                        onClick={() => setShowBulkUpload(true)}
-                        disabled={!student_id}
-                    >
-                        Bulk Upload Grades
-                    </button>
+                {isAdmin(role) && (
+                    <div className={style.printHideActions} style={{ marginLeft: "auto", display: "flex", gap: "0.5rem" }}>
+                        <button
+                            className={style.button}
+                            style={{ marginLeft: 0 }}
+                            onClick={toggleEditGrades}
+                            disabled={!student_id || isSavingGrades}
+                        >
+                            {isSavingGrades ? "Saving..." : "Edit Grades"}
+                        </button>
+                        <button 
+                            className={style.button}
+                            style={{ marginLeft: 0 }}
+                            onClick={() => setShowBulkUpload(true)}
+                            disabled={!student_id || isEditGradesMode || isSavingGrades}
+                        >
+                            Bulk Upload Grades
+                        </button>
+                    </div>
                 )}
             </div>
 
@@ -115,7 +242,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                     </tr>
                 </thead>
                 <tbody>
-                    {courses?.length === 0 ? (
+                    {displayedCourses?.length === 0 ? (
                         <tr>
                             <td colSpan="7" style={{ textAlign: "center" }}>
                                 No courses found.
@@ -123,7 +250,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                         </tr>
                     ) : (
                         (() => {
-                            const sorted = [...courses].sort((a, b) =>
+                            const sorted = [...displayedCourses].sort((a, b) =>
                                 a.year !== b.year ? a.year - b.year : a.semester - b.semester
                             );
 
@@ -133,6 +260,9 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
 
                             sorted.forEach((course, index) => {
                                 const { year, semester } = course;
+                                const effectiveRemark = isEditGradesMode
+                                    ? (course.forceIncomplete ? "Incomplete" : deriveRemarkFromGrade(course.grade))
+                                    : course.remark;
 
                                 if (year !== prevYear || semester !== prevSem) {
                                     rows.push(
@@ -146,56 +276,52 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                                     prevSem = semester;
                                 }
 
-                                const isEditing = editIndex === index;
-
                                 rows.push(
                                     <tr key={index} className={
-                                            course.remark === "Passed"     ? style.passedRow :
-                                            course.remark === "Incomplete" ? style.incompleteRow :
-                                            course.remark === "Failed"     ? style.failedRow :
+                                            effectiveRemark === "Passed"     ? style.passedRow :
+                                            effectiveRemark === "Incomplete" ? style.incompleteRow :
+                                            effectiveRemark === "Failed"     ? style.failedRow :
                                             style.defaultRow
                                     }>
                                         <td>{course.course_id}</td>
                                         <td>{course.course_name}</td>
                                         <td>{course.course_units}</td>
-                                        <td>{course.grade === null ? "-" : course.course_units}</td>
+                                        <td>{effectiveRemark === "Passed" ? course.course_units : "-"}</td>
                                         <td>
-                                            {isEditing ? (
+                                            {isEditGradesMode ? (
                                                 <input
-                                                    type="text"
-                                                    value={editedGrade}
-                                                    onChange={(e) => setEditedGrade(e.target.value)}
+                                                    type="number"
+                                                    min="1"
+                                                    max="5"
+                                                    step="0.01"
+                                                    value={course.grade ?? ""}
+                                                    disabled={course.forceIncomplete === true}
+                                                    onChange={(e) => handleGradeChange(course.course_id, e.target.value)}
                                                 />
                                             ) : (
                                                 course.grade ?? "-"
                                             )}
                                         </td>
                                         <td>
-                                            {isEditing ? (
-                                                <select
-                                                    value={editedRemark}
-                                                    onChange={(e) => setEditedRemark(e.target.value)}
-                                                >
-                                                    <option value="Passed">Passed</option>
-                                                    <option value="Incomplete">Incomplete</option>
-                                                    <option value="Failed">Failed</option>
-                                                    <option value="N/A">N/A</option>
-                                                </select>
+                                            {isEditGradesMode ? (
+                                                <label style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={course.forceIncomplete === true}
+                                                        onChange={(e) => handleIncompleteToggle(course.course_id, e.target.checked)}
+                                                    />
+                                                    <span>{effectiveRemark}</span>
+                                                </label>
                                             ) : (
-                                                course.remark
+                                                effectiveRemark
                                             )}
                                         </td>
                                         <td style={{padding: "0"}}>
-                                            {course.evaluated === false ?
-                                                <FaCheck fill="#00a700" size={25}/> :
-                                                <FaXmark fill="#ea0000" size={25}/>
+                                            {course.evaluated === true ?
+                                                <FaCheck fill="#00a700" size={25} title="Evaluated" /> :
+                                                <FaXmark fill="#ea0000" size={25} title="Not Evaluated" />
                                             }
                                         </td>
-                                        {isEditing && (
-                                            <td>
-                                                <button onClick={handleSave}>Save</button>
-                                            </td>
-                                        )}
                                     </tr>
                                 );
                             });

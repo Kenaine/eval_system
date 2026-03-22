@@ -3,9 +3,12 @@ import logo from "../imgs/uphsllogo.png";
 import { useNavigate } from "react-router-dom";
 import style from "./../style/login.module.css";
 import apiClient from "../lib/api";
+import { useUser } from "../App";
+import { isStudent } from "../lib/auth";
 
 export default function Login() {
     const navigate = useNavigate();
+    const [, setCurrentUser] = useUser();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -31,10 +34,11 @@ export default function Login() {
                 // Store user profile if available
                 if (response.data.profile) {
                     sessionStorage.setItem('user_profile', JSON.stringify(response.data.profile));
+                    setCurrentUser(response.data.profile);
                 }
                 
-                // Navigate to main page
-                navigate("/new");
+                // Navigate by role
+                navigate(isStudent(response.data?.profile?.role) ? "/curriculum-checklist" : "/new");
             } else {
                 setError("Login failed. Please try again.");
             }

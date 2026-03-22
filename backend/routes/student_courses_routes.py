@@ -8,7 +8,8 @@ router = APIRouter()
 
 class Grades(BaseModel):
     grade: float
-    remark: str 
+    remark: str
+    force_incomplete: bool = False
 
 @router.get("/get")
 def getStudentCourse(student_id: str, program_id: str):
@@ -16,7 +17,13 @@ def getStudentCourse(student_id: str, program_id: str):
 
 @router.patch("/update-grade/{student_id}-{course_id}")
 def updateGrade(course_id: str, student_id: str, newGrades: Grades):
-    return updateGrades(course_id, student_id, newGrades.grade, newGrades.remark)
+    return updateGrades(
+        course_id,
+        student_id,
+        newGrades.grade,
+        newGrades.remark,
+        newGrades.force_incomplete
+    )
 
 @router.post("/update-grades-bulk/{student_id}")
 async def updateGradesBulkRoute(student_id: str, file: UploadFile = File(...)):

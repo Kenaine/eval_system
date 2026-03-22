@@ -58,8 +58,10 @@ def takeOffEvaluation(student_id: str):
 async def bulk_upload_students(file: UploadFile = File(...)):
     """
     Accept a CSV file and insert each row as a student.
-    Required columns: student_id, f_name, l_name, program_id, year, status
-    Optional columns: m_name, is_transferee, dept, email, gwa, evaluated, archived
+        Required columns (same as Add Student popup):
+            student_id, email, dept, program_id, curriculum, f_name, l_name, year, status
+        Optional columns:
+            m_name, is_transferee, gwa, evaluated, archived
 
     Returns a summary: { inserted, failed, errors: [{row, reason}] }
     """
@@ -73,7 +75,17 @@ async def bulk_upload_students(file: UploadFile = File(...)):
         text = content.decode("latin-1")
 
     reader = csv.DictReader(io.StringIO(text))
-    required = {"student_id", "f_name", "l_name", "program_id", "year", "status"}
+    required = {
+        "student_id",
+        "email",
+        "dept",
+        "program_id",
+        "curriculum",
+        "f_name",
+        "l_name",
+        "year",
+        "status",
+    }
     if not required.issubset(set(reader.fieldnames or [])):
         missing = required - set(reader.fieldnames or [])
         raise HTTPException(

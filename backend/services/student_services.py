@@ -5,6 +5,17 @@ from db.supabase_client import supabase
 
 
 def addStudentHelper(student: Student):
+    if student.curriculum and not student.curriculum_id:
+        curriculum_result = supabase.table("curriculum") \
+            .select("id") \
+            .eq("program_id", student.program_id) \
+            .eq("name", student.curriculum) \
+            .limit(1) \
+            .execute()
+
+        if curriculum_result.data:
+            student.curriculum_id = curriculum_result.data[0]["id"]
+
     # Add student record
     addStudent(student)
 
@@ -20,7 +31,7 @@ def addStudentHelper(student: Student):
     }).execute()
 
     # Add their courses
-    addEntry(student.student_id, student.program_id)
+    addEntry(student.student_id, student.program_id, student.curriculum, student.curriculum_id)
 
 
 def bulkAddStudents(rows: list[dict]) -> dict:
@@ -34,17 +45,27 @@ def bulkAddStudents(rows: list[dict]) -> dict:
 
     for i, row in enumerate(rows, start=2):  # start=2: row 1 is the header
         try:
+            required_fields = [
+                "student_id", "email", "dept", "program_id", "curriculum",
+                "f_name", "l_name", "year", "status"
+            ]
+
+            for field in required_fields:
+                if not row.get(field, "").strip():
+                    raise ValueError(f"Missing required value for '{field}'")
+
             student = Student(
                 student_id   = row["student_id"].strip(),
                 f_name       = row["f_name"].strip(),
                 m_name       = row.get("m_name", "").strip() or None,
                 l_name       = row["l_name"].strip(),
                 program_id   = row["program_id"].strip(),
+                curriculum   = row["curriculum"].strip(),
                 year         = int(row["year"]),
                 status       = row["status"].strip(),
                 is_transferee= row.get("is_transferee", "false").strip().lower() == "true",
-                dept         = row.get("dept", "").strip() or None,
-                email        = row.get("email", "").strip() or None,
+                dept         = row["dept"].strip(),
+                email        = row["email"].strip(),
                 gwa          = float(row["gwa"]) if row.get("gwa", "").strip() else None,
                 evaluated    = int(row["evaluated"]) if row.get("evaluated", "").strip() else None,
                 archived     = row.get("archived", "false").strip().lower() == "true",

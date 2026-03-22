@@ -56,13 +56,21 @@
     background-color: white;
 
     height: var(--button-height);
-    width: var(--button-width);
+    min-width: var(--button-width);
+    width: auto;
+    padding: 0 14px;
 
     margin-left: auto;
 
     color: #1e4c8f;
     font-weight: 600;
     font-size: var(--button-font-size);
+    white-space: nowrap;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
 
     cursor: pointer;
     transition: all 0.3s ease;
@@ -191,6 +199,10 @@ table svg:hover {
 }
 
 @media print{
+    .printHideActions {
+        display: none !important;
+    }
+
   .tble th:last-child,
   .tble td:last-child {
     display: none !important;;

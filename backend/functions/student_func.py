@@ -28,7 +28,7 @@ search_filter = {
     "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"]}
 
 def addStudent(student: Student):
-    student_info = student.model_dump()
+    student_info = student.model_dump(exclude={"curriculum"}, exclude_none=True)
     
     result = supabase.table("students").insert(student_info).execute()
     
@@ -38,7 +38,7 @@ def addStudent(student: Student):
     return result
 
 def editStudent(student: Student):
-    student_info = student.model_dump()
+    student_info = student.model_dump(exclude={"curriculum"}, exclude_none=True)
     student_id = student_info["student_id"]
     
     result = supabase.table("students").update(student_info).eq("student_id", student_id).execute()
@@ -89,7 +89,7 @@ def getStudent(student_id: str = None):
             from functions.student_course_func import addEntry
             addEntry(student_id, student_data["program_id"])
         
-        courses = getStudentCourses(student_id, student_data["program_id"])
+        courses = getStudentCourses(student_id, student_data["program_id"], student_data.get("curriculum_id"))
 
         total_units = sum(course["course_units"] for course in courses)
         units_taken = sum(course["course_units"] for course in courses if course["remark"] == "Passed")

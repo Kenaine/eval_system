@@ -144,7 +144,7 @@ def search_students(query: str):
         # Filter by year values in search_filter
         query_builder = query_builder.in_("year", search_filter["year"])
     
-    db_result = query_builder.limit(100).execute()
+    db_result = query_builder.limit(500).execute()
 
     for s in db_result.data:
         full_name = " ".join(
@@ -156,7 +156,7 @@ def search_students(query: str):
                 "name": f"{s['l_name']}, {s['f_name']} {s.get('m_name', '') or ''}".strip(),
                 "evaluated": str(s.get("evaluated", ""))
             })
-            if len(results) >= 10:
+            if len(results) >= 30:
                 break
 
     return results

@@ -64,10 +64,7 @@
     margin-bottom: 10px;
 }
 
-.programList > li > input[type="checkbox"]
-{
-    display: none;
-}
+
 
 .programList > li > input[type="checkbox"] + label{
     display: block;

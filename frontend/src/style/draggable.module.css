@@ -11,7 +11,7 @@ table {
 }
 
 thead tr {
-  background: linear-gradient(135deg, #1e4c8f 0%, #2d5aa3 100%);
+  background: #1e4c8f;
   color: white;
   font-weight: bold;
 }

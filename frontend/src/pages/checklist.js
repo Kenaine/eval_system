@@ -129,7 +129,8 @@ export default function Checklist() {
                             <span>Year: {currentUser?.year ?? selectedStudent?.year ?? "N/A"}</span>
                             <span>Status: {currentUser?.status ?? selectedStudent?.status ?? "N/A"}</span>
                             <span>Total Units Taken: {currentUser?.units_taken ?? selectedStudent?.units_taken ?? "N/A"}</span>
-                            <span>GWA: {currentUser?.gwa ?? selectedStudent?.gwa ?? "N/A"}</span>
+                            <span>GWA: {(currentUser?.gwa ?? selectedStudent?.gwa) ? 
+                                        parseFloat(currentUser?.gwa ?? selectedStudent?.gwa).toFixed(2) : "N/A"}</span>
                         </div>
                     </div>
 

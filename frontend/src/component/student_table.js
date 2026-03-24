@@ -223,7 +223,8 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
 
             {showBulkUpload && (
                 <BulkGradeUpload 
-                    student_id={student_id} 
+                    student_id={student_id}
+                    courses={courses}
                     onSuccess={() => refreshStudentData()}
                     onClose={() => setShowBulkUpload(false)}
                 />
@@ -342,7 +343,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
 
 // Add this new component or update your existing one that handles grade editing
 
-export function BulkGradeUpload({ student_id, onSuccess, onClose }) {
+export function BulkGradeUpload({ student_id, courses, onSuccess, onClose }) {
     const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -358,6 +359,31 @@ export function BulkGradeUpload({ student_id, onSuccess, onClose }) {
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
         setError("");
+    };
+
+    const handleDownloadTemplate = () => {
+        if (!courses || courses.length === 0) {
+            setError("No courses available to generate template");
+            return;
+        }
+
+        // Create CSV content
+        const headers = "course_id,grades";
+        const rows = courses.map(course => `${course.course_id},`).join("\n");
+        const csvContent = `${headers}\n${rows}`;
+
+        // Create a blob and download
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute("href", url);
+        link.setAttribute("download", "grades_template.csv");
+        link.style.visibility = "hidden";
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     const handleUpload = async () => {
@@ -408,6 +434,13 @@ export function BulkGradeUpload({ student_id, onSuccess, onClose }) {
                         Cancel
                     </button>
                 </div>
+                <button 
+                    onClick={handleDownloadTemplate} 
+                    disabled={loading || !courses || courses.length === 0}
+                    style={{ marginTop: "10px", width: "100%" }}
+                >
+                    Download Template
+                </button>
                 {error && <span style={{ color: "red" }}>{error}</span>}
             </div>
         </div>

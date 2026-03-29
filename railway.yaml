@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: eval-system-backend
+    rootDirectory: backend
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false

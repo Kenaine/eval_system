@@ -17,13 +17,6 @@ origins = [
 ]
 
 app = FastAPI()
-app.include_router(course_router, prefix="/course", tags=["course"])
-app.include_router(auth_router, prefix="/auth", tags=["authentication"])
-app.include_router(student_router, prefix="/student", tags=["student"])
-app.include_router(SC_router, prefix="/SC", tags=["grade"])
-app.include_router(program_router, prefix="/program", tags=["program"])
-app.include_router(curriculum_router, prefix="/curriculum", tags=["curriculum"])
-app.include_router(curriculum_courses_router, prefix="/currCourse", tags=["curriculum_courses"])
 
 app.add_middleware(
     CORSMiddleware,
@@ -32,6 +25,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
+app.include_router(course_router, prefix="/course", tags=["course"])
+app.include_router(auth_router, prefix="/auth", tags=["authentication"])
+app.include_router(student_router, prefix="/student", tags=["student"])
+app.include_router(SC_router, prefix="/SC", tags=["grade"])
+app.include_router(program_router, prefix="/program", tags=["program"])
+app.include_router(curriculum_router, prefix="/curriculum", tags=["curriculum"])
+app.include_router(curriculum_courses_router, prefix="/currCourse", tags=["curriculum_courses"])
 
 @app.get("/")
 def root():

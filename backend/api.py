@@ -12,7 +12,8 @@ origins = [
     "http://localhost:3000",
     "http://localhost:5000",
     "https://eval-system-eight.vercel.app",
-    "https://eval-system-ar1e.onrender.com"
+    "https://eval-system-ar1e.onrender.com",
+    "https://eval-system-backend-production-f1b6.up.railway.app"
 ]
 
 app = FastAPI()

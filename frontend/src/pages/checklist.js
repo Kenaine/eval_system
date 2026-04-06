@@ -17,6 +17,7 @@ import { BulkGradeUpload } from "../component/student_table";
 import { useUser, useCourses } from "../App";
 import { API_URL } from "../misc/url";
 import { isAdmin, isStudent } from "../lib/auth";
+import { generateCurriculumChecklistPrint } from "../lib/printUtils";
 
 export default function Checklist() {
     const pageName = "CURRICULUM CHECKLIST";
@@ -78,6 +79,19 @@ export default function Checklist() {
         }
     }, [studentView, currentUser]);
 
+    const handlePrint = () => {
+        const student = currentUser?.student_id ? currentUser : selectedStudent;
+        if (!student?.student_id) {
+            alert("Please select a student first");
+            return;
+        }
+
+        const printWindow = window.open("", "_blank");
+        const printContent = generateCurriculumChecklistPrint(student, courses);
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+    };
+
     return (
         <div className={style.curChecklist}>
             <HeaderWebsite pageName={pageName} />
@@ -108,7 +122,8 @@ export default function Checklist() {
                                 <FaPrint
                                     className={`${buttonStyle.editIcon} ${!isViewing ? buttonStyle.disabled : ""}`}
                                     title="Print"
-                                    onClick={() => window.print()}
+                                    onClick={handlePrint}
+                                    style={{ cursor: isViewing ? "pointer" : "not-allowed" }}
                                 />
                             )}
                         </span>

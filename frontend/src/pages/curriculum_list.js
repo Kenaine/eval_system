@@ -20,6 +20,8 @@ export default function CurriculumList() {
     const [showAddModal, setShowAddModal] = useState(false);
     const [showAddProgramModal, setShowAddProgramModal] = useState(false);
     const [showAddCurriculumModal, setShowAddCurriculumModal] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
 
     useEffect(() => {
         const prgms = JSON.parse(sessionStorage.getItem("programs"));
@@ -200,6 +202,58 @@ export default function CurriculumList() {
         }
     };
 
+    const handleDeleteCurriculum = async () => {
+        if (!selectedCurriculum) {
+            alert("Please select a curriculum to delete");
+            return;
+        }
+
+        try {
+            await apiClient.delete(`/curriculum/delete`, {
+                data: {
+                    name: selectedCurriculum.trim(),
+                    program_id: selectedProgram
+                }
+            });
+            
+            const updatedCurriculums = curriculums.filter((c) => c.name !== selectedCurriculum);
+            setCurriculums(updatedCurriculums);
+            setSelectedCurriculum("");
+            setCourses([]);
+            
+            setShowDeleteConfirm(false);
+            alert("Curriculum deleted successfully");
+        } catch (err) {
+            console.error("Failed to delete curriculum:", err);
+            alert("Failed to delete curriculum");
+        }
+    };
+
+    const handleArchiveCurriculum = async () => {
+        if (!selectedCurriculum) {
+            alert("Please select a curriculum to archive");
+            return;
+        }
+
+        try {
+            await apiClient.patch(`/curriculum/archive`, {
+                name: selectedCurriculum,
+                program_id: selectedProgram
+            });
+            
+            const updatedCurriculums = curriculums.filter((c) => c.name !== selectedCurriculum);
+            setCurriculums(updatedCurriculums);
+            setSelectedCurriculum("");
+            setCourses([]);
+            
+            setShowArchiveConfirm(false);
+            alert("Curriculum archived successfully");
+        } catch (err) {
+            console.error("Failed to archive curriculum:", err);
+            alert("Failed to archive curriculum");
+        }
+    };
+
     return (
         <div className={style.curChecklist}>
             <HeaderWebsite pageName={pageName} />
@@ -291,6 +345,38 @@ export default function CurriculumList() {
                         >
                             Create Curriculum
                         </button>
+                        <button
+                            onClick={() => setShowDeleteConfirm(true)}
+                            disabled={!selectedCurriculum}
+                            style={{
+                                padding: "0.5rem 1rem",
+                                backgroundColor: selectedCurriculum ? "#f44336" : "#cccccc",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "4px",
+                                cursor: selectedCurriculum ? "pointer" : "not-allowed",
+                                fontSize: "1rem",
+                                whiteSpace: "nowrap"
+                            }}
+                        >
+                            Delete Curriculum
+                        </button>
+                        <button
+                            onClick={() => setShowArchiveConfirm(true)}
+                            disabled={!selectedCurriculum}
+                            style={{
+                                padding: "0.5rem 1rem",
+                                backgroundColor: selectedCurriculum ? "#9C27B0" : "#cccccc",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "4px",
+                                cursor: selectedCurriculum ? "pointer" : "not-allowed",
+                                fontSize: "1rem",
+                                whiteSpace: "nowrap"
+                            }}
+                        >
+                            Archive Curriculum
+                        </button>
                     </div>
                 </div>
 
@@ -332,6 +418,124 @@ export default function CurriculumList() {
                 {showAddCurriculumModal && (
                     <AddCurriculumModal programs={programs} selectedProgram={selectedProgram} 
                     handleAddCurriculum={handleAddCurriculum} setShowAddCurriculumModal={setShowAddCurriculumModal}/>
+                )}
+
+                {showDeleteConfirm && (
+                    <div style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 1000
+                    }}>
+                        <div style={{
+                            backgroundColor: "white",
+                            padding: "2rem",
+                            borderRadius: "8px",
+                            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                            textAlign: "center",
+                            maxWidth: "400px"
+                        }}>
+                            <h2 style={{ marginBottom: "1rem", color: "#f44336" }}>Delete Curriculum</h2>
+                            <p style={{ marginBottom: "1.5rem", color: "#666" }}>
+                                Are you sure you want to delete the curriculum "<strong>{selectedCurriculum}</strong>"? This action cannot be undone.
+                            </p>
+                            <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
+                                <button
+                                    onClick={() => setShowDeleteConfirm(false)}
+                                    style={{
+                                        padding: "0.5rem 1.5rem",
+                                        backgroundColor: "#ccc",
+                                        color: "#333",
+                                        border: "none",
+                                        borderRadius: "4px",
+                                        cursor: "pointer",
+                                        fontSize: "1rem"
+                                    }}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleDeleteCurriculum}
+                                    style={{
+                                        padding: "0.5rem 1.5rem",
+                                        backgroundColor: "#f44336",
+                                        color: "white",
+                                        border: "none",
+                                        borderRadius: "4px",
+                                        cursor: "pointer",
+                                        fontSize: "1rem"
+                                    }}
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {showArchiveConfirm && (
+                    <div style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 1000
+                    }}>
+                        <div style={{
+                            backgroundColor: "white",
+                            padding: "2rem",
+                            borderRadius: "8px",
+                            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                            textAlign: "center",
+                            maxWidth: "400px"
+                        }}>
+                            <h2 style={{ marginBottom: "1rem", color: "#9C27B0" }}>Archive Curriculum</h2>
+                            <p style={{ marginBottom: "1.5rem", color: "#666" }}>
+                                Are you sure you want to archive the curriculum "<strong>{selectedCurriculum}</strong>"? You can restore it later if needed.
+                            </p>
+                            <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
+                                <button
+                                    onClick={() => setShowArchiveConfirm(false)}
+                                    style={{
+                                        padding: "0.5rem 1.5rem",
+                                        backgroundColor: "#ccc",
+                                        color: "#333",
+                                        border: "none",
+                                        borderRadius: "4px",
+                                        cursor: "pointer",
+                                        fontSize: "1rem"
+                                    }}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleArchiveCurriculum}
+                                    style={{
+                                        padding: "0.5rem 1.5rem",
+                                        backgroundColor: "#9C27B0",
+                                        color: "white",
+                                        border: "none",
+                                        borderRadius: "4px",
+                                        cursor: "pointer",
+                                        fontSize: "1rem"
+                                    }}
+                                >
+                                    Archive
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 )}
             </div>
         </div>

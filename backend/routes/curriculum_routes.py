@@ -11,3 +11,11 @@ def getPrgmCurr(program_id: str):
 @router.post("/add")
 def addCurr(curr: Curriculum):
     return curriculum_func.addCurr(curr)
+
+@router.delete("/delete")
+def deleteCurr(curr: Curriculum):
+    return curriculum_func.deleteCurr(curr)
+
+@router.patch("/archive")
+def archiveCurr(curr: Curriculum):
+    return curriculum_func.archiveCurr(curr)

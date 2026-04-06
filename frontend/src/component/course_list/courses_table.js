@@ -202,6 +202,8 @@ export default function CoursesTable({ courses, onCourseAdded }) {
                                 placeholder="Year"
                                 value={formData.course_year}
                                 onChange={handleChange}
+                                min={1}
+                                max={4}
                                 required
                             />
                             <input
@@ -210,6 +212,8 @@ export default function CoursesTable({ courses, onCourseAdded }) {
                                 placeholder="Semester"
                                 value={formData.course_sem}
                                 onChange={handleChange}
+                                min={1}
+                                max={2}
                                 required
                             />
                             <input
@@ -217,6 +221,7 @@ export default function CoursesTable({ courses, onCourseAdded }) {
                                 name="hours_lec"
                                 placeholder="Hours (Lecture)"
                                 value={formData.hours_lec}
+                                min={0}
                                 onChange={handleChange}
                             />
                             <input
@@ -224,6 +229,7 @@ export default function CoursesTable({ courses, onCourseAdded }) {
                                 name="hours_lab"
                                 placeholder="Hours (Lab)"
                                 value={formData.hours_lab}
+                                min={0}
                                 onChange={handleChange}
                             />
                             <input
@@ -231,6 +237,8 @@ export default function CoursesTable({ courses, onCourseAdded }) {
                                 name="units_lec"
                                 placeholder="Units (Lecture)"
                                 value={formData.units_lec}
+                                min={0}
+                                max={3}
                                 onChange={handleChange}
                             />
                             <input
@@ -238,6 +246,8 @@ export default function CoursesTable({ courses, onCourseAdded }) {
                                 name="units_lab"
                                 placeholder="Units (Lab)"
                                 value={formData.units_lab}
+                                min={0}
+                                max={3}
                                 onChange={handleChange}
                             />
                             <input

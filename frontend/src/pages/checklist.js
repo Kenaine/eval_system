@@ -140,6 +140,7 @@ export default function Checklist() {
                             <span>
                                 Total Units Required for this Course: 
                                 {currentUser?.total_units_required ?? selectedStudent?.total_units_required ?? "N/A"}</span>
+                            <span>Gender: {currentUser?.gender ?? selectedStudent?.gender ?? "??"} </span>
                         </div>
                         <div className={style.rBlock}>
                             <span>Year: {currentUser?.year ?? selectedStudent?.year ?? "N/A"}</span>

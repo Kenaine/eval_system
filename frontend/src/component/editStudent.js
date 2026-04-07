@@ -17,6 +17,7 @@ export default function EditStudent({ onSubmit, student, isViewing }) {
         f_name: "",
         l_name: "",
         m_name: "",
+        gender: "",
         year: "",
         status: "",
     });
@@ -58,6 +59,7 @@ export default function EditStudent({ onSubmit, student, isViewing }) {
                 f_name: student.f_name || "",
                 l_name: student.l_name || "",
                 m_name: student.m_name || "",
+                gender: student.gender || "",
                 year: student.year || "",
                 status: student.status || "",
             });

@@ -19,6 +19,7 @@ export default function AddStudent({ onSubmit }) {
     f_name: "",
     l_name: "",
     m_name: "",
+    gender: "",
     year: "",
     status: "",
   });
@@ -47,6 +48,7 @@ export default function AddStudent({ onSubmit }) {
       f_name: "",
       l_name: "",
       m_name: "",
+      gender: "",
       year: "",
       status: "",
     });

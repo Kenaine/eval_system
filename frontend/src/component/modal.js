@@ -42,6 +42,12 @@ export default function Modal({title, programs, formData, handleSubmit, handleCh
                 <input name="f_name" value={formData.f_name} onChange={handleChange} placeholder="First Name" required />
                 <input name="l_name" value={formData.l_name} onChange={handleChange} placeholder="Last Name" required />
                 <input name="m_name" value={formData.m_name} onChange={handleChange} placeholder="Middle Name" />
+                <select name="gender" value={formData.gender} onChange={handleChange} required>
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
                 <input name="year" value={formData.year} onChange={handleChange} placeholder="Year" type="number" required min={1} max={4}/>
                 <select name="status" value={formData.status} onChange={handleChange} required>
                     <option value="">Select Status</option>

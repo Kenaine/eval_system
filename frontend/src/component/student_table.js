@@ -303,6 +303,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                                                     value={course.grade ?? ""}
                                                     disabled={course.forceIncomplete === true}
                                                     onChange={(e) => handleGradeChange(course.course_id, e.target.value)}
+                                                    tabIndex="0"
                                                 />
                                             ) : (
                                                 course.grade ?? "-"
@@ -315,6 +316,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                                                         type="checkbox"
                                                         checked={course.forceIncomplete === true}
                                                         onChange={(e) => handleIncompleteToggle(course.course_id, e.target.checked)}
+                                                        tabIndex="-1"
                                                     />
                                                     <span>{effectiveRemark}</span>
                                                 </label>

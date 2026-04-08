@@ -30,7 +30,12 @@ export default function EditStudent({ onSubmit, student, isViewing }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSubmit(formData);
+        // Convert year to integer before submitting
+        const dataToSubmit = {
+            ...formData,
+            year: parseInt(formData.year, 10) || 0,
+        };
+        onSubmit(dataToSubmit);
         setShowModal(false);
     };
 

@@ -30,6 +30,17 @@ search_filter = {
 def addStudent(student: Student):
     student_info = student.model_dump(exclude={"curriculum"}, exclude_none=True)
     
+    # Check if student_id already exists
+    existing_student = supabase.table("students").select("*").eq("student_id", student.student_id).execute()
+    if existing_student.data:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, f"Student with ID '{student.student_id}' already exists")
+    
+    # Check if email already exists (if provided)
+    if student.email:
+        existing_email = supabase.table("students").select("*").eq("email", student.email).execute()
+        if existing_email.data:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, f"Student with email '{student.email}' already exists")
+    
     result = supabase.table("students").insert(student_info).execute()
     
     # Reload students list
@@ -40,6 +51,17 @@ def addStudent(student: Student):
 def editStudent(student: Student):
     student_info = student.model_dump(exclude={"curriculum"}, exclude_none=True)
     student_id = student_info["student_id"]
+    
+    # Check if student exists
+    existing_student = supabase.table("students").select("*").eq("student_id", student_id).execute()
+    if not existing_student.data:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"Student with ID '{student_id}' not found")
+    
+    # Check if email already exists in another student record (if provided)
+    if student.email:
+        existing_email = supabase.table("students").select("*").eq("email", student.email).execute()
+        if existing_email.data and existing_email.data[0]["student_id"] != student_id:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, f"Student with email '{student.email}' already exists")
     
     result = supabase.table("students").update(student_info).eq("student_id", student_id).execute()
     

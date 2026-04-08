@@ -36,6 +36,8 @@ export default function Checklist() {
             handleStudentSelect(student.student_id);
         } catch (err) {
             console.error("Adding failed:", err);
+            const errorMsg = err.response?.data?.detail || err.message || "Failed to add student";
+            alert(`Error adding student: ${errorMsg}`);
         }
     };
 
@@ -49,6 +51,8 @@ export default function Checklist() {
             handleStudentSelect(student.student_id);
         } catch (err) {
             console.error("Editing failed:", err);
+            const errorMsg = err.response?.data?.detail || err.message || "Failed to edit student";
+            alert(`Error editing student: ${errorMsg}`);
         }
     };
 

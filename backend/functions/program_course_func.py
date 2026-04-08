@@ -1,32 +1,34 @@
 from db.supabase_client import supabase
 
 def getCourseByProgram(program_id: str):
-    # Join program_course with courses to get full course details
-    result = supabase.table("program_course")\
-        .select("*, courses(*)")\
+    # Get the active curriculum for this program
+    curriculum_result = supabase.table("curriculum")\
+        .select("id")\
         .eq("program_id", program_id)\
-        .order("sequence")\
+        .eq("active", True)\
         .execute()
     
-    # Flatten the response to include course details
-    # Note: program_course doesn't have year/sem, so we distribute across 4 years
-    courses = []
-    total_courses = len(result.data)
-    courses_per_sem = max(1, total_courses // 8)  # Distribute across 4 years × 2 sems
+    if not curriculum_result.data:
+        return []
     
-    for idx, item in enumerate(result.data):
+    curriculum_id = curriculum_result.data[0]["id"]
+    
+    # Get all courses in this curriculum, ordered by course_year and course_sem
+    courses_result = supabase.table("curriculum_course")\
+        .select("*,courses(*)")\
+        .eq("curriculum_id", curriculum_id)\
+        .order("course_year")\
+        .order("course_sem")\
+        .execute()
+    
+    courses = []
+    for item in courses_result.data:
         course_data = item.get("courses", {})
-        
-        # Calculate year and semester based on sequence/index
-        sem_index = idx // courses_per_sem
-        year = min((sem_index // 2) + 1, 4)  # Years 1-4
-        sem = (sem_index % 2) + 1  # Semester 1 or 2
-        
         courses.append({
             **course_data,
             "sequence": item["sequence"],
-            "course_year": year,
-            "course_sem": sem
+            "course_year": item.get("course_year"),
+            "course_sem": item.get("course_sem")
         })
     
     return courses

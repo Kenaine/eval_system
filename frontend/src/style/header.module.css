@@ -88,7 +88,11 @@
     white-space: nowrap;
 }
 
-.signOut{
+.profileMenu{
+    position: relative;
+}
+
+.profileButton{
     display: flex;
     align-items: center;
     justify-content: center;
@@ -103,9 +107,104 @@
     transition: background-color 0.2s ease;
 }
 
-.signOut:hover{
-    background-color: rgba(220, 53, 69, 0.1);
-    color: #dc3545;
+.profileButton:hover{
+    background-color: rgba(253, 184, 39, 0.15);
+}
+
+.dropdownMenu{
+    position: absolute;
+    right: 0;
+    top: 46px;
+    display: flex;
+    flex-direction: column;
+    min-width: 160px;
+    background-color: #ffffff;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    z-index: 200;
+}
+
+.dropdownItem{
+    border: none;
+    background: #ffffff;
+    color: #1e4c8f;
+    text-align: left;
+    padding: 10px 12px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.dropdownItem:hover{
+    background-color: rgba(30, 76, 143, 0.08);
+}
+
+.passwordModalOverlay{
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+}
+
+.passwordModal{
+    width: min(92vw, 380px);
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 18px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+}
+
+.passwordModal h3{
+    margin: 0 0 12px;
+    color: #1e4c8f;
+    font-size: 18px;
+}
+
+.passwordForm{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.passwordForm input{
+    border: 1px solid #d5dbe6;
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 14px;
+}
+
+.passwordError{
+    margin: 0;
+    color: #d32f2f;
+    font-size: 13px;
+}
+
+.passwordModalActions{
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.passwordModalActions button{
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.passwordModalActions button[type="button"]{
+    background: #e8edf7;
+    color: #1e4c8f;
+}
+
+.passwordModalActions button[type="submit"]{
+    background: #1e4c8f;
+    color: #ffffff;
 }
 
 /* Responsive design */
@@ -142,7 +241,7 @@
         font-size: 9px;
     }
     
-    .signOut{
+    .profileButton{
         height: 36px;
         width: 36px;
         font-size: 18px;
@@ -166,7 +265,7 @@
         display: none;
     }
     
-    .signOut{
+    .profileButton{
         height: 32px;
         width: 32px;
         font-size: 16px;

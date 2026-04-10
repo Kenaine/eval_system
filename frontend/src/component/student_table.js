@@ -7,6 +7,26 @@ import axios from "axios";
 import { API_URL } from "../misc/url";
 import { isAdmin } from "../lib/auth";
 
+function getApiErrorMessage(err, fallback = "Something went wrong") {
+    const detail = err?.response?.data?.detail;
+
+    if (typeof detail === "string" && detail.trim()) {
+        return detail;
+    }
+
+    if (Array.isArray(detail) && detail.length > 0) {
+        return detail
+            .map((item) => item?.msg || JSON.stringify(item))
+            .join("; ");
+    }
+
+    if (detail && typeof detail === "object") {
+        return detail.message || detail.msg || JSON.stringify(detail);
+    }
+
+    return fallback;
+}
+
 // 🔧 Helper function to add ordinal suffix to numbers (1 -> 1st, 2 -> 2nd, etc.)
 function ordinal(n) {
     const suffixes = ["th", "st", "nd", "rd"];
@@ -65,7 +85,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
             return "N/A";
         }
 
-        return parsed <= 3 ? "Passed" : "Failed";
+        return parsed >= 75 ? "Passed" : "Failed";
     };
 
     const isValidGrade = (value) => {
@@ -83,13 +103,13 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
             return false;
         }
 
-        return parsed >= 1 && parsed <= 5;
+        return parsed >= 0 && parsed <= 100;
     };
 
     const toApiGrade = (value) => {
         const raw = String(value ?? "").trim();
         if (raw === "" || raw === "-") {
-            return -1.0;
+            return null;
         }
         return Number(raw);
     };
@@ -142,9 +162,9 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
             );
         });
 
-        const invalidCourse = changedCourses.find((course) => !isValidGrade(course.grade));
+        const invalidCourse = changedCourses.find((course) => course.forceIncomplete !== true && !isValidGrade(course.grade));
         if (invalidCourse) {
-            alert(`Invalid grade for ${invalidCourse.course_id}. Use values from 1.00 to 5.00 only.`);
+            alert(`Invalid grade for ${invalidCourse.course_id}. Use values from 0 to 100 only.`);
             return;
         }
 
@@ -159,7 +179,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                 await axios.patch(
                     API_URL + `/SC/update-grade/${student_id}-${course.course_id}`,
                     {
-                        grade: course.forceIncomplete ? -1.0 : toApiGrade(course.grade),
+                        grade: course.forceIncomplete ? null : toApiGrade(course.grade),
                         remark: course.forceIncomplete ? "Incomplete" : deriveRemarkFromGrade(course.grade),
                         force_incomplete: course.forceIncomplete === true
                     },
@@ -171,7 +191,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
             await refreshStudentData();
         } catch (err) {
             console.error("Saving edited grades failed:", err);
-            alert(err.response?.data?.detail || "Failed to save edited grades");
+            alert(getApiErrorMessage(err, "Failed to save edited grades"));
         } finally {
             setIsSavingGrades(false);
         }
@@ -297,8 +317,8 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                                             {isEditGradesMode ? (
                                                 <input
                                                     type="number"
-                                                    min="1"
-                                                    max="5"
+                                                    min="0"
+                                                    max="100"
                                                     step="0.01"
                                                     value={course.grade ?? ""}
                                                     disabled={course.forceIncomplete === true}
@@ -370,7 +390,7 @@ export function BulkGradeUpload({ student_id, courses, onSuccess, onClose }) {
         }
 
         // Create CSV content
-        const headers = "course_id,grades";
+        const headers = "course_id,grade";
         const rows = courses.map(course => `${course.course_id},`).join("\n");
         const csvContent = `${headers}\n${rows}`;
 
@@ -411,7 +431,7 @@ export function BulkGradeUpload({ student_id, courses, onSuccess, onClose }) {
             setFile(null);
             onSuccess();
         } catch (err) {
-            setError(err.response?.data?.detail || "Failed to upload grades");
+            setError(getApiErrorMessage(err, "Failed to upload grades"));
             console.error("Upload failed:", err);
         } finally {
             setLoading(false);

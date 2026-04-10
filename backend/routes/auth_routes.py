@@ -135,6 +135,9 @@ class PasswordChangeRequest(BaseModel):
     new_password: str
 
 
+DEFAULT_STUDENT_PASSWORD = "#Uphsl123"
+
+
 @router.post("/edit-password/{username}")
 def edit_password(username: str, request: PasswordChangeRequest):
     """
@@ -158,6 +161,39 @@ def edit_password(username: str, request: PasswordChangeRequest):
     }).eq("username", username).execute()
 
     return {"message": "Password updated successfully"}
+
+
+@router.post("/reset-student-password/{student_id}")
+def reset_student_password(student_id: str):
+    """
+    Reset a student's password to the default value.
+    Looks up by student_id first, then falls back to username.
+    """
+    result = supabase.table("user_credentials").select("username, student_id").eq("student_id", student_id).execute()
+
+    if not result.data:
+        result = supabase.table("user_credentials").select("username, student_id").eq("username", student_id).execute()
+
+    if not result.data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Student account not found"
+        )
+
+    username = result.data[0]["username"]
+    safe_password = DEFAULT_STUDENT_PASSWORD.encode('utf-8')[:72].decode('utf-8', errors='ignore')
+    hashed = pwd_context.hash(safe_password)
+
+    supabase.table("user_credentials").update({
+        "hashed_password": hashed
+    }).eq("username", username).execute()
+
+    return {
+        "message": "Student password reset successfully",
+        "default_password": DEFAULT_STUDENT_PASSWORD,
+        "username": username,
+        "student_id": student_id
+    }
 
 
 @router.delete("/delete-user/{username}")

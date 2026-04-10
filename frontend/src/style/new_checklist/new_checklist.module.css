@@ -405,6 +405,67 @@ fieldset input[type="checkbox"]:hover {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.btnReset {
+    background-color: #dc3545 !important;
+}
+
+.btnReset:hover {
+    background-color: #b02a37 !important;
+}
+
+.resetConfirmOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 300;
+}
+
+.resetConfirmModal {
+    width: min(92vw, 380px);
+    background: white;
+    border-radius: 12px;
+    padding: 1.2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.resetConfirmModal h3 {
+    margin: 0 0 0.5rem;
+    color: #1e4c8f;
+}
+
+.resetConfirmModal p {
+    margin: 0;
+    color: #2d3748;
+}
+
+.resetConfirmActions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.resetConfirmActions button {
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 0.9rem;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.resetCancel {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.resetConfirm {
+    background: #dc3545;
+    color: #fff;
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
     .searchContainer {

@@ -148,8 +148,10 @@ td, th {
 
 /* Editable inputs */
 table input[type="text"],
+table input[type="number"],
 table select {
-    width: 90%;
+    width: 110px;
+    max-width: 100%;
     padding: var(--input-padding);
     border: 1px solid #ccc;
     border-radius: 6px;
@@ -158,6 +160,7 @@ table select {
 }
 
 table input[type="text"]:focus,
+table input[type="number"]:focus,
 table select:focus {
     outline: none;
     border-color: #1e4c8f;

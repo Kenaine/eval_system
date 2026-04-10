@@ -1,13 +1,14 @@
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, HTTPException, status
 from functions.student_course_func import updateGrades, getStudentCourses, updateGradesBulk
 from pydantic import BaseModel
+from typing import Optional
 import csv
 import io
 
 router = APIRouter()
 
 class Grades(BaseModel):
-    grade: float
+    grade: Optional[float] = None
     remark: str
     force_incomplete: bool = False
 
@@ -31,10 +32,34 @@ async def updateGradesBulkRoute(student_id: str, file: UploadFile = File(...)):
     csv_data = csv.DictReader(io.StringIO(contents.decode("utf-8")))
     
     grades_list = []
-    for row in csv_data:
+    for index, row in enumerate(csv_data, start=2):
+        course_id = (row.get("course_id") or "").strip()
+        if not course_id:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                f"Missing course_id at CSV row {index}"
+            )
+
+        raw_grade = row.get("grade")
+        if raw_grade is None:
+            raw_grade = row.get("grades")
+
+        raw_grade = str(raw_grade or "").strip()
+
+        if raw_grade == "" or raw_grade.lower() == "null":
+            parsed_grade = None
+        else:
+            try:
+                parsed_grade = float(raw_grade)
+            except ValueError:
+                raise HTTPException(
+                    status.HTTP_400_BAD_REQUEST,
+                    f"Invalid grade '{raw_grade}' at CSV row {index}"
+                )
+
         grades_list.append({
-            "course_id": row["course_id"],
-            "grade": float(row["grade"]) if row["grade"] != "-1" else -1.0
+            "course_id": course_id,
+            "grade": parsed_grade
         })
     
     return updateGradesBulk(student_id, grades_list)

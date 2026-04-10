@@ -78,14 +78,14 @@ export default function Dashbaord() {
         <div className={style.curChecklist}>
             <HeaderWebsite pageName={pageName} />
             <div className={style.dashboard}>
-                <div style={{display:"flex", gap:"20px"}}>
-                    <div style={{width:"70%", gap: "20px", display: "flex", flexDirection: "column"}}>
-                        <div style={{"display":"flex", "gap":"20px", "justifyContent":"space-around"}}>
+                <div className={style.topSection}>
+                    <div className={style.metricsSection}>
+                        <div className={style.yearBlocks}>
                             <NumberStudents cntYear={year_cnt} total_student={total_student} />
                             
                         </div>
 
-                        <div style={{"display":"flex", "gap":"20px", "justifyContent":"space-around"}}>
+                        <div className={style.graphRow}>
                             <SimpleBarChart data={regStat_cnt} changeData={changeData}/>
                             <PieChartWithPaddingAngle data={transfereeStat_cnt} changeData={changeData}/>
                         </div>
@@ -98,9 +98,9 @@ export default function Dashbaord() {
 
                         <ul className={style.programList}>
                             {programs.map(program => (
-                                <li>
+                                <li key={program.program_id}>
                                     <input defaultChecked={true} type="checkbox" id={program.program_name} name="program_id"
-                                    value={program.program_id} onClick={changeCheckbox}/>
+                                    value={program.program_id} onChange={changeCheckbox}/>
                                     <label htmlFor={program.program_name}>
                                         {program.program_name}
                                     </label>
@@ -110,7 +110,7 @@ export default function Dashbaord() {
                     </div>
                 </div>
 
-                <div style={{"display":"flex", "gap":"20px", "justifyContent":"space-around"}}>
+                <div className={style.tableWrap}>
                     <TableStudents student_list={student_list}/>
                 </div>
             </div>
@@ -141,30 +141,28 @@ const NumberStudents = ({cntYear, total_student}) => {
 
 const TableStudents = ({student_list}) => {
     return (
-        <table className={style.scrollable}>
-            <thead>
-                <tr>
-                    <th></th>
-                    <div className={style.tableData}>
+        <div className={style.scrollable}>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
                         <th>Student ID</th>
                         <th>Year</th>
                         <th>GWA</th>
-                    </div>
-                </tr>
-            </thead>
-            <tbody>
-                {student_list.map((student, index) => (
-                    <tr key={index}>
-                        <td>{index + 1}</td>
-                        <div className={style.tableData}>
+                    </tr>
+                </thead>
+                <tbody>
+                    {student_list.map((student, index) => (
+                        <tr key={student.student_id ?? index}>
+                            <td>{index + 1}</td>
                             <td>{student.student_id}</td>
                             <td>{student.year}</td>
                             <td>{student.gwa}</td>
-                        </div>
-                    </tr>
-                ))}
-            </tbody>
-        </table>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
     )
 }
 

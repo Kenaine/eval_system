@@ -41,6 +41,7 @@
     gap: var(--nav-gap);
     align-items: center;
     height: 100%;
+    min-width: 0;
 }
 
 .navItem{
@@ -79,6 +80,9 @@
     font-size: var(--icon-size);
     color: #ffffff;
     margin-bottom: 4px;
+    display: block;
+    line-height: 1;
+    overflow: visible;
 }
 
 .iconLabel{
@@ -227,7 +231,7 @@
 
 @media (max-width: 768px) {
     :root {
-        --taskbar-height: 50px;
+        --taskbar-height: 52px;
         --icon-size: 20px;
         --nav-gap: 4px;
     }
@@ -250,25 +254,73 @@
 
 @media (max-width: 600px) {
     :root {
-        --taskbar-padding: 0 10px;
+        --taskbar-height: 54px;
+        --taskbar-padding: 0 8px;
         --logo-font-size: 12px;
-        --icon-size: 18px;
+        --icon-size: 17px;
         --nav-gap: 2px;
     }
     
     .navItem{
-        padding: 4px 6px;
-        min-width: 40px;
+        padding: 4px 5px;
+        min-width: 32px;
     }
     
     .iconLabel{
         display: none;
+    }
+
+    .icon {
+        margin-bottom: 0;
     }
     
     .profileButton{
         height: 32px;
         width: 32px;
         font-size: 16px;
+    }
+
+    .logo {
+        max-width: 70px;
+        overflow: hidden;
+    }
+
+    .logo b {
+        margin-left: 0;
+        font-size: 10px;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 380px) {
+    .taskbar {
+        --taskbar-height: 52px;
+        --taskbar-padding: 0 6px;
+    }
+
+    .logo {
+        display: none;
+    }
+
+    .navIcons {
+        flex: 1;
+        justify-content: space-evenly;
+        gap: 0;
+    }
+
+    .navItem {
+        min-width: 26px;
+        padding: 2px 3px;
+    }
+
+    .icon {
+        font-size: 15px;
+    }
+
+    .profileButton {
+        height: 28px;
+        width: 28px;
+        font-size: 14px;
     }
 }
 

@@ -3,41 +3,6 @@ from fastapi import HTTPException, status
 from db.supabase_client import supabase
 import math
 
-
-def _validate_percentage_grade(grade: float | None):
-    if grade is None:
-        return
-    if grade < 0 or grade > 100:
-        raise HTTPException(
-            status.HTTP_400_BAD_REQUEST,
-            "Grade must be within 0 to 100"
-        )
-
-
-def percentage_to_gwa(grade: float | None) -> float | None:
-    if grade is None:
-        return None
-
-    if grade >= 99:
-        return 1.0
-    if grade >= 96:
-        return 1.25
-    if grade >= 93:
-        return 1.5
-    if grade >= 90:
-        return 1.75
-    if grade >= 87:
-        return 2.0
-    if grade >= 84:
-        return 2.25
-    if grade >= 81:
-        return 2.5
-    if grade >= 78:
-        return 2.75
-    if grade >= 75:
-        return 3.0
-    return 5.0
-
 def addEntry(student_id: str, program_id: str, curriculum: str | None = None, curriculum_id: int | None = None):
     pc_result = None
 
@@ -278,23 +243,12 @@ def getGWA(courses):
     for course in courses:
         grade = course.get("grade")
         units = course.get("course_units")
+        remark = course.get("remark", "")
 
-<<<<<<< HEAD
         if grade is not None and remark == "Passed":
             fixed = gradeConversion(grade)
             total_weighted += fixed * units
             total_units += units
-=======
-        if grade is None or units is None:
-            continue
-
-        gwa_equivalent = percentage_to_gwa(float(grade))
-        if gwa_equivalent is None:
-            continue
-
-        total_weighted += gwa_equivalent * units
-        total_units += units
->>>>>>> 89dc99da86074cd8d8694e45c6ad77ce42b810ec
 
     if total_units == 0:
         return 0.0
@@ -302,11 +256,12 @@ def getGWA(courses):
     return round(total_weighted / total_units, 2)
 
 def updateGrades(course_id: str, student_id: str, grade: float, remark: str, force_incomplete: bool = False):
+    if grade == -1.0:
+        grade = None
     if force_incomplete or str(remark or "").strip().lower() == "incomplete":
         grade = None
         remark = "Incomplete"
     else:
-        _validate_percentage_grade(grade)
         remark = getRemark(grade)
     
     # Find the student_course record
@@ -334,8 +289,9 @@ def updateGradesBulk(student_id: str, grades_list: list):
     for grade_entry in grades_list:
         course_id = grade_entry["course_id"]
         grade = grade_entry["grade"]
-
-        _validate_percentage_grade(grade)
+        
+        if grade == -1.0:
+            grade = None
         
         remark = getRemark(grade)
         
@@ -361,7 +317,6 @@ def updateGradesBulk(student_id: str, grades_list: list):
 def getRemark(grade: float | None) -> str:
     if grade is None:
         return "N/A"
-<<<<<<< HEAD
     elif grade >= 75:
         return "Passed"
     else:
@@ -392,6 +347,3 @@ def gradeConversion(grade: float):
     return 5.0
 
     
-=======
-    return "Passed" if grade >= 75 else "Failed"
->>>>>>> 89dc99da86074cd8d8694e45c6ad77ce42b810ec

@@ -44,38 +44,38 @@ export default function NewChecklist() {
         console.log(`Filter updated: ${key} = ${value}`);
     }
 
-    const handleEvaluate = async () => {
+    const handleArchive = async () => {
         if (!currentStudent?.student_id) {
             alert("Please select a student first");
             return;
         }
 
-        await axios.post(API_URL + `/student/evaluate/${currentStudent.student_id}`)
+        await axios.patch(API_URL + `/student/archive?student_id=${currentStudent.student_id}`)
         .then((res) =>{
-            alert("Student evaluated successfully");
-            setCurrentStudent({...currentStudent, evaluated: res.data.timestamp});
+            alert("Student archived successfully");
+            setCurrentStudent({...currentStudent, archived: true});
         })
         .catch((error) =>{
-            console.error("Error evaluating student:", error);
-            alert("Failed to evaluate student");
+            console.error("Error archiving student:", error);
+            alert("Failed to archive student");
         });
     };
 
-    const handleTakeOffEvaluation = async () => {
+    const handleUnarchive = async () => {
         if (!currentStudent?.student_id) {
             alert("Please select a student first");
             return;
         }
 
-        await axios.post(API_URL + `/student/take_off_evaluation/${currentStudent.student_id}`)
+        await axios.patch(API_URL + `/student/unarchive?student_id=${currentStudent.student_id}`)
         .then((res) =>
         {
-            alert("Evaluation removed succesfully");
-            setCurrentStudent({...currentStudent, evaluated: null});
+            alert("Student unarchived successfully");
+            setCurrentStudent({...currentStudent, archived: false});
         })
         .catch((error) =>{
-            console.error("Error removing evaluation:", error);
-            alert("Failed to remove evaluation");
+            console.error("Error unarchiving student:", error);
+            alert("Failed to unarchive student");
         });
 
     };
@@ -166,7 +166,7 @@ export default function NewChecklist() {
                             </span>
                             <span>Program/Major: {currentStudent?.program_id}</span>
                             <span>Year: {currentStudent?.year} </span>
-                            <span>Evaluated: {currentStudent?.evaluated || 'Not evaluated'}</span>
+                            <span>Archived: {currentStudent?.archived ? 'Yes' : 'No'}</span>
                         </div>
 
                         <div className={style.right}>
@@ -186,11 +186,11 @@ export default function NewChecklist() {
                         <button className={style.btnSecondary} type="button" onClick={handlePrint}>
                             <FaPrint /> Print
                         </button>
-                        <button className={style.btnSuccess} type="button" onClick={handleEvaluate}>
-                            Evaluate
+                        <button className={style.btnSuccess} type="button" onClick={handleArchive}>
+                            Archive
                         </button>
-                        <button className={style.btnDanger} type="button" onClick={handleTakeOffEvaluation}>
-                            Take off Evaluation
+                        <button className={style.btnDanger} type="button" onClick={handleUnarchive}>
+                            Unarchive
                         </button>
                         <button className={style.btnReset} type="button" onClick={handleResetStudentPassword}>
                             Reset Password

@@ -25,7 +25,8 @@ search_filter = {
     "year": [1, 2, 3, 4],
     "status": ["Regular", "Irregular"], 
     "is_transferee": [True, False],
-    "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"]}
+    "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"],
+    "archived": [True, False]}
 
 def addStudent(student: Student):
     student_info = student.model_dump(exclude={"curriculum"}, exclude_none=True)
@@ -165,6 +166,9 @@ def search_students(query: str):
     if search_filter.get("year"):
         # Filter by year values in search_filter
         query_builder = query_builder.in_("year", search_filter["year"])
+
+    if search_filter.get("archived"):
+        query_builder = query_builder.in_("archived", search_filter["archived"])
     
     db_result = query_builder.limit(500).execute()
 
@@ -187,7 +191,7 @@ def get_students():
     return students_list
 
 def edit_filter(key: str, value: str):
-    if key == "is_transferee":
+    if key == "is_transferee" or key == "archived":
         value = str_to_bool(value)
     elif key == "year":
         value = int(value)
@@ -224,6 +228,34 @@ def reset_searchFilter():
     "status": ["Regular", "Irregular"], 
     "is_transferee": [True, False],
     "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"]}
+
+def archiveStudent(student_id: str):
+    # Check if student exists
+    student = supabase.table("students").select("*").eq("student_id", student_id).execute()
+    
+    if not student.data:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Student not found")
+    
+    result = supabase.table("students").update({"archived": True}).eq("student_id", student_id).execute()
+    
+    # Reload students list
+    loadStudents()
+    
+    return JSONResponse(content={"message": "Student archived successfully"})
+
+def unarchiveStudent(student_id: str):
+    # Check if student exists
+    student = supabase.table("students").select("*").eq("student_id", student_id).execute()
+    
+    if not student.data:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Student not found")
+    
+    result = supabase.table("students").update({"archived": False}).eq("student_id", student_id).execute()
+    
+    # Reload students list
+    loadStudents()
+    
+    return JSONResponse(content={"message": "Student unarchived successfully"})
     
 
 #------------------------------------------------FOR DASHBOARD--------------------------------------------------------

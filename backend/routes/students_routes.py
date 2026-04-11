@@ -97,3 +97,11 @@ async def bulk_upload_students(file: UploadFile = File(...)):
     results = bulkAddStudents(rows)
     return JSONResponse(status_code=207, content=results)
 
+@router.patch("/archive")
+def archiveStudent(student_id: str = Query(...)):
+    return student_func.archiveStudent(student_id)
+
+@router.patch("/unarchive")
+def unarchiveStudent(student_id: str = Query(...)):
+    return student_func.unarchiveStudent(student_id)
+

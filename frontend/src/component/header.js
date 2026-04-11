@@ -1,14 +1,24 @@
-import react, { useState } from "react";
-import { FaHome, FaChartLine, FaList, FaClipboardCheck, FaBook, FaGraduationCap, FaSignOutAlt } from "react-icons/fa";
+import { useEffect, useRef, useState } from "react";
+import { FaHome, FaChartLine, FaList, FaClipboardCheck, FaBook, FaGraduationCap, FaUserCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import Logo from "../imgs/uphsllogo.png";
 import style from "../style/header.module.css"
 import { useUser } from "../App";
 import { isStudent } from "../lib/auth";
+import apiClient from "../lib/api";
 
 export default function HeaderWebsite({ pageName }){
     const navigate = useNavigate();
     const [currentUser] = useUser() || [];
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+    const [passwordForm, setPasswordForm] = useState({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+    });
+    const [passwordError, setPasswordError] = useState("");
+    const [isChangingPassword, setIsChangingPassword] = useState(false);
+    const profileMenuRef = useRef(null);
     const pageList = [
         { link: "New Checklist", path: "/new", icon: FaHome, label: "Home" }, 
         { link: "Dashboard", path: "/dashboard", icon: FaChartLine, label: "Dashboard" }, 
@@ -26,6 +36,86 @@ export default function HeaderWebsite({ pageName }){
         sessionStorage.removeItem('user_profile');
         sessionStorage.removeItem('programs');
         navigate("/");
+    };
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
+                setIsProfileMenuOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const openChangePasswordModal = () => {
+        setPasswordForm({
+            currentPassword: "",
+            newPassword: "",
+            confirmPassword: "",
+        });
+        setPasswordError("");
+        setIsProfileMenuOpen(false);
+        setIsPasswordModalOpen(true);
+    };
+
+    const closeChangePasswordModal = () => {
+        if (isChangingPassword) {
+            return;
+        }
+        setIsPasswordModalOpen(false);
+    };
+
+    const handlePasswordInputChange = (event) => {
+        const { name, value } = event.target;
+        setPasswordForm((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleChangePassword = async (event) => {
+        event.preventDefault();
+        const username = currentUser?.username;
+
+        if (!username) {
+            setPasswordError("Unable to determine current user.");
+            return;
+        }
+
+        if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+            setPasswordError("Please fill out all fields.");
+            return;
+        }
+
+        if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+            setPasswordError("New passwords do not match.");
+            return;
+        }
+
+        setPasswordError("");
+        setIsChangingPassword(true);
+
+        try {
+            const loginResponse = await apiClient.post("/auth/login", {
+                username,
+                password: passwordForm.currentPassword,
+            });
+
+            if (!loginResponse.data?.access_token) {
+                setPasswordError("Current password is incorrect.");
+                return;
+            }
+
+            await apiClient.post(`/auth/edit-password/${encodeURIComponent(username)}`, {
+                new_password: passwordForm.newPassword,
+            });
+
+            alert("Password changed successfully.");
+            setIsPasswordModalOpen(false);
+        } catch (error) {
+            setPasswordError(error.response?.data?.detail || "Failed to change password.");
+        } finally {
+            setIsChangingPassword(false);
+        }
     };
 
     const handleNavClick = (page) => {
@@ -56,9 +146,79 @@ export default function HeaderWebsite({ pageName }){
                 })}
             </nav>
 
-            <button className={style.signOut} type="button" onClick={signOut} title="Sign Out">
-                <FaSignOutAlt />
-            </button>
+            <div className={style.profileMenu} ref={profileMenuRef}>
+                <button
+                    className={style.profileButton}
+                    type="button"
+                    onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+                    title="Profile"
+                >
+                    <FaUserCircle />
+                </button>
+
+                {isProfileMenuOpen && (
+                    <div className={style.dropdownMenu}>
+                        <button type="button" className={style.dropdownItem} onClick={openChangePasswordModal}>
+                            Change Password
+                        </button>
+                        <button
+                            type="button"
+                            className={style.dropdownItem}
+                            onClick={() => {
+                                setIsProfileMenuOpen(false);
+                                signOut();
+                            }}
+                        >
+                            Log out
+                        </button>
+                    </div>
+                )}
+            </div>
+
+            {isPasswordModalOpen && (
+                <div className={style.passwordModalOverlay}>
+                    <div className={style.passwordModal}>
+                        <h3>Change Password</h3>
+                        <form onSubmit={handleChangePassword} className={style.passwordForm}>
+                            <input
+                                type="password"
+                                name="currentPassword"
+                                value={passwordForm.currentPassword}
+                                onChange={handlePasswordInputChange}
+                                placeholder="Current Password"
+                                disabled={isChangingPassword}
+                            />
+                            <input
+                                type="password"
+                                name="newPassword"
+                                value={passwordForm.newPassword}
+                                onChange={handlePasswordInputChange}
+                                placeholder="New Password"
+                                disabled={isChangingPassword}
+                            />
+                            <input
+                                type="password"
+                                name="confirmPassword"
+                                value={passwordForm.confirmPassword}
+                                onChange={handlePasswordInputChange}
+                                placeholder="Confirm New Password"
+                                disabled={isChangingPassword}
+                            />
+
+                            {passwordError && <p className={style.passwordError}>{passwordError}</p>}
+
+                            <div className={style.passwordModalActions}>
+                                <button type="button" onClick={closeChangePasswordModal} disabled={isChangingPassword}>
+                                    Cancel
+                                </button>
+                                <button type="submit" disabled={isChangingPassword}>
+                                    {isChangingPassword ? "Saving..." : "Save"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </header>
     );
 }

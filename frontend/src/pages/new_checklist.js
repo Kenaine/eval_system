@@ -21,6 +21,7 @@ export default function NewChecklist() {
     const [studentCourses, setStudentCourses] = useState([]);
 
     const [showModal, setShowModal] = useState(false);
+    const [showResetConfirm, setShowResetConfirm] = useState(false);
 
     const dialogRef = useRef(0)
     const printRef = useRef(null);
@@ -79,6 +80,32 @@ export default function NewChecklist() {
 
     };
 
+    const handleResetStudentPassword = async () => {
+        if (!currentStudent?.student_id) {
+            alert("Please select a student first");
+            return;
+        }
+
+        setShowResetConfirm(true);
+    };
+
+    const confirmResetStudentPassword = async () => {
+        if (!currentStudent?.student_id) {
+            setShowResetConfirm(false);
+            return;
+        }
+
+        await axios.post(API_URL + `/auth/reset-student-password/${currentStudent.student_id}`)
+            .then(() => {
+                setShowResetConfirm(false);
+                alert("Student password reset successfully. Default password: #Uphsl123");
+            })
+            .catch((error) => {
+                console.error("Error resetting student password:", error);
+                alert(error.response?.data?.detail || "Failed to reset student password");
+            });
+    };
+
     const handlePrint = () => {
         if (!currentStudent?.student_id) {
             alert("Please select a student first");
@@ -95,6 +122,25 @@ export default function NewChecklist() {
         <div>
             <CourseModal dialogRef={dialogRef} setShowModal={setShowModal} courses={studentCourses} />
             <HeaderWebsite pageName={pageName} />
+
+            {showResetConfirm && (
+                <div className={style.resetConfirmOverlay}>
+                    <div className={style.resetConfirmModal}>
+                        <h3>Reset Password</h3>
+                        <p>
+                            Reset password for {currentStudent?.student_id} to default <b>#Uphsl123</b>?
+                        </p>
+                        <div className={style.resetConfirmActions}>
+                            <button type="button" className={style.resetCancel} onClick={() => setShowResetConfirm(false)}>
+                                Cancel
+                            </button>
+                            <button type="button" className={style.resetConfirm} onClick={confirmResetStudentPassword}>
+                                Confirm
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             
             <div className={style.searchContainer}>
                 <div className={style.section}>
@@ -115,7 +161,7 @@ export default function NewChecklist() {
                             <span>Student ID: {currentStudent?.student_id} </span>
                             <span>
                                 Student Name: {Object.keys(currentStudent).length !== 0 ?
-                                currentStudent?.l_name + ", " + currentStudent?.f_name + " " + currentStudent?.m_name :
+                                `${currentStudent?.l_name || ""}, ${currentStudent?.f_name || ""}${currentStudent?.m_name && String(currentStudent?.m_name).toLowerCase() !== "null" ? ` ${currentStudent?.m_name}` : ""}` :
                                 ""}
                             </span>
                             <span>Program/Major: {currentStudent?.program_id}</span>
@@ -145,6 +191,9 @@ export default function NewChecklist() {
                         </button>
                         <button className={style.btnDanger} type="button" onClick={handleTakeOffEvaluation}>
                             Take off Evaluation
+                        </button>
+                        <button className={style.btnReset} type="button" onClick={handleResetStudentPassword}>
+                            Reset Password
                         </button>
                     </div>
                 </div>

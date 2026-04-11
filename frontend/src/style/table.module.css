@@ -148,8 +148,10 @@ td, th {
 
 /* Editable inputs */
 table input[type="text"],
+table input[type="number"],
 table select {
-    width: 90%;
+    width: 110px;
+    max-width: 100%;
     padding: var(--input-padding);
     border: 1px solid #ccc;
     border-radius: 6px;
@@ -158,6 +160,7 @@ table select {
 }
 
 table input[type="text"]:focus,
+table input[type="number"]:focus,
 table select:focus {
     outline: none;
     border-color: #1e4c8f;
@@ -326,22 +329,51 @@ table svg:hover {
         --modal-padding: 1.5rem;
         --modal-width: 350px;
     }
+
+    .legendContainer {
+        flex-wrap: wrap;
+        row-gap: 0.4rem;
+    }
+
+    .tble {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
 }
 
 /* iPhone 12 Pro (390px) */
 @media (max-width: 480px) {
     :root {
-        --legend-font-size: 0.6rem;
-        --legend-box-size: 10px;
+        --legend-font-size: 0.78rem;
+        --legend-box-size: 12px;
         --button-height: 24px;
-        --button-width: 5rem;
+        --button-width: 6rem;
         --button-font-size: 0.8rem;
-        --table-font-size: 8px;
-        --table-padding: 6px 3px;
+        --table-font-size: 11px;
+        --table-padding: 7px 4px;
         --input-padding: 3px;
-        --input-font-size: 11px;
+        --input-font-size: 12px;
         --modal-padding: 1.5rem 1rem;
         --modal-width: 95%;
+    }
+
+    .legendContainer {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .button {
+        min-width: auto;
+        padding: 0 10px;
+    }
+
+    .tble {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .modalContent h2 {

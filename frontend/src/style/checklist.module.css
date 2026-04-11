@@ -15,6 +15,10 @@
     margin: 28px;
 }
 
+.studentSearchBarWrapper {
+    width: 100%;
+}
+
 .studentBody form{
     margin-left: auto;
     
@@ -122,15 +126,53 @@
 
 @media (max-width: 700px)
 {
+    .studentBody {
+        margin: 16px;
+    }
+
+    .studentDetail {
+        padding: 18px;
+        padding-top: 6px;
+    }
+
     .studentDetail h3{
         font-size: 14px;
+        justify-content: flex-start;
+        align-items: flex-start;
+        text-align: left;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .buttons {
+        position: static;
+        transform: none;
+        gap: 12px;
+        margin-left: 0;
+    }
+
+    .studentResidency {
+        flex-direction: column;
+    }
+
+    .studentDetail .lBlock,
+    .studentDetail .rBlock {
+        width: 100%;
     }
 }
 
 
 @media (max-width: 480px) {
+    .studentBody {
+        margin: 10px;
+    }
+
     .studentDetail {
         padding: 10px;
+    }
+
+    .studentSearchBarWrapper {
+        margin-bottom: 8px;
     }
 
     .buttons{
@@ -148,5 +190,10 @@
 
     .studentDetail h3 {
         font-size: 12px;
+    }
+
+    .studentResidency span {
+        font-size: 13px;
+        line-height: 1.35;
     }
 }

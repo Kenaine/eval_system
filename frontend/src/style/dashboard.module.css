@@ -1,6 +1,6 @@
 .dashboard{
-    width: 1200px;
-    height: 650px;
+    width: min(1200px, calc(100% - 32px));
+    min-height: 650px;
 
     background-color: #f4f7fb;
 
@@ -14,6 +14,27 @@
     gap: 50px;
 }
 
+.topSection {
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+}
+
+.metricsSection {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.yearBlocks,
+.graphRow,
+.tableWrap {
+    display: flex;
+    gap: 20px;
+    justify-content: space-around;
+}
+
 .title{
     background: linear-gradient(135deg, #1e4c8f 0%, #2d5aa3 100%);
     color: white;
@@ -24,7 +45,7 @@
 
 .block{
     width: 150px;
-    height: 50px;
+    min-height: 50px;
 
     
     background-color: whitesmoke;
@@ -37,11 +58,11 @@
 
 .block.graph{
     width: 50%;
-    height: 200px;
+    min-height: 260px;
 }
 
 .programs{
-    width: 100%;
+    width: 30%;
     height: 100%;
 
     background-color: whitesmoke;
@@ -85,28 +106,27 @@
 
 
 .scrollable thead, .scrollable tbody{
-    display: block;
     width: 100%;
-
 }
 
-.scrollable tbody{
-    height: 200px;
-
-    overflow-y: auto;
-    
+.scrollable {
+    width: 100%;
+    max-height: 260px;
+    overflow: auto;
     scrollbar-width: none;
 }
 
-.scrollable .tableData{
+.scrollable table {
     width: 100%;
-    display: flex;
-    justify-content: space-around;
+    min-width: 420px;
+    border-collapse: collapse;
 }
 
-.scrollable tr{
-    display: flex;
-    justify-content: space-between;
+.scrollable th,
+.scrollable td {
+    text-align: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
 }
 
 .pieLegend{
@@ -118,6 +138,80 @@
     gap: 10px;
 
     box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+    .dashboard {
+        width: calc(100% - 24px);
+        margin-top: 24px;
+        padding: 18px;
+        gap: 28px;
+    }
+
+    .topSection {
+        flex-direction: column;
+    }
+
+    .metricsSection,
+    .programs {
+        width: 100%;
+    }
+
+    .yearBlocks,
+    .graphRow {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    .block {
+        width: calc(33.333% - 14px);
+        min-width: 140px;
+    }
+
+    .block.graph {
+        width: calc(50% - 10px);
+        min-width: 280px;
+    }
+}
+
+@media (max-width: 700px) {
+    .dashboard {
+        width: calc(100% - 16px);
+        margin-top: 14px;
+        padding: 12px;
+        gap: 20px;
+    }
+
+    .yearBlocks,
+    .graphRow,
+    .tableWrap {
+        gap: 12px;
+    }
+
+    .block {
+        width: calc(50% - 8px);
+        min-width: 120px;
+    }
+
+    .block.graph {
+        width: 100%;
+        min-width: 0;
+        min-height: 230px;
+    }
+
+    .programList > li > input[type="checkbox"] + label {
+        width: 92%;
+        padding: 8px 10px;
+    }
+
+    .pieLegend {
+        margin-right: 8px;
+        font-size: 13px;
+    }
+
+    .scrollable {
+        max-height: 300px;
+    }
 }
 
 

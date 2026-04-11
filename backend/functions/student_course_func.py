@@ -1,6 +1,7 @@
 # functions/student_course_func.py
 from fastapi import HTTPException, status
 from db.supabase_client import supabase
+import math
 
 def addEntry(student_id: str, program_id: str, curriculum: str | None = None, curriculum_id: int | None = None):
     pc_result = None
@@ -245,13 +246,14 @@ def getGWA(courses):
         remark = course.get("remark", "")
 
         if grade is not None and remark == "Passed":
-            total_weighted += grade * units
+            fixed = gradeConversion(grade)
+            total_weighted += fixed * units
             total_units += units
 
     if total_units == 0:
         return 0.0
 
-    return round(total_weighted / total_units, 4)
+    return round(total_weighted / total_units, 2)
 
 def updateGrades(course_id: str, student_id: str, grade: float, remark: str, force_incomplete: bool = False):
     if grade == -1.0:
@@ -315,7 +317,33 @@ def updateGradesBulk(student_id: str, grades_list: list):
 def getRemark(grade: float | None) -> str:
     if grade is None:
         return "N/A"
-    elif grade <= 3.0:
+    elif grade >= 75:
         return "Passed"
     else:
         return "Failed"
+
+def gradeConversion(grade: float):
+    fixed = math.floor(grade)
+
+    if grade >= 99 and grade <= 100:
+        return 1.0
+    elif grade >= 96 and grade <= 98:
+        return 1.25
+    elif grade >= 93 and grade <= 95:
+        return 1.50
+    elif grade >= 90 and grade <= 92:
+        return 1.75
+    elif grade >= 87 and grade <= 89:
+        return 2.0
+    elif grade >= 84 and grade <= 86:
+        return 2.25
+    elif grade >= 81 and grade <= 83:
+        return 2.5
+    elif grade >= 78 and grade <= 80:
+        return 2.75
+    elif grade >= 75 and grade <= 77:
+        return 3.0
+    
+    return 5.0
+
+    

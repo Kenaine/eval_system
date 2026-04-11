@@ -65,7 +65,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
             return "N/A";
         }
 
-        return parsed <= 3 ? "Passed" : "Failed";
+        return parsed >= 75 ? "Passed" : "Failed";
     };
 
     const isValidGrade = (value) => {
@@ -83,7 +83,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
             return false;
         }
 
-        return parsed >= 1 && parsed <= 5;
+        return parsed >= 0 && parsed <= 100;
     };
 
     const toApiGrade = (value) => {
@@ -297,16 +297,17 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                                             {isEditGradesMode ? (
                                                 <input
                                                     type="number"
-                                                    min="1"
-                                                    max="5"
-                                                    step="0.01"
+                                                    min="0"
+                                                    max="100"
+                                                    step="0.1"
                                                     value={course.grade ?? ""}
                                                     disabled={course.forceIncomplete === true}
                                                     onChange={(e) => handleGradeChange(course.course_id, e.target.value)}
                                                     tabIndex="0"
+                                                    style={{width:"75px"}}
                                                 />
                                             ) : (
-                                                course.grade ?? "-"
+                                                course.grade ? course.grade + "%" : "-"
                                             )}
                                         </td>
                                         <td>

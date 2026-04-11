@@ -19,3 +19,11 @@ def deleteCurr(curr: Curriculum):
 @router.patch("/archive")
 def archiveCurr(curr: Curriculum):
     return curriculum_func.archiveCurr(curr)
+
+@router.patch("/unarchive")
+def unarchiveCurr(curr: Curriculum):
+    return curriculum_func.unarchiveCurr(curr)
+
+@router.put("/toggleArchive")
+def toggleArchive():
+        return curriculum_func.toggleArchive()

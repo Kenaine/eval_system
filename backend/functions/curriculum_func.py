@@ -2,11 +2,23 @@ from fastapi import HTTPException, status
 from db.supabase_client import supabase
 from schema.curriculum_schema import Curriculum
 
+archiveCheck = True
+
 def getPrgmCurr(program_id: str):
     """Get all curricula for a specific program"""
+
+    if not archiveCheck:
+        result = supabase.table("curriculum") \
+            .select("*") \
+            .eq("program_id", program_id) \
+            .execute()
+        
+        return result.data
+    
     result = supabase.table("curriculum") \
         .select("*") \
         .eq("program_id", program_id) \
+        .eq("archived", False) \
         .execute()
     
     return result.data
@@ -57,3 +69,23 @@ def archiveCurr(curr: Curriculum):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Failed to archive curriculum: {str(e)}"
         )
+
+def unarchiveCurr(curr: Curriculum):
+    try:
+        result = supabase.table("curriculum") \
+            .update({"archived": False}) \
+            .eq("name", curr.name) \
+            .eq("program_id", curr.program_id) \
+            .execute()
+        
+        return {"message": "Curriculum unarchived successfully", "data": result.data}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to unarchive curriculum: {str(e)}"
+        )
+    
+def toggleArchive():
+    global archiveCheck
+
+    archiveCheck = not archiveCheck

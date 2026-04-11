@@ -22,6 +22,8 @@ export default function CurriculumList() {
     const [showAddCurriculumModal, setShowAddCurriculumModal] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
+    const [showUnarchiveConfirm, setShowUnarchiveConfirm] = useState(false);
+    const [showArchived, setShowArchived] = useState(false);
 
     useEffect(() => {
         const prgms = JSON.parse(sessionStorage.getItem("programs"));
@@ -37,6 +39,24 @@ export default function CurriculumList() {
         window.addEventListener('coursesAdded', handleCoursesAdded);
         return () => window.removeEventListener('coursesAdded', handleCoursesAdded);
     }, [courses]);
+
+    const toggleArchiveFilter = async () => {
+        try {
+            await apiClient.put(`/curriculum/toggleArchive`);
+            setShowArchived(!showArchived);
+            setSelectedCurriculum("");
+            setCourses([]);
+            
+            // Refresh curriculums if a program is selected
+            if (selectedProgram) {
+                const res = await apiClient.get(`/curriculum/get/${selectedProgram}`);
+                setCurriculums(res.data);
+            }
+        } catch (err) {
+            console.error("Failed to toggle archive filter:", err);
+            alert("Failed to toggle archive filter");
+        }
+    };
 
     const handleProgramChange = async (e) => {
         const programId = e.target.value;
@@ -254,6 +274,31 @@ export default function CurriculumList() {
         }
     };
 
+    const handleUnarchiveCurriculum = async () => {
+        if (!selectedCurriculum) {
+            alert("Please select a curriculum to unarchive");
+            return;
+        }
+
+        try {
+            await apiClient.patch(`/curriculum/unarchive`, {
+                name: selectedCurriculum,
+                program_id: selectedProgram
+            });
+            
+            const updatedCurriculums = curriculums.filter((c) => c.name !== selectedCurriculum);
+            setCurriculums(updatedCurriculums);
+            setSelectedCurriculum("");
+            setCourses([]);
+            
+            setShowUnarchiveConfirm(false);
+            alert("Curriculum unarchived successfully");
+        } catch (err) {
+            console.error("Failed to unarchive curriculum:", err);
+            alert("Failed to unarchive curriculum");
+        }
+    };
+
     return (
         <div className={style.curChecklist}>
             <HeaderWebsite pageName={pageName} />
@@ -307,27 +352,38 @@ export default function CurriculumList() {
                             <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold" }}>
                                 Select Curriculum:
                             </label>
-                            <select 
-                                value={selectedCurriculum} 
-                                onChange={handleCurriculumChange}
-                                disabled={!selectedProgram}
-                                style={{
-                                    padding: "0.5rem",
-                                    fontSize: "1rem",
-                                    width: "100%",
-                                    maxWidth: "300px",
-                                    backgroundColor: !selectedProgram ? "#f0f0f0" : "white",
-                                    cursor: !selectedProgram ? "not-allowed" : "pointer",
-                                    opacity: !selectedProgram ? 0.6 : 1,
-                                }}
-                            >
-                                <option value="">-- Choose a curriculum --</option>
-                                {curriculums.map((curriculum) => (
-                                    <option key={curriculum.name} value={curriculum.name}>
-                                        {curriculum.name}
-                                    </option>
-                                ))}
-                            </select>
+                            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                                <select 
+                                    value={selectedCurriculum} 
+                                    onChange={handleCurriculumChange}
+                                    disabled={!selectedProgram}
+                                    style={{
+                                        padding: "0.5rem",
+                                        fontSize: "1rem",
+                                        width: "100%",
+                                        maxWidth: "300px",
+                                        backgroundColor: !selectedProgram ? "#f0f0f0" : "white",
+                                        cursor: !selectedProgram ? "not-allowed" : "pointer",
+                                        opacity: !selectedProgram ? 0.6 : 1,
+                                    }}
+                                >
+                                    <option value="">-- Choose a curriculum --</option>
+                                    {curriculums.map((curriculum) => (
+                                        <option key={curriculum.name} value={curriculum.name}>
+                                            {curriculum.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", whiteSpace: "nowrap", marginBottom: 0 }}>
+                                    <input 
+                                        type="checkbox" 
+                                        checked={showArchived} 
+                                        onChange={toggleArchiveFilter}
+                                        style={{ cursor: "pointer", width: "18px", height: "18px" }}
+                                    />
+                                    <span>Show Archived</span>
+                                </label>
+                            </div>
                         </div>
                         <button
                             onClick={() => setShowAddCurriculumModal(true)}
@@ -376,6 +432,22 @@ export default function CurriculumList() {
                             }}
                         >
                             Archive Curriculum
+                        </button>
+                        <button
+                            onClick={() => setShowUnarchiveConfirm(true)}
+                            disabled={!selectedCurriculum}
+                            style={{
+                                padding: "0.5rem 1rem",
+                                backgroundColor: selectedCurriculum ? "#00BCD4" : "#cccccc",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "4px",
+                                cursor: selectedCurriculum ? "pointer" : "not-allowed",
+                                fontSize: "1rem",
+                                whiteSpace: "nowrap"
+                            }}
+                        >
+                            Unarchive Curriculum
                         </button>
                     </div>
                 </div>
@@ -532,6 +604,65 @@ export default function CurriculumList() {
                                     }}
                                 >
                                     Archive
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {showUnarchiveConfirm && (
+                    <div style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 1000
+                    }}>
+                        <div style={{
+                            backgroundColor: "white",
+                            padding: "2rem",
+                            borderRadius: "8px",
+                            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                            textAlign: "center",
+                            maxWidth: "400px"
+                        }}>
+                            <h2 style={{ marginBottom: "1rem", color: "#00BCD4" }}>Unarchive Curriculum</h2>
+                            <p style={{ marginBottom: "1.5rem", color: "#666" }}>
+                                Are you sure you want to unarchive the curriculum "<strong>{selectedCurriculum}</strong>"? It will be available again.
+                            </p>
+                            <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
+                                <button
+                                    onClick={() => setShowUnarchiveConfirm(false)}
+                                    style={{
+                                        padding: "0.5rem 1.5rem",
+                                        backgroundColor: "#ccc",
+                                        color: "#333",
+                                        border: "none",
+                                        borderRadius: "4px",
+                                        cursor: "pointer",
+                                        fontSize: "1rem"
+                                    }}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleUnarchiveCurriculum}
+                                    style={{
+                                        padding: "0.5rem 1.5rem",
+                                        backgroundColor: "#00BCD4",
+                                        color: "white",
+                                        border: "none",
+                                        borderRadius: "4px",
+                                        cursor: "pointer",
+                                        fontSize: "1rem"
+                                    }}
+                                >
+                                    Yes
                                 </button>
                             </div>
                         </div>

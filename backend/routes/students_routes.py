@@ -22,8 +22,8 @@ def deleteStudent(student_id: str):
     return student_func.deleteStudent(student_id)
 
 @router.get("/search")
-def search_students(q: str = Query(default="", min_length=0)):
-    return student_func.search_students(q)
+def search_students(q: str = Query(default="", min_length=0), apply_filters: bool = Query(default=False)):
+    return student_func.search_students(q, apply_filters)
 
 @router.get("/get/{student_id}")
 def getStudentByID(student_id: str):

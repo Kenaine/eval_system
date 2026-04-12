@@ -9,7 +9,7 @@ export default function NewStudentSearchBar({setStudents}) {
     const handleSearch = () => {
         // Allow search with empty input to fetch all students
         const query = inputValue.trim();
-        apiClient.get(`/student/search?q=${query}`)
+        apiClient.get(`/student/search?q=${query}&apply_filters=true`)
         .then((res) => {
             setStudents(res.data);
             console.log("Search successful");

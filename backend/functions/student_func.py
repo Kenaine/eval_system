@@ -140,10 +140,11 @@ def getStudent(student_id: str = None):
         traceback.print_exc()
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, f"Error fetching student: {str(e)}")
 
-def search_students(query: str):
+def search_students(query: str, apply_filters: bool = False):
     """
-    Search students by name or student_id in the students table only, applying active filters.
-    When query is empty, returns all students that match the active filters.
+    Search students by name or student_id in the students table.
+    When apply_filters is True, applies the active search filters.
+    When query is empty and apply_filters is True, returns all students that match the active filters.
     """
     query_lower = query.lower().strip() if query else ""
     results = []
@@ -152,25 +153,26 @@ def search_students(query: str):
     query_builder = supabase.table("students") \
         .select("student_id, f_name, l_name, m_name, evaluated, status, is_transferee, program_id, year")
     
-    # Apply search filters
-    if search_filter.get("status"):
-        # Filter by status values in search_filter
-        query_builder = query_builder.in_("status", search_filter["status"])
-    
-    if search_filter.get("is_transferee") is not None:
-        # Filter by is_transferee values in search_filter
-        query_builder = query_builder.in_("is_transferee", search_filter["is_transferee"])
-    
-    if search_filter.get("program_id"):
-        # Filter by program_id values in search_filter
-        query_builder = query_builder.in_("program_id", search_filter["program_id"])
-    
-    if search_filter.get("year"):
-        # Filter by year values in search_filter
-        query_builder = query_builder.in_("year", search_filter["year"])
+    # Only apply search filters if apply_filters is True
+    if apply_filters:
+        if search_filter.get("status"):
+            # Filter by status values in search_filter
+            query_builder = query_builder.in_("status", search_filter["status"])
+        
+        if search_filter.get("is_transferee") is not None:
+            # Filter by is_transferee values in search_filter
+            query_builder = query_builder.in_("is_transferee", search_filter["is_transferee"])
+        
+        if search_filter.get("program_id"):
+            # Filter by program_id values in search_filter
+            query_builder = query_builder.in_("program_id", search_filter["program_id"])
+        
+        if search_filter.get("year"):
+            # Filter by year values in search_filter
+            query_builder = query_builder.in_("year", search_filter["year"])
 
-    if search_filter.get("archived"):
-        query_builder = query_builder.in_("archived", search_filter["archived"])
+        if search_filter.get("archived"):
+            query_builder = query_builder.in_("archived", search_filter["archived"])
     
     db_result = query_builder.limit(500).execute()
 

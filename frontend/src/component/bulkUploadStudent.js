@@ -18,6 +18,7 @@ export default function BulkUploadStudent({ onSuccess }) {
   const [showResults, setShowResults] = useState(false);
   const [results, setResults] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [showTemplate, setShowTemplate] = useState(false);
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
@@ -72,7 +73,7 @@ export default function BulkUploadStudent({ onSuccess }) {
       <FaUpload
         style={{ cursor: uploading ? "wait" : "pointer", opacity: uploading ? 0.5 : 1 }}
         title="Bulk Upload Students (CSV)"
-        onClick={() => !uploading && fileInputRef.current?.click()}
+        onClick={() => !uploading && setShowTemplate(true)}
       />
 
       {/* Results modal */}
@@ -141,6 +142,55 @@ export default function BulkUploadStudent({ onSuccess }) {
                 </button>
                 <button onClick={() => setShowResults(false)} style={primaryBtn}>
                   Close
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+      {/* Template preview modal */}
+      {showTemplate &&
+        createPortal(
+          <div
+            style={{
+              position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              zIndex: 9999,
+            }}
+            onClick={() => setShowTemplate(false)}
+          >
+            <div
+              style={{
+                background: "#fff", borderRadius: 8, padding: "2rem",
+                minWidth: 380, maxWidth: 600, maxHeight: "80vh",
+                overflowY: "auto", boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 style={{ marginTop: 0 }}>CSV Template</h3>
+              <p style={{ color: "#555", marginBottom: "1rem" }}>
+                Download the template below or upload your file with these columns:
+              </p>
+
+            
+
+              <p style={{ fontSize: 12, color: "#888" }}>
+                <strong>Required fields:</strong> student_id, email, dept, program_id, curriculum, f_name, l_name, year, status
+              </p>
+
+              <div style={{ marginTop: "1.5rem", display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                <button onClick={() => setShowTemplate(false)} style={secondaryBtn}>
+                  Cancel
+                </button>
+                <button onClick={downloadTemplate} style={secondaryBtn}>
+                  Download Template
+                </button>
+                <button onClick={() => {
+                  setShowTemplate(false);
+                  fileInputRef.current?.click();
+                }} style={primaryBtn}>
+                  Upload CSV
                 </button>
               </div>
             </div>

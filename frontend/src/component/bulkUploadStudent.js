@@ -47,8 +47,8 @@ export default function BulkUploadStudent({ onSuccess }) {
   };
 
   const downloadTemplate = () => {
-    const header = "student_id,email,dept,program_id,curriculum,f_name,m_name,l_name,year,status,is_transferee";
-    const example = "2024-00001,juan@example.com,CCS,BSCS,2022 - 2023,Juan,Santos,Dela Cruz,1,Regular,false";
+    const header = "student_id,email,dept,program_id,curriculum,f_name,m_name,l_name,year,status,gender,is_transferee";
+    const example = "2024-00001,juan@example.com,CCS,BSCS,2022 - 2023,Juan,Santos,Dela Cruz,1,Regular,Male,false";
     const blob = new Blob([header + "\n" + example], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -173,10 +173,43 @@ export default function BulkUploadStudent({ onSuccess }) {
                 Download the template below or upload your file with these columns:
               </p>
 
-            
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, marginBottom: "1.5rem" }}>
+                <thead>
+                  <tr style={{ background: "#f5f5f5" }}>
+                    <th style={thStyle}>student_id</th>
+                    <th style={thStyle}>email</th>
+                    <th style={thStyle}>dept</th>
+                    <th style={thStyle}>program_id</th>
+                    <th style={thStyle}>curriculum</th>
+                    <th style={thStyle}>f_name</th>
+                    <th style={thStyle}>m_name</th>
+                    <th style={thStyle}>l_name</th>
+                    <th style={thStyle}>year</th>
+                    <th style={thStyle}>status</th>
+                    <th style={thStyle}>gender</th>
+                    <th style={thStyle}>is_transferee</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={tdStyle}>2024-00001</td>
+                    <td style={tdStyle}>juan@example.com</td>
+                    <td style={tdStyle}>CCS</td>
+                    <td style={tdStyle}>BSCS</td>
+                    <td style={tdStyle}>2022 - 2023</td>
+                    <td style={tdStyle}>Juan</td>
+                    <td style={tdStyle}>Santos</td>
+                    <td style={tdStyle}>Dela Cruz</td>
+                    <td style={tdStyle}>1</td>
+                    <td style={tdStyle}>Regular</td>
+                    <td style={tdStyle}>Male</td>
+                    <td style={tdStyle}>false</td>
+                  </tr>
+                </tbody>
+              </table>
 
               <p style={{ fontSize: 12, color: "#888" }}>
-                <strong>Required fields:</strong> student_id, email, dept, program_id, curriculum, f_name, l_name, year, status
+                <strong>Required fields:</strong> student_id, email, dept, program_id, curriculum, f_name, l_name, year, status, gender
               </p>
 
               <div style={{ marginTop: "1.5rem", display: "flex", gap: 8, justifyContent: "flex-end" }}>

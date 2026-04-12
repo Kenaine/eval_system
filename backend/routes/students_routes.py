@@ -59,7 +59,7 @@ async def bulk_upload_students(file: UploadFile = File(...)):
     """
     Accept a CSV file and insert each row as a student.
         Required columns (same as Add Student popup):
-            student_id, email, dept, program_id, curriculum, f_name, l_name, year, status
+            student_id, email, dept, program_id, curriculum, f_name, l_name, year, status, gender
         Optional columns:
             m_name, is_transferee, gwa, evaluated, archived
 
@@ -85,6 +85,7 @@ async def bulk_upload_students(file: UploadFile = File(...)):
         "l_name",
         "year",
         "status",
+        "gender",
     }
     if not required.issubset(set(reader.fieldnames or [])):
         missing = required - set(reader.fieldnames or [])

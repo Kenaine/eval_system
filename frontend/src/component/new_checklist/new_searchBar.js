@@ -12,6 +12,7 @@ export default function NewStudentSearchBar({setStudents}) {
         apiClient.get(`/student/search?q=${query}`)
         .then((res) => {
             setStudents(res.data);
+            console.log("Search successful");
         })
         .catch((err) => {
             console.error("Search failed:", err);

@@ -41,6 +41,7 @@
     width: 100%;
     padding: 10px;
     border-radius: 8px;
+    box-sizing: border-box;
 }
 
 .block{
@@ -74,7 +75,8 @@
     list-style-type: none;
 
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
     gap: 10px;
 
     padding: 0;
@@ -82,25 +84,18 @@
 
 .programList > li{
     display: block;
-    margin-bottom: 10px;
 }
 
 
 
 .programList > li > input[type="checkbox"] + label{
-    display: block;
-    width: 80%;
-
-    margin: auto;
-
-    border-radius: 10px;
+    display: inline-block;
+    width: fit-content;
+    margin-left: 5px;
 }
 
 .programList > li > input[type="checkbox"]:checked + label
 {
-    background: linear-gradient(135deg, #1e4c8f 0%, #2d5aa3 100%);
-    color: white;
-    font-weight: 600;
 }
 
 

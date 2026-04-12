@@ -93,20 +93,38 @@ export default function Dashbaord() {
 
                     <div className={style.programs}>
                         <div className={style.title}>
-                            Programs
+                            Filters
                         </div>
 
-                        <ul className={style.programList}>
-                            {programs.map(program => (
-                                <li key={program.program_id}>
-                                    <input defaultChecked={true} type="checkbox" id={program.program_name} name="program_id"
-                                    value={program.program_id} onChange={changeCheckbox}/>
-                                    <label htmlFor={program.program_name}>
-                                        {program.program_name}
-                                    </label>
-                                </li>
-                            ))}
-                        </ul>
+                        <div style={{ marginBottom: "1.5rem" }}>
+                            <div style={{ fontWeight: "500", marginBottom: "0.5rem" }}>Years</div>
+                            <ul className={style.programList}>
+                                {[1, 2, 3, 4].map(year => (
+                                    <li key={year}>
+                                        <input defaultChecked={true} type="checkbox" id={`year-${year}`} name="year"
+                                        value={year} onChange={changeCheckbox}/>
+                                        <label htmlFor={`year-${year}`}>
+                                            Year {year}
+                                        </label>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        <div>
+                            <div style={{ fontWeight: "500", marginBottom: "0.5rem" }}>Programs</div>
+                            <ul className={style.programList}>
+                                {programs.map(program => (
+                                    <li key={program.program_id}>
+                                        <input defaultChecked={true} type="checkbox" id={program.program_id} name="program_id"
+                                        value={program.program_id} onChange={changeCheckbox}/>
+                                        <label htmlFor={program.program_id}>
+                                            {program.program_id}
+                                        </label>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
                     </div>
                 </div>
 

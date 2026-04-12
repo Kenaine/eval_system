@@ -19,7 +19,8 @@ loadStudents()
 active_filter = {
     "status": {"value": "", "active": False}, 
     "is_transferee": {"value": "", "active": False},
-    "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"]}
+    "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"],
+    "year": [1, 2, 3, 4]}
 
 search_filter = {
     "year": [1, 2, 3, 4],
@@ -270,6 +271,16 @@ def filter_students(key: str, value: str):
             active_filter[key].append(value)
 
         return execute_filter()
+
+    if key == "year":
+        num = int(value)
+
+        if num in active_filter[key]:
+            active_filter[key].remove(num)
+        else:
+            active_filter[key].append(num)
+
+        return execute_filter()
             
     if key == "is_transferee":
         value = str_to_bool(value)
@@ -287,7 +298,7 @@ def execute_filter():
     pool = students_list
 
     for key, value in active_filter.items():
-        if key == "program_id":
+        if key == "program_id" or key == "year":
             pool = [students for students in pool
                     if students[key] in active_filter[key]]
             continue
@@ -305,7 +316,8 @@ def reset_filter():
     active_filter = {
     "status": {"value": "", "active": False}, 
     "is_transferee": {"value": "", "active": False},
-    "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"]}
+    "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"],
+    "year": [1, 2, 3, 4]}
 
 #------------------------------------------------FOR EVALUATION--------------------------------------------------------
 

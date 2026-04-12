@@ -142,8 +142,9 @@ def getStudent(student_id: str = None):
 def search_students(query: str):
     """
     Search students by name or student_id in the students table only, applying active filters.
+    When query is empty, returns all students that match the active filters.
     """
-    query_lower = query.lower()
+    query_lower = query.lower().strip() if query else ""
     results = []
 
     # Start building the query with base selection
@@ -176,7 +177,8 @@ def search_students(query: str):
         full_name = " ".join(
             filter(None, [s.get("l_name"), s.get("f_name"), s.get("m_name")])
         ).lower()
-        if query_lower in full_name or query_lower in s["student_id"].lower():
+        # If query is empty, include all students; otherwise filter by query
+        if not query_lower or query_lower in full_name or query_lower in s["student_id"].lower():
             results.append({
                 "student_id": s["student_id"],
                 "name": f"{s['l_name']}, {s['f_name']} {s.get('m_name', '') or ''}".strip(),

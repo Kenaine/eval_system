@@ -22,7 +22,7 @@ def deleteStudent(student_id: str):
     return student_func.deleteStudent(student_id)
 
 @router.get("/search")
-def search_students(q: str = Query(..., min_length=1)):
+def search_students(q: str = Query(default="", min_length=0)):
     return student_func.search_students(q)
 
 @router.get("/get/{student_id}")

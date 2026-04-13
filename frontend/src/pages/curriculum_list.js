@@ -474,6 +474,7 @@ export default function CurriculumList() {
                         courses={courses} 
                         onReorder={setCourses}
                         curriculum={selectedCurriculum}
+                        programId={selectedProgram}
                         onDelete={handleDeleteCourse}
                     />
                 </div>

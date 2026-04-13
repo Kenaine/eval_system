@@ -124,3 +124,36 @@ def deleteCourse(course_id: str, program_id: str, curriculum: str):
         )
     
     return {"message": "Course deleted from curriculum successfully"}
+
+def reorderCourses(program_id: str, curriculum: str, courses_data: list):
+    """Update the sequence of courses in a curriculum"""
+    # Get curriculum ID from name
+    curr_result = supabase.table("curriculum") \
+        .select("id") \
+        .eq("program_id", program_id) \
+        .eq("name", curriculum) \
+        .execute()
+    
+    if not curr_result.data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Curriculum '{curriculum}' not found"
+        )
+    
+    curriculum_id = curr_result.data[0]["id"]
+    
+    # Update sequence for each course
+    try:
+        for idx, course_id in enumerate(courses_data):
+            supabase.table("curriculum_course") \
+                .update({"sequence": idx + 1}) \
+                .eq("curriculum_id", curriculum_id) \
+                .eq("course_id", course_id) \
+                .execute()
+        
+        return {"message": "Course order updated successfully"}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to update course order: {str(e)}"
+        )

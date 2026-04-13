@@ -39,9 +39,10 @@ export default function NewChecklist() {
     }, [currentStudent]);
 
     const changeFilter = (key, value) => {
-        // Filter is already updated via API call in FilterPanel
-        // This callback can be used to trigger additional UI updates if needed
+        // Filter is already updated and confirmed via backend API call in FilterPanel
+        // Optionally auto-trigger a search if there's a current search query to keep results in sync
         console.log(`Filter updated: ${key} = ${value}`);
+        // Users should search again to see updated results with new filters
     }
 
     const handleArchive = async () => {

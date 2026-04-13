@@ -8,6 +8,7 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import apiClient from "../../lib/api";
 
 
 function ordinal(n) {
@@ -16,8 +17,8 @@ function ordinal(n) {
   return n + (suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0]);
 }
 
-export default function CourseTable({ courses, onReorder, curriculum, onDelete }) {
-  const handleDragEnd = (event) => {
+export default function CourseTable({ courses, onReorder, curriculum, programId, onDelete }) {
+  const handleDragEnd = async (event) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
@@ -25,7 +26,44 @@ export default function CourseTable({ courses, onReorder, curriculum, onDelete }
     const newIndex = courses.findIndex((c) => c.course_id === over.id);
 
     const reordered = arrayMove(courses, oldIndex, newIndex);
+    
+    // Update local state immediately for UI feedback
     onReorder(reordered);
+    
+    // Extract course IDs in the new order grouped by year/sem
+    const coursesByYearSem = {};
+    reordered.forEach((course) => {
+      const key = `${course.course_year || 1}-${course.course_sem || 1}`;
+      if (!coursesByYearSem[key]) {
+        coursesByYearSem[key] = [];
+      }
+      coursesByYearSem[key].push(course.course_id);
+    });
+    
+    // Flatten to create the ordered list
+    const orderedCourseIds = Object.keys(coursesByYearSem)
+      .sort((a, b) => {
+        const [yearA, semA] = a.split('-').map(Number);
+        const [yearB, semB] = b.split('-').map(Number);
+        if (yearA !== yearB) return yearA - yearB;
+        return semA - semB;
+      })
+      .flatMap(key => coursesByYearSem[key]);
+    
+    // Save to backend
+    try {
+      await apiClient.post("/currCourse/reorder-courses", {
+        program_id: programId,
+        curriculum: curriculum,
+        course_ids: orderedCourseIds
+      });
+      console.log("Course order saved successfully");
+    } catch (err) {
+      console.error("Failed to save course order:", err);
+      alert("Failed to save course order. Changes were not saved.");
+      // Revert UI if save failed
+      onReorder(courses);
+    }
   };
 
   const coursesByYearSem = {};

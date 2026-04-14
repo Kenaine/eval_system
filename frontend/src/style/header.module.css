@@ -167,6 +167,12 @@
     font-size: 18px;
 }
 
+.passwordHint {
+    margin: 0 0 10px;
+    color: #4f5f7a;
+    font-size: 13px;
+}
+
 .passwordForm{
     display: flex;
     flex-direction: column;

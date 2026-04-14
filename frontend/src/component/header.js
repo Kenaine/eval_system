@@ -186,6 +186,9 @@ export default function HeaderWebsite({ pageName }){
                 <div className={style.passwordModalOverlay}>
                     <div className={style.passwordModal}>
                         <h3>Change Password</h3>
+                        <p className={style.passwordHint}>
+                            New password must be at least {MIN_PASSWORD_LENGTH} characters.
+                        </p>
                         <form onSubmit={handleChangePassword} className={style.passwordForm}>
                             <input
                                 type="password"

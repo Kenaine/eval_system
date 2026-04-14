@@ -196,6 +196,7 @@ def search_students(query: str, apply_filters: bool = False):
     return results
 
 def get_students():
+    students_list.sort(key = lambda x: x["gwa"], reverse=True)
     return students_list
 
 def edit_filter(key: str, value: str):

@@ -205,6 +205,8 @@ def edit_filter(key: str, value: str):
         search_filter[key].remove(value)
     else:
         search_filter[key].append(value)
+    
+    return search_filter
 
 
 def str_to_bool(value: str):
@@ -233,6 +235,7 @@ def reset_searchFilter():
     "status": ["Regular", "Irregular"], 
     "is_transferee": [True, False],
     "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"]}
+    return search_filter
 
 def archiveStudent(student_id: str):
     # Check if student exists
@@ -320,6 +323,7 @@ def reset_filter():
     "is_transferee": {"value": "", "active": False},
     "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"],
     "year": [1, 2, 3, 4]}
+    return active_filter
 
 #------------------------------------------------FOR EVALUATION--------------------------------------------------------
 

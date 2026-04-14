@@ -39,11 +39,13 @@ def getFilteredStudents(key: str, value: str):
 
 @router.post("/edit_filter/{key}/{value}")
 def editFilter(key: str, value: str):
-    return student_func.edit_filter(key, value)
+    updated_filters = student_func.edit_filter(key, value)
+    return JSONResponse(content={"filters": updated_filters})
 
 @router.put("/reset_filter")
 def resetFilter():
-    return student_func.reset_filter()
+    updated_filters = student_func.reset_filter()
+    return JSONResponse(content={"filters": updated_filters})
 
 @router.post("/evaluate/{student_id}")
 def evaluateStudent(student_id: str):

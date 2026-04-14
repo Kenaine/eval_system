@@ -9,6 +9,13 @@ export default function FilterPanel({ onFilterChange }) {
     const [programs, setPrograms] = useState([]);
     const [filtersExpanded, setFiltersExpanded] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [filters, setFilters] = useState({
+        year: [1, 2, 3, 4],
+        status: ["Regular", "Irregular"],
+        is_transferee: [true, false],
+        program_id: ["BSCS", "BSIT", "BSEMC", "BITCF"],
+        archived: [true, false]
+    });
 
     useEffect(() => {
         const prgms = JSON.parse(sessionStorage.getItem("programs"));
@@ -34,12 +41,17 @@ export default function FilterPanel({ onFilterChange }) {
         
         setIsUpdating(true);
         try {
-            // Wait for backend filter to be updated
-            await axios.post(API_URL + `/student/edit_filter/${name}/${value}`, {}, {
+            // Send filter update to backend and wait for authoritative response
+            const response = await axios.post(API_URL + `/student/edit_filter/${name}/${value}`, {}, {
                 withCredentials: true
             });
             
-            // Only call callback after backend confirms the update
+            // Update local state with authoritative filter state from backend
+            if (response.data && response.data.filters) {
+                setFilters(response.data.filters);
+            }
+            
+            // Notify parent component that filter was updated
             onFilterChange(name, value);
         } catch (err) {
             console.error("Filter update failed:", err);
@@ -49,19 +61,60 @@ export default function FilterPanel({ onFilterChange }) {
         }
     };
 
+    const handleResetFilters = async () => {
+        setIsUpdating(true);
+        try {
+            // Call backend to reset filters
+            const response = await axios.put(API_URL + `/student/reset_filter`, {}, {
+                withCredentials: true
+            });
+            
+            // Update local state with authoritative filter state from backend
+            if (response.data && response.data.filters) {
+                setFilters(response.data.filters);
+            }
+            
+            // Notify parent component that filters were reset
+            onFilterChange("all", "reset");
+        } catch (err) {
+            console.error("Filter reset failed:", err);
+            alert("Failed to reset filters. Please try again.");
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
     return (
         <div className={style.filterPanel}>
-            <button 
-                className={style.filterToggle}
-                onClick={() => setFiltersExpanded(!filtersExpanded)}
-                type="button"
-                disabled={isUpdating}
-                title={isUpdating ? "Updating filters..." : ""}
-                style={isUpdating ? { opacity: 0.6, cursor: "wait" } : {}}
-            >
-                <span>Advanced Filters {isUpdating && "..."}</span>
-                {filtersExpanded ? <FaChevronUp /> : <FaChevronDown />}
-            </button>
+            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                <button 
+                    className={style.filterToggle}
+                    onClick={() => setFiltersExpanded(!filtersExpanded)}
+                    type="button"
+                    disabled={isUpdating}
+                    title={isUpdating ? "Updating filters..." : ""}
+                    style={isUpdating ? { opacity: 0.6, cursor: "wait" } : {}}
+                >
+                    <span>Advanced Filters {isUpdating && "..."}</span>
+                    {filtersExpanded ? <FaChevronUp /> : <FaChevronDown />}
+                </button>
+                {filtersExpanded && (
+                    <button
+                        onClick={handleResetFilters}
+                        type="button"
+                        disabled={isUpdating}
+                        title="Reset all filters to defaults"
+                        style={{
+                            padding: "6px 12px",
+                            fontSize: "0.9em",
+                            cursor: isUpdating ? "wait" : "pointer",
+                            opacity: isUpdating ? 0.6 : 1
+                        }}
+                    >
+                        Reset Filters
+                    </button>
+                )}
+            </div>
             
             {filtersExpanded && (
                 <div className={style.filterGrid}>
@@ -70,8 +123,15 @@ export default function FilterPanel({ onFilterChange }) {
                         <div className={style.filterRow}>
                             {yearLevel.map(year => (
                                 <label key={year} htmlFor={`year-${year}`} style={isUpdating ? { opacity: 0.6, pointerEvents: "none" } : {}}>
-                                    <input type="checkbox" defaultChecked={true} id={`year-${year}`} 
-                                    name="year" value={year} onChange={handleFilterChange} disabled={isUpdating} />
+                                    <input 
+                                        type="checkbox" 
+                                        checked={filters.year.includes(year)}
+                                        id={`year-${year}`} 
+                                        name="year" 
+                                        value={year} 
+                                        onChange={handleFilterChange} 
+                                        disabled={isUpdating} 
+                                    />
                                     {year}
                                 </label>
                             ))}
@@ -82,13 +142,27 @@ export default function FilterPanel({ onFilterChange }) {
                         <legend>Status</legend>
                         <div className={style.filterRow}>
                             <label htmlFor="reg_status" style={isUpdating ? { opacity: 0.6, pointerEvents: "none" } : {}}>
-                                <input type="checkbox" defaultChecked={true} 
-                                id="reg_status" name="status" value="Regular" onChange={handleFilterChange} disabled={isUpdating} />
+                                <input 
+                                    type="checkbox" 
+                                    checked={filters.status.includes("Regular")}
+                                    id="reg_status" 
+                                    name="status" 
+                                    value="Regular" 
+                                    onChange={handleFilterChange} 
+                                    disabled={isUpdating} 
+                                />
                                 Regular
                             </label>
                             <label htmlFor="irregular" style={isUpdating ? { opacity: 0.6, pointerEvents: "none" } : {}}>
-                                <input type="checkbox" defaultChecked={true} 
-                                id="irregular" name="status" value="Irregular" onChange={handleFilterChange} disabled={isUpdating} />
+                                <input 
+                                    type="checkbox" 
+                                    checked={filters.status.includes("Irregular")}
+                                    id="irregular" 
+                                    name="status" 
+                                    value="Irregular" 
+                                    onChange={handleFilterChange} 
+                                    disabled={isUpdating} 
+                                />
                                 Irregular
                             </label>
                         </div>
@@ -98,13 +172,27 @@ export default function FilterPanel({ onFilterChange }) {
                         <legend>Transfer</legend>
                         <div className={style.filterRow}>
                             <label htmlFor="transferee" style={isUpdating ? { opacity: 0.6, pointerEvents: "none" } : {}}>
-                                <input type="checkbox" defaultChecked={true} 
-                                id="transferee" name="is_transferee" value="true" onChange={handleFilterChange} disabled={isUpdating} /> 
+                                <input 
+                                    type="checkbox" 
+                                    checked={filters.is_transferee.includes(true)}
+                                    id="transferee" 
+                                    name="is_transferee" 
+                                    value="true" 
+                                    onChange={handleFilterChange} 
+                                    disabled={isUpdating}
+                                /> 
                                 Yes
                             </label>
                             <label htmlFor="not_transferee" style={isUpdating ? { opacity: 0.6, pointerEvents: "none" } : {}}>
-                                <input type="checkbox" defaultChecked={true} 
-                                id="not_transferee" name="is_transferee" value="false" onChange={handleFilterChange} disabled={isUpdating} />
+                                <input 
+                                    type="checkbox" 
+                                    checked={filters.is_transferee.includes(false)}
+                                    id="not_transferee" 
+                                    name="is_transferee" 
+                                    value="false" 
+                                    onChange={handleFilterChange} 
+                                    disabled={isUpdating}
+                                />
                                 No
                             </label>
                         </div>
@@ -114,13 +202,27 @@ export default function FilterPanel({ onFilterChange }) {
                         <legend>Archived</legend>
                         <div className={style.filterRow}>
                             <label htmlFor="archived" style={isUpdating ? { opacity: 0.6, pointerEvents: "none" } : {}}>
-                                <input type="checkbox" defaultChecked={true} 
-                                id="archived" name="archived" value="true" onChange={handleFilterChange} disabled={isUpdating} />
+                                <input 
+                                    type="checkbox" 
+                                    checked={filters.archived.includes(true)}
+                                    id="archived" 
+                                    name="archived" 
+                                    value="true" 
+                                    onChange={handleFilterChange} 
+                                    disabled={isUpdating}
+                                />
                                 Yes
                             </label>
                             <label htmlFor="not_archived" style={isUpdating ? { opacity: 0.6, pointerEvents: "none" } : {}}>
-                                <input type="checkbox" defaultChecked={true}
-                                id="not_archived" name="archived" value="false" onChange={handleFilterChange} disabled={isUpdating} />
+                                <input 
+                                    type="checkbox" 
+                                    checked={filters.archived.includes(false)}
+                                    id="not_archived" 
+                                    name="archived" 
+                                    value="false" 
+                                    onChange={handleFilterChange} 
+                                    disabled={isUpdating}
+                                />
                                 No
                             </label>
                         </div>
@@ -132,8 +234,15 @@ export default function FilterPanel({ onFilterChange }) {
                             <div className={style.filterRow}>
                                 {programs.map(program => (
                                     <label key={program.program_id} htmlFor={`prog-${program.program_id}`} style={isUpdating ? { opacity: 0.6, pointerEvents: "none" } : {}}>
-                                        <input type="checkbox" defaultChecked={true} 
-                                        id={`prog-${program.program_id}`} name="program_id" value={program.program_id} onChange={handleFilterChange} disabled={isUpdating} />
+                                        <input 
+                                            type="checkbox" 
+                                            checked={filters.program_id.includes(program.program_id)}
+                                            id={`prog-${program.program_id}`} 
+                                            name="program_id" 
+                                            value={program.program_id} 
+                                            onChange={handleFilterChange} 
+                                            disabled={isUpdating}
+                                        />
                                         {program.program_id}
                                     </label>
                                 ))}

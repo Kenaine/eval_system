@@ -51,7 +51,7 @@ def bulkAddStudents(rows: list[dict]) -> dict:
         try:
             required_fields = [
                 "student_id", "email", "dept", "program_id", "curriculum",
-                "f_name", "l_name", "year", "status"
+                "f_name", "l_name", "year", "status", "gender"
             ]
 
             for field in required_fields:
@@ -73,6 +73,7 @@ def bulkAddStudents(rows: list[dict]) -> dict:
                 gwa          = float(row["gwa"]) if row.get("gwa", "").strip() else None,
                 evaluated    = int(row["evaluated"]) if row.get("evaluated", "").strip() else None,
                 archived     = row.get("archived", "false").strip().lower() == "true",
+                gender       = row["gender"].strip(),
             )
             addStudentHelper(student)
             inserted += 1

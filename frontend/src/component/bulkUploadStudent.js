@@ -263,7 +263,7 @@ export default function BulkUploadStudent({ onSuccess }) {
               </table>
 
               <p style={{ fontSize: 12, color: "#888" }}>
-                <strong>Required fields:</strong> student_id, email, dept, program_id, curriculum, f_name, l_name, year, status
+                <strong>Required fields:</strong> student_id, email, dept, program_id, curriculum, f_name, l_name, year, status, gender, is_transferee
               </p>
 
               <div style={{ marginTop: "1.5rem", display: "flex", gap: 8, justifyContent: "flex-end" }}>

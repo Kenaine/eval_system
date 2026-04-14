@@ -6,6 +6,8 @@ import { useUser } from "../App";
 import { isStudent } from "../lib/auth";
 import apiClient from "../lib/api";
 
+const MIN_PASSWORD_LENGTH = 8;
+
 export default function HeaderWebsite({ pageName }){
     const navigate = useNavigate();
     const [currentUser] = useUser() || [];
@@ -87,6 +89,11 @@ export default function HeaderWebsite({ pageName }){
 
         if (passwordForm.newPassword !== passwordForm.confirmPassword) {
             setPasswordError("New passwords do not match.");
+            return;
+        }
+
+        if (passwordForm.newPassword.length < MIN_PASSWORD_LENGTH) {
+            setPasswordError(`New password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
             return;
         }
 
@@ -178,6 +185,9 @@ export default function HeaderWebsite({ pageName }){
                 <div className={style.passwordModalOverlay}>
                     <div className={style.passwordModal}>
                         <h3>Change Password</h3>
+                        <p className={style.passwordHint}>
+                            New password must be at least {MIN_PASSWORD_LENGTH} characters.
+                        </p>
                         <form onSubmit={handleChangePassword} className={style.passwordForm}>
                             <input
                                 type="password"
@@ -193,6 +203,7 @@ export default function HeaderWebsite({ pageName }){
                                 value={passwordForm.newPassword}
                                 onChange={handlePasswordInputChange}
                                 placeholder="New Password"
+                                minLength={MIN_PASSWORD_LENGTH}
                                 disabled={isChangingPassword}
                             />
                             <input

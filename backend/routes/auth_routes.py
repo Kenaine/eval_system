@@ -136,6 +136,7 @@ class PasswordChangeRequest(BaseModel):
 
 
 DEFAULT_STUDENT_PASSWORD = "#Uphsl123"
+MIN_PASSWORD_LENGTH = 8
 
 
 @router.post("/edit-password/{username}")
@@ -150,6 +151,12 @@ def edit_password(username: str, request: PasswordChangeRequest):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
+        )
+
+    if len(request.new_password) < MIN_PASSWORD_LENGTH:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"New password must be at least {MIN_PASSWORD_LENGTH} characters long"
         )
 
     # Respect bcrypt 72-byte limit (same guard as login)

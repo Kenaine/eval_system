@@ -63,7 +63,6 @@ function App() {
                 <Route path="/" element={<Login />} />
                 <Route path="/new" element={<ProtectedRoute adminOnly={true}><NewChecklist /></ProtectedRoute>} />
                 <Route path="/dashboard" element={<ProtectedRoute adminOnly={true}><Dashbaord /></ProtectedRoute>} />
-                <Route path="/program-courselist" element={<ProtectedRoute adminOnly={true}><ProgramCourseList /></ProtectedRoute>} />
                 <Route path="/curriculum-checklist" element={<ProtectedRoute><Checklist /></ProtectedRoute>} />
                 <Route path="/course-list" element={<ProtectedRoute adminOnly={true}><CourseList /></ProtectedRoute>} />
                 <Route path="/curriculum-list" element={<ProtectedRoute adminOnly={true}><CurriculumList /></ProtectedRoute>} />

@@ -20,15 +20,19 @@ def addStudentHelper(student: Student):
     addStudent(student)
 
     # Auto-create user credentials (ported from course_checklist addUser).
-    # Username = student_id. Password stored as TEMP_<student_id> so it gets
-    # bcrypt-hashed automatically on the student's first login.
-    supabase.table("user_credentials").insert({
-        "username":       student.student_id,
-        "hashed_password": "TEMP_#Uphsl123",
-        "role":           "student",
-        "student_id":     student.student_id,
-        "full_name":      f"{student.f_name} {student.l_name}"
-    }).execute()
+    # Check if credentials already exist to avoid duplicate key errors
+    existing_creds = supabase.table("user_credentials").select("username").eq("username", student.student_id).execute()
+    
+    if not existing_creds.data:
+        # Username = student_id. Password stored as TEMP_<student_id> so it gets
+        # bcrypt-hashed automatically on the student's first login.
+        supabase.table("user_credentials").insert({
+            "username":       student.student_id,
+            "hashed_password": "TEMP_#Uphsl123",
+            "role":           "student",
+            "student_id":     student.student_id,
+            "full_name":      f"{student.f_name} {student.l_name}"
+        }).execute()
 
     # Add their courses
     addEntry(student.student_id, student.program_id, student.curriculum, student.curriculum_id)

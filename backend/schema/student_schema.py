@@ -16,5 +16,5 @@ class Student(BaseModel):
     m_name:         str | None = None
     status:         str
     year:           int
-    gender:         str
+    gender:         str | None = None
 

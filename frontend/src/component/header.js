@@ -22,7 +22,6 @@ export default function HeaderWebsite({ pageName }){
     const pageList = [
         { link: "New Checklist", path: "/new", icon: FaHome, label: "Home" }, 
         { link: "Dashboard", path: "/dashboard", icon: FaChartLine, label: "Dashboard" }, 
-        { link: "Program Courselist", path: "/program-courselist", icon: FaList, label: "Programs" }, 
         { link: "Curriculum Checklist", path: "/curriculum-checklist", icon: FaClipboardCheck, label: "Checklist" },
         { link: "Course List", path: "/course-list", icon: FaBook, label: "Courses" },
         { link: "Curriculum List", path: "/curriculum-list", icon: FaGraduationCap, label: "Curriculum" }

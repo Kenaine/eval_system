@@ -124,6 +124,9 @@ def getStudent(student_id: str = None):
         student_data["total_units_required"] = total_units
         student_data["role"] = "student"
         
+        # Update GWA in database
+        supabase.table("students").update({"gwa": gwa}).eq("student_id", student_id).execute()
+        
         # Convert evaluated timestamp to string if it exists
         if "evaluated" in student_data and student_data["evaluated"] is not None:
             if hasattr(student_data["evaluated"], "isoformat"):

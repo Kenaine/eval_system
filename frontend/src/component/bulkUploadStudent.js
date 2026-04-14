@@ -11,7 +11,7 @@ import apiClient from "../lib/api";
  *   student_id, email, dept, program_id, curriculum, f_name, l_name, year, status
  *
  * Optional CSV columns:
- *   m_name, is_transferee, gwa, evaluated, archived
+ *   m_name, is_transferee, gender, gwa, evaluated, archived
  */
 export default function BulkUploadStudent({ onSuccess }) {
   const fileInputRef = useRef(null);
@@ -19,19 +19,33 @@ export default function BulkUploadStudent({ onSuccess }) {
   const [results, setResults] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [showTemplate, setShowTemplate] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     setUploading(true);
+    setProgress(0);
     const formData = new FormData();
     formData.append("file", file);
+
+    // Simulate progress animation while uploading
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => {
+        // Gradually increase progress but cap at 90% until actual completion
+        if (prev < 90) {
+          return prev + Math.random() * 30;
+        }
+        return prev;
+      });
+    }, 300);
 
     try {
       const res = await apiClient.post("/student/bulk-upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+      setProgress(100);
       setResults(res.data);
       setShowResults(true);
       if (res.data.inserted > 0 && onSuccess) onSuccess();
@@ -39,7 +53,9 @@ export default function BulkUploadStudent({ onSuccess }) {
       const detail = err.response?.data?.detail || "Upload failed";
       setResults({ inserted: 0, failed: 0, errors: [], fatalError: detail });
       setShowResults(true);
+      setProgress(0);
     } finally {
+      clearInterval(progressInterval);
       setUploading(false);
       // Reset input so the same file can be re-uploaded after fixing errors
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -75,6 +91,44 @@ export default function BulkUploadStudent({ onSuccess }) {
         title="Bulk Upload Students (CSV)"
         onClick={() => !uploading && setShowTemplate(true)}
       />
+
+      {/* Loading overlay */}
+      {uploading &&
+        createPortal(
+          <div
+            style={{
+              position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              zIndex: 10000,
+            }}
+          >
+            <div
+              style={{
+                background: "#fff", borderRadius: 8, padding: "2rem",
+                minWidth: 300, textAlign: "center", boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+              }}
+            >
+              <div style={{ marginBottom: "1rem" }}>
+                <span
+                  style={{
+                    display: "inline-block", width: 40, height: 40,
+                    border: "4px solid #ecf0f1", borderTop: "4px solid #2c3e50",
+                    borderRadius: "50%", animation: "spin 1s linear infinite",
+                  }}
+                >
+                  <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: "1.1em", color: "#2c3e50", fontWeight: 500 }}>
+                Uploading Students...
+              </p>
+              <p style={{ margin: "0.5rem 0 0 0", fontSize: "0.9em", color: "#7f8c8d" }}>
+                Please wait while we process your CSV
+              </p>
+            </div>
+          </div>,
+          document.body
+        )}
 
       {/* Results modal */}
       {showResults &&
@@ -209,7 +263,7 @@ export default function BulkUploadStudent({ onSuccess }) {
               </table>
 
               <p style={{ fontSize: 12, color: "#888" }}>
-                <strong>Required fields:</strong> student_id, email, dept, program_id, curriculum, f_name, l_name, year, status, gender
+                <strong>Required fields:</strong> student_id, email, dept, program_id, curriculum, f_name, l_name, year, status
               </p>
 
               <div style={{ marginTop: "1.5rem", display: "flex", gap: 8, justifyContent: "flex-end" }}>

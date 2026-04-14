@@ -1,5 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, status
 from functions.student_course_func import updateGrades, getStudentCourses, updateGradesBulk
+from functions.student_func import loadStudents
 from pydantic import BaseModel
 from typing import Optional
 import csv
@@ -18,13 +19,17 @@ def getStudentCourse(student_id: str, program_id: str):
 
 @router.patch("/update-grade/{student_id}-{course_id}")
 def updateGrade(course_id: str, student_id: str, newGrades: Grades):
-    return updateGrades(
+    result = updateGrades(
         course_id,
         student_id,
         newGrades.grade,
         newGrades.remark,
         newGrades.force_incomplete
     )
+
+    loadStudents()
+
+    return result
 
 @router.post("/update-grades-bulk/{student_id}")
 async def updateGradesBulkRoute(student_id: str, file: UploadFile = File(...)):
@@ -61,6 +66,8 @@ async def updateGradesBulkRoute(student_id: str, file: UploadFile = File(...)):
             "course_id": course_id,
             "grade": parsed_grade
         })
-    
-    return updateGradesBulk(student_id, grades_list)
+
+    result = updateGradesBulk
+    loadStudents()
+    return result
 

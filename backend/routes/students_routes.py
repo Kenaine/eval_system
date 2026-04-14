@@ -35,7 +35,8 @@ def getAllStudents():
 
 @router.get("/filter/{key}/{value}")
 def getFilteredStudents(key: str, value: str):
-    return  student_func.filter_students(key, value)
+    result = student_func.filter_students(key, value)
+    return JSONResponse(content=result)
 
 @router.post("/edit_filter/{key}/{value}")
 def editFilter(key: str, value: str):

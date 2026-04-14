@@ -19,12 +19,22 @@ export default function Dashbaord() {
     const [year_cnt, setYearCnt] = useState([]);
     const [regStat_cnt, setRegStatCnt] = useState([]);
     const [transfereeStat_cnt, setTransfereeStatCnt] = useState([]);
-    const [programs, setPrograms] = useState([]);    
+    const [programs, setPrograms] = useState([]);
+    const [filters, setFilters] = useState({
+        status: { value: "", active: false },
+        is_transferee: { value: "", active: false },
+        program_id: ["BSCS", "BSIT", "BSEMC", "BITCF"],
+        year: [1, 2, 3, 4]
+    });    
 
     const changeData = async (key, value) => {
         axios.get( API_URL + `/student/filter/${key}/${value}`)
         .then((res) => {
-            setStudentList(res.data);
+            setStudentList(res.data.filtered);
+            // Update filters from server response
+            if (res.data.filters) {
+                setFilters(res.data.filters);
+            }
         });
     };
 
@@ -34,6 +44,11 @@ export default function Dashbaord() {
 
     useEffect(() =>{
         axios.put(API_URL + '/student/reset_filter')
+            .then((res) => {
+                if (res.data && res.data.filters) {
+                    setFilters(res.data.filters);
+                }
+            });
         
         axios.get( API_URL + '/student/get_all')
         .then((res) => {
@@ -101,8 +116,14 @@ export default function Dashbaord() {
                             <ul className={style.programList}>
                                 {[1, 2, 3, 4].map(year => (
                                     <li key={year}>
-                                        <input defaultChecked={true} type="checkbox" id={`year-${year}`} name="year"
-                                        value={year} onChange={changeCheckbox}/>
+                                        <input 
+                                            checked={filters.year.includes(year)}
+                                            type="checkbox" 
+                                            id={`year-${year}`} 
+                                            name="year"
+                                            value={year} 
+                                            onChange={changeCheckbox}
+                                        />
                                         <label htmlFor={`year-${year}`}>
                                             Year {year}
                                         </label>
@@ -116,8 +137,14 @@ export default function Dashbaord() {
                             <ul className={style.programList}>
                                 {programs.map(program => (
                                     <li key={program.program_id}>
-                                        <input defaultChecked={true} type="checkbox" id={program.program_id} name="program_id"
-                                        value={program.program_id} onChange={changeCheckbox}/>
+                                        <input 
+                                            checked={filters.program_id.includes(program.program_id)}
+                                            type="checkbox" 
+                                            id={program.program_id} 
+                                            name="program_id"
+                                            value={program.program_id} 
+                                            onChange={changeCheckbox}
+                                        />
                                         <label htmlFor={program.program_id}>
                                             {program.program_id}
                                         </label>

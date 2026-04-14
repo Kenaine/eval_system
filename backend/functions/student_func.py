@@ -275,7 +275,7 @@ def filter_students(key: str, value: str):
         else:
             active_filter[key].append(value)
 
-        return execute_filter()
+        return {"filtered": execute_filter(), "filters": active_filter}
 
     if key == "year":
         num = int(value)
@@ -285,7 +285,7 @@ def filter_students(key: str, value: str):
         else:
             active_filter[key].append(num)
 
-        return execute_filter()
+        return {"filtered": execute_filter(), "filters": active_filter}
             
     if key == "is_transferee":
         value = str_to_bool(value)
@@ -297,7 +297,7 @@ def filter_students(key: str, value: str):
         active_filter[key]["value"] = value
         active_filter[key]["active"] = True
 
-    return execute_filter()
+    return {"filtered": execute_filter(), "filters": active_filter}
 
 def execute_filter():
     pool = students_list

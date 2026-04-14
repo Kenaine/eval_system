@@ -177,7 +177,7 @@ def search_students(query: str, apply_filters: bool = False):
         if search_filter.get("archived"):
             query_builder = query_builder.in_("archived", search_filter["archived"])
     
-    db_result = query_builder.limit(500).execute()
+    db_result = query_builder.limit(1000).execute()
 
     for s in db_result.data:
         full_name = " ".join(

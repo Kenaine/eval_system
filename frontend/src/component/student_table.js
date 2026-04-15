@@ -327,7 +327,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                                                     style={{width:"75px"}}
                                                 />
                                             ) : (
-                                                course.grade ? course.grade + "%" : "-"
+                                                course.grade ? course.grade : "-"
                                             )}
                                         </td>
                                         <td>

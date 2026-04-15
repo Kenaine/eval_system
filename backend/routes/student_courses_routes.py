@@ -67,7 +67,7 @@ async def updateGradesBulkRoute(student_id: str, file: UploadFile = File(...)):
             "grade": parsed_grade
         })
 
-    result = updateGradesBulk
+    result = updateGradesBulk(student_id, grades_list)
     loadStudents()
     return result
 

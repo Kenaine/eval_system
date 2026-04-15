@@ -84,8 +84,6 @@ export default function Checklist() {
     }, [studentView, currentUser]);
 
     const handlePrint = () => {
-        console.log("Current User: ", currentUser);
-        console.log("Selected Student: ", selectedStudent);
         const student = selectedStudent?.student_id ? selectedStudent : currentUser;
 
         console.log(student);

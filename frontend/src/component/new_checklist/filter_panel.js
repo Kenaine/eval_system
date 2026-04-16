@@ -61,29 +61,6 @@ export default function FilterPanel({ onFilterChange }) {
         }
     };
 
-    const handleResetFilters = async () => {
-        setIsUpdating(true);
-        try {
-            // Call backend to reset filters
-            const response = await axios.put(API_URL + `/student/reset_filter`, {}, {
-                withCredentials: true
-            });
-            
-            // Update local state with authoritative filter state from backend
-            if (response.data && response.data.filters) {
-                setFilters(response.data.filters);
-            }
-            
-            // Notify parent component that filters were reset
-            onFilterChange("all", "reset");
-        } catch (err) {
-            console.error("Filter reset failed:", err);
-            alert("Failed to reset filters. Please try again.");
-        } finally {
-            setIsUpdating(false);
-        }
-    };
-
     return (
         <div className={style.filterPanel}>
             <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
@@ -98,22 +75,7 @@ export default function FilterPanel({ onFilterChange }) {
                     <span>Advanced Filters {isUpdating && "..."}</span>
                     {filtersExpanded ? <FaChevronUp /> : <FaChevronDown />}
                 </button>
-                {filtersExpanded && (
-                    <button
-                        onClick={handleResetFilters}
-                        type="button"
-                        disabled={isUpdating}
-                        title="Reset all filters to defaults"
-                        style={{
-                            padding: "6px 12px",
-                            fontSize: "0.9em",
-                            cursor: isUpdating ? "wait" : "pointer",
-                            opacity: isUpdating ? 0.6 : 1
-                        }}
-                    >
-                        Reset Filters
-                    </button>
-                )}
+                
             </div>
             
             {filtersExpanded && (

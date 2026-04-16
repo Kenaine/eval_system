@@ -156,6 +156,7 @@ export default function Dashbaord() {
                 </div>
 
                 <div className={style.tableWrap}>
+                    <b>Top Performing Students</b>
                     <TableStudents student_list={student_list}/>
                 </div>
             </div>
@@ -191,20 +192,24 @@ const TableStudents = ({student_list}) => {
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Student ID</th>
+                        <th>Student Name</th>
                         <th>Year</th>
                         <th>GWA</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {student_list.map((student, index) => (
-                        <tr key={student.student_id ?? index}>
-                            <td>{index + 1}</td>
-                            <td>{student.student_id}</td>
-                            <td>{student.year}</td>
-                            <td>{student.gwa}</td>
-                        </tr>
-                    ))}
+                    {student_list.slice(0, 30).map((student, index) => {
+                        const fullName = `${student.l_name}, ${student.f_name}  ${student?.m_name ?? ""}`;
+
+                        return(
+                            <tr key={student.student_id ?? index}>
+                                <td>{index + 1}</td>
+                                <td>{fullName}</td>
+                                <td>{student.year}</td>
+                                <td>{student.gwa}</td>
+                            </tr>
+                        );
+                    })}
                 </tbody>
             </table>
         </div>

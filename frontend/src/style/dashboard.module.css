@@ -109,7 +109,7 @@
 
 .scrollable {
     width: 100%;
-    max-height: 260px;
+    max-height: 200px;
     overflow: auto;
     scrollbar-width: none;
 }

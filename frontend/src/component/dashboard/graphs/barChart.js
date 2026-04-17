@@ -6,19 +6,35 @@ import style from "../../../style/dashboard.module.css";
 const COLORS = ["#0088FE", "#D98012"];
 
 // #endregion
-const SimpleBarChart = ({data, changeData}) => {
+const SimpleBarChart = ({data, changeData, title}) => {
+  console.log(data);
   const sendData = (shape) => {
     changeData("status", shape.status);
   };
 
-  const customBar = (prop) => {
-    return <Rectangle {...prop} fill={COLORS[prop.index]} />
-  }
+  const CustomLegend = ({ payload }) => {
+    return (
+      <div style={{ display: "flex", gap: "10px", paddingLeft: "40px" }}>
+        {data.map((entry, index) => (
+          <div key={`legend-${index}`} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+            <div
+              style={{
+                width: 10,
+                height: 10,
+                backgroundColor: index === 0 ? "#5588dd" : "#dd8855",
+              }}
+            />
+            <span>{entry.status}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className={style.block + " " + style.graph}>
       <div className={style.title}>
-        Count of Regular and Irregular Students
+        {title}
       </div>
 
       <BarChart
@@ -33,14 +49,18 @@ const SimpleBarChart = ({data, changeData}) => {
         }}
       >
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="status" reversed={true}/>
+        <XAxis dataKey="status"/>
         <YAxis width="auto" />
         <Tooltip />
-        <Legend verticalAlign='top'wrapperStyle={{paddingLeft:"40px"}}/>
-        <Bar name="Regular" fill='#0088FE' dataKey="num" barSize={50} activeBar={{ fill: 'pink', stroke: 'blue' }} 
-        radius={[10, 10, 0, 0]} onClick={sendData} shape={customBar}>
+        <Legend verticalAlign='top'wrapperStyle={{paddingLeft:"40px"}} content={CustomLegend}/>
+        <Bar dataKey={"num"} fill={"#5588dd"} 
+             activeBar={{fill: "#ffff22", stroke: "green"}} radius={[20, 20, 0, 0]} 
+             barSize={50}>
+          {data.map((entry, index) => (
+            <Cell key={`Cell-${index}`} fill={index === 0 ? "#5588dd" : "#dd8855"} name='Real' />
+          ))}
         </Bar>
-        <Bar name= "Irregular" fill='#d98012'/>
+
         <RechartsDevtools />
       </BarChart> 
     </div>

@@ -63,7 +63,7 @@ export default function Dashbaord() {
     useEffect(() => {
         var cntYear = [0, 0, 0, 0];
         var cntRegStat = [{ status: "Regular", num: 0 }, { status: "Irregular", num: 0 }];
-        var cntTransStat = [{ status: true, num: 0 }, { status: false, num: 0 }];
+        var cntTransStat = [{ status: "True", num: 0 }, { status: "False", num: 0 }];
         var total = 0;
 
         student_list.forEach(student => {
@@ -101,9 +101,9 @@ export default function Dashbaord() {
                         </div>
 
                         <div className={style.graphRow}>
-                            <SimpleBarChart data={regStat_cnt} changeData={changeData}/>
-                            <PieChartWithPaddingAngle data={transfereeStat_cnt} changeData={changeData}/>
-                        </div>
+                            <SimpleBarChart data={regStat_cnt} changeData={changeData} title={"Count of Regular and Irregular Students"}/>
+                            <SimpleBarChart data={transfereeStat_cnt} changeData={changeData} title={"Percentage of Transferee Students"} />
+\                        </div>
                     </div>
 
                     <div className={style.programs}>

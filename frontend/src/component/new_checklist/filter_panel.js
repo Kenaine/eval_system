@@ -14,7 +14,7 @@ export default function FilterPanel({ onFilterChange }) {
         status: ["Regular", "Irregular"],
         is_transferee: [true, false],
         program_id: ["BSCS", "BSIT", "BSEMC", "BITCF"],
-        archived: [true, false]
+        archived: [false]
     });
 
     useEffect(() => {

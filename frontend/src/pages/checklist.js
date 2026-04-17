@@ -111,7 +111,7 @@ export default function Checklist() {
 
                 <div className={style.studentDetail}>
                     <h3>
-                        STUDENT RESIDENCY EVALUATION
+                        Student Information
                         <span className={style.buttons}>
                             {adminView && (
                                 <>
@@ -139,10 +139,10 @@ export default function Checklist() {
                         <div className={style.lBlock}>
                             <span>Student ID: {currentUser?.student_id ?? selectedStudent?.student_id ?? "N/A"}</span>
                             <span>
-                                Student Name: {currentUser?.l_name ?? selectedStudent?.l_name ?? "N/A"},  
-                                {currentUser?.f_name ?? selectedStudent?.f_name ?? ""}
+                                Student Name: {currentUser?.full_name ?? selectedStudent?.full_name ?? "N/A"}
                             </span>
-                            <span>Program/Major: {currentUser?.program_id ?? selectedStudent?.program_id ?? "N/A"}</span>
+                            <span>Program/Major: {currentUser?.prgm_spec ?? selectedStudent?.prgm_spec ?? "N/A"}
+                            </span>
                             <span>
                                 Total Units Required for this Course: 
                                 {currentUser?.total_units_required ?? selectedStudent?.total_units_required ?? "N/A"}</span>

@@ -372,6 +372,7 @@ fieldset input[type="checkbox"]:hover {
     display: flex;
     gap: 0.75rem;
     margin-top: 1.5rem;
+    justify-content: center;
     flex-wrap: wrap;
 }
 
@@ -407,6 +408,7 @@ fieldset input[type="checkbox"]:hover {
 
 .btnReset {
     background-color: #dc3545 !important;
+    max-width: 300px;
 }
 
 .btnReset:hover {

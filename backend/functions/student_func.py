@@ -27,7 +27,7 @@ search_filter = {
     "status": ["Regular", "Irregular"], 
     "is_transferee": [True, False],
     "program_id": ["BSCS", "BSIT", "BSEMC", "BITCF"],
-    "archived": [True, False]}
+    "archived": [False]}
 
 def addStudent(student: Student):
     student_info = student.model_dump(exclude={"curriculum"}, exclude_none=True)
@@ -123,6 +123,14 @@ def getStudent(student_id: str = None):
         student_data["units_taken"] = units_taken
         student_data["total_units_required"] = total_units
         student_data["role"] = "student"
+        student_data["full_name"] = student_data["l_name"] + ", " + student_data["f_name"] + " " + student_data.get("m_name")
+
+        specialization_result = supabase.table("programs") \
+                         .select("program_specialization") \
+                         .eq("program_id", student_data["program_id"]) \
+                         .execute()
+        
+        student_data["prgm_spec"] = student_data["program_id"] + " - " + specialization_result.data[0]["program_specialization"]
         
         # Update GWA in database
         supabase.table("students").update({"gwa": gwa}).eq("student_id", student_id).execute()

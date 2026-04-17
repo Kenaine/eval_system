@@ -147,6 +147,7 @@ export default function NewChecklist() {
                 <div className={style.section}>
                     <h2>Search Student</h2>
                     <form onSubmit={(e) => e.preventDefault()}>
+                        <h5 style={{margin: "0 0 10px 0"}}>Press Enter to search</h5>
                         <NewStudentSearchBar setStudents={setStudents}/>
                         <FilterPanel onFilterChange={changeFilter} />
                     </form>

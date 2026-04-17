@@ -202,7 +202,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
     return (
         <>
             <div className={style.tableHeader}>
-                <h3>Curriculum Residency Evaluation</h3>
+                <h3>Student Evaluation</h3>
             </div>
 
             <div className={style.legendContainer}>

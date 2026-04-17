@@ -103,7 +103,7 @@ export default function Dashbaord() {
                         <div className={style.graphRow}>
                             <SimpleBarChart data={regStat_cnt} changeData={changeData} title={"Count of Regular and Irregular Students"}/>
                             <SimpleBarChart data={transfereeStat_cnt} changeData={changeData} title={"Percentage of Transferee Students"} />
-\                        </div>
+                        </div>
                     </div>
 
                     <div className={style.programs}>

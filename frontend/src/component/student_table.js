@@ -333,13 +333,13 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                                         <td>
                                             {isEditGradesMode ? (
                                                 <label style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={course.forceIncomplete === true}
-                                                        onChange={(e) => handleIncompleteToggle(course.course_id, e.target.checked)}
-                                                        tabIndex="-1"
-                                                    />
-                                                    <span>{effectiveRemark}</span>
+                                                    <select name="remark" id="remark"
+                                                            onChange={(e) =>handleIncompleteToggle(course.course_id, e.target.value === "Incomplete")}>
+                                                        <option value={"N/A"} selected>N/A</option>
+                                                        <option value={"Passed"} selected={effectiveRemark === "Passed" ? true : false} disabled>Passed</option>
+                                                        <option value={"Failed"} selected={effectiveRemark === "Failed" ? true : false} disabled>Failed</option>
+                                                        <option value={"Incomplete"}>Incomplete</option>
+                                                    </select>
                                                 </label>
                                             ) : (
                                                 effectiveRemark

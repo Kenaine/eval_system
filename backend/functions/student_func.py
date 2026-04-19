@@ -123,14 +123,23 @@ def getStudent(student_id: str = None):
         student_data["units_taken"] = units_taken
         student_data["total_units_required"] = total_units
         student_data["role"] = "student"
-        student_data["full_name"] = student_data["l_name"] + ", " + student_data["f_name"] + " " + student_data.get("m_name")
+        middle_name = student_data.get("m_name") or ""
+        student_data["full_name"] = f"{student_data['l_name']}, {student_data['f_name']} {middle_name}".strip()
 
         specialization_result = supabase.table("programs") \
                          .select("program_specialization") \
                          .eq("program_id", student_data["program_id"]) \
                          .execute()
         
-        student_data["prgm_spec"] = student_data["program_id"] + " - " + specialization_result.data[0]["program_specialization"]
+        program_specialization = ""
+        if specialization_result.data:
+            program_specialization = specialization_result.data[0].get("program_specialization") or ""
+
+        student_data["prgm_spec"] = (
+            f"{student_data['program_id']} - {program_specialization}"
+            if program_specialization
+            else student_data["program_id"]
+        )
         
         # Update GWA in database
         supabase.table("students").update({"gwa": gwa}).eq("student_id", student_id).execute()

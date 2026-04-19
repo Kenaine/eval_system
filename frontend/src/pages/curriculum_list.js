@@ -12,11 +12,58 @@ import AddCourseModal from "../component/curriculum_list/addCourse_modal";
 export default function CurriculumList() {
     const pageName = "Curriculum List";
     const CURRICULUM_VIEW_KEY = "curriculum_list_view_state";
-    const [programs, setPrograms] = useState([]);
-    const [selectedProgram, setSelectedProgram] = useState("");
-    const [curriculums, setCurriculums] = useState([]);
-    const [selectedCurriculum, setSelectedCurriculum] = useState("");
-    const [courses, setCourses] = useState([]);
+    const [initialView] = useState(() => {
+        const fallback = {
+            selectedProgram: "",
+            selectedCurriculum: "",
+            showArchived: false,
+            curriculums: [],
+            courses: []
+        };
+
+        const raw = sessionStorage.getItem(CURRICULUM_VIEW_KEY);
+        if (!raw) {
+            return fallback;
+        }
+
+        try {
+            const parsed = JSON.parse(raw);
+            const hasCompleteSelection = Boolean(parsed?.selectedProgram && parsed?.selectedCurriculum);
+
+            if (!hasCompleteSelection) {
+                return fallback;
+            }
+
+            return {
+                selectedProgram: parsed.selectedProgram,
+                selectedCurriculum: parsed.selectedCurriculum,
+                showArchived: parsed?.showArchived === true,
+                curriculums: Array.isArray(parsed?.curriculums) ? parsed.curriculums : [],
+                courses: Array.isArray(parsed?.courses) ? parsed.courses : []
+            };
+        } catch {
+            sessionStorage.removeItem(CURRICULUM_VIEW_KEY);
+            return fallback;
+        }
+    });
+
+    const [programs, setPrograms] = useState(() => {
+        const rawPrograms = sessionStorage.getItem("programs");
+        if (!rawPrograms) {
+            return [];
+        }
+
+        try {
+            return JSON.parse(rawPrograms);
+        } catch {
+            sessionStorage.removeItem("programs");
+            return [];
+        }
+    });
+    const [selectedProgram, setSelectedProgram] = useState(initialView.selectedProgram);
+    const [curriculums, setCurriculums] = useState(initialView.curriculums);
+    const [selectedCurriculum, setSelectedCurriculum] = useState(initialView.selectedCurriculum);
+    const [courses, setCourses] = useState(initialView.courses);
     const [allCourses, setAllCourses] = useState([]);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showAddProgramModal, setShowAddProgramModal] = useState(false);
@@ -24,7 +71,7 @@ export default function CurriculumList() {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
     const [showUnarchiveConfirm, setShowUnarchiveConfirm] = useState(false);
-    const [showArchived, setShowArchived] = useState(false);
+    const [showArchived, setShowArchived] = useState(initialView.showArchived);
     const hasRestoredView = useRef(false);
 
     const loadCurriculumsForProgram = async (programId) => {
@@ -69,11 +116,6 @@ export default function CurriculumList() {
     };
 
     useEffect(() => {
-        const prgms = JSON.parse(sessionStorage.getItem("programs"));
-        setPrograms(prgms || [])
-    }, []);
-
-    useEffect(() => {
         if (!hasRestoredView.current) {
             return;
         }
@@ -84,14 +126,16 @@ export default function CurriculumList() {
                 JSON.stringify({
                     selectedProgram,
                     selectedCurriculum,
-                    showArchived
+                    showArchived,
+                    curriculums,
+                    courses
                 })
             );
             return;
         }
 
         sessionStorage.removeItem(CURRICULUM_VIEW_KEY);
-    }, [selectedProgram, selectedCurriculum, showArchived]);
+    }, [selectedProgram, selectedCurriculum, showArchived, curriculums, courses]);
 
     useEffect(() => {
         const restoreView = async () => {

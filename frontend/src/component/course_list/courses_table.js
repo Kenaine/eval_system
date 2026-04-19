@@ -59,7 +59,7 @@ export default function CoursesTable({ courses, onCourseAdded }) {
             setShowModal(false);
             setEditingCourseId(null);
             if (onCourseAdded) {
-                onCourseAdded();
+                onCourseAdded(true);
             }
         })
         .catch((err) =>{
@@ -81,7 +81,7 @@ export default function CoursesTable({ courses, onCourseAdded }) {
             try {
                 await apiClient.delete(`/course/delete/${courseId}`);
                 if (onCourseAdded) {
-                    onCourseAdded();
+                    onCourseAdded(true);
                 }
             } catch (err) {
                 alert(err.response?.data?.message || "Failed to delete course");

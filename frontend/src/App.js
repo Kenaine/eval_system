@@ -21,6 +21,14 @@ function App() {
 
   const getAuthToken = () => localStorage.getItem('supabase_token') || sessionStorage.getItem('supabase_token');
   const getUserProfile = () => localStorage.getItem('user_profile') || sessionStorage.getItem('user_profile');
+  const getDefaultAuthenticatedRoute = () => {
+    try {
+      const profile = JSON.parse(getUserProfile() || '{}');
+      return isStudent(profile?.role) ? '/curriculum-checklist' : '/new';
+    } catch {
+      return '/new';
+    }
+  };
 
   const ProtectedRoute = ({ children, adminOnly = false }) => {
     const token = getAuthToken();
@@ -68,7 +76,7 @@ function App() {
         <CoursesContext.Provider value={[courses, setCourses]}>
             <Router>
               <Routes>
-                <Route path="/" element={getAuthToken() ? <Navigate to="/curriculum-checklist" replace /> : <Login />} />
+                <Route path="/" element={getAuthToken() ? <Navigate to={getDefaultAuthenticatedRoute()} replace /> : <Login />} />
                 <Route path="/new" element={<ProtectedRoute adminOnly={true}><NewChecklist /></ProtectedRoute>} />
                 <Route path="/dashboard" element={<ProtectedRoute adminOnly={true}><Dashbaord /></ProtectedRoute>} />
                 <Route path="/curriculum-checklist" element={<ProtectedRoute><Checklist /></ProtectedRoute>} />

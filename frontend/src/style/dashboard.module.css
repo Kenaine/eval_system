@@ -1,8 +1,20 @@
+@keyframes pageFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .dashboard{
     width: min(1200px, calc(100% - 32px));
     min-height: 650px;
 
     background-color: #e0e0e0;
+    border-radius: 16px;
 
     box-sizing: border-box;
 
@@ -12,6 +24,7 @@
 
     flex-direction: column;
     gap: 50px;
+    animation: pageFadeIn 0.5s ease;
 }
 
 .topSection {

@@ -9,7 +9,21 @@ export default function CourseList() {
   const pageName = "Course List";
   const COURSE_LIST_CACHE_KEY = "course_list_cache";
 
-  const [courses, setCourses] = useState([])
+  const readCachedCourses = () => {
+    const cachedCourses = sessionStorage.getItem(COURSE_LIST_CACHE_KEY);
+    if (!cachedCourses) {
+      return [];
+    }
+
+    try {
+      return JSON.parse(cachedCourses);
+    } catch {
+      sessionStorage.removeItem(COURSE_LIST_CACHE_KEY);
+      return [];
+    }
+  };
+
+  const [courses, setCourses] = useState(() => readCachedCourses())
 
   useEffect(() => {
     getCourses();
@@ -21,7 +35,6 @@ export default function CourseList() {
       if (cachedCourses) {
         try {
           setCourses(JSON.parse(cachedCourses));
-          return;
         } catch {
           sessionStorage.removeItem(COURSE_LIST_CACHE_KEY);
         }

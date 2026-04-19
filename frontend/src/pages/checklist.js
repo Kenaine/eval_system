@@ -23,11 +23,30 @@ export default function Checklist() {
     const pageName = "CURRICULUM CHECKLIST";
     const navigate = useNavigate();
     const SELECTED_STUDENT_KEY = "selected_curriculum_student_id";
+    const SELECTED_STUDENT_DATA_KEY = "selected_curriculum_student_data";
+    const SELECTED_STUDENT_COURSES_KEY = "selected_curriculum_student_courses";
+
+    const readCachedJson = (key, fallbackValue) => {
+        const raw = sessionStorage.getItem(key);
+        if (!raw) {
+            return fallbackValue;
+        }
+
+        try {
+            return JSON.parse(raw);
+        } catch {
+            sessionStorage.removeItem(key);
+            return fallbackValue;
+        }
+    };
 
     const [currentUser, setCurrentUser] = useUser();
-    const [selectedStudent, setSelectedStudent] = useState(null);
-    const [courses, setCourses] = useState([]);
-    const [isViewing, setIsViewing] = useState(false);
+    const [selectedStudent, setSelectedStudent] = useState(() => readCachedJson(SELECTED_STUDENT_DATA_KEY, null));
+    const [courses, setCourses] = useState(() => readCachedJson(SELECTED_STUDENT_COURSES_KEY, []));
+    const [isViewing, setIsViewing] = useState(() => {
+        const cachedStudent = readCachedJson(SELECTED_STUDENT_DATA_KEY, null);
+        return Boolean(cachedStudent?.student_id);
+    });
     const studentView = isStudent(currentUser?.role);
     const adminView = isAdmin(currentUser?.role);
 
@@ -68,6 +87,8 @@ export default function Checklist() {
                 setCourses(res.data.courses || []);
                 setIsViewing(true);
                 sessionStorage.setItem(SELECTED_STUDENT_KEY, student_id);
+                sessionStorage.setItem(SELECTED_STUDENT_DATA_KEY, JSON.stringify(res.data.student));
+                sessionStorage.setItem(SELECTED_STUDENT_COURSES_KEY, JSON.stringify(res.data.courses || []));
             } else {
                 console.error("Invalid response format:", res.data);
                 alert("Failed to load student data");

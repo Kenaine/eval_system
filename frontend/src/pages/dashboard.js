@@ -186,6 +186,23 @@ const NumberStudents = ({cntYear, total_student}) => {
 } 
 
 const TableStudents = ({student_list}) => {
+    const sortedStudents = [...student_list].sort((a, b) => {
+        const gwaA = Number(a?.gwa ?? 0);
+        const gwaB = Number(b?.gwa ?? 0);
+
+        const aNoGrade = !Number.isFinite(gwaA) || gwaA === 0;
+        const bNoGrade = !Number.isFinite(gwaB) || gwaB === 0;
+
+        if (aNoGrade && !bNoGrade) return 1;
+        if (!aNoGrade && bNoGrade) return -1;
+
+        if (aNoGrade && bNoGrade) {
+            return String(a?.l_name || "").localeCompare(String(b?.l_name || ""));
+        }
+
+        return gwaA - gwaB;
+    });
+
     return (
         <div className={style.scrollable}>
             <table>
@@ -198,7 +215,7 @@ const TableStudents = ({student_list}) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {student_list.slice(0, 30).map((student, index) => {
+                    {sortedStudents.slice(0, 30).map((student, index) => {
                         const fullName = `${student.l_name}, ${student.f_name}  ${student?.m_name ?? ""}`;
 
                         return(

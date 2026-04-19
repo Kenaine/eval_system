@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { FaHome, FaChartLine, FaList, FaClipboardCheck, FaBook, FaGraduationCap, FaUserCircle } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
 import style from "../style/header.module.css"
 import { useUser } from "../App";
 import { isStudent } from "../lib/auth";
@@ -9,8 +8,7 @@ import apiClient from "../lib/api";
 const MIN_PASSWORD_LENGTH = 8;
 
 export default function HeaderWebsite({ pageName }){
-    const navigate = useNavigate();
-    const [currentUser] = useUser() || [];
+    const [currentUser, setCurrentUser] = useUser() || [];
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
     const [passwordForm, setPasswordForm] = useState({
@@ -38,7 +36,8 @@ export default function HeaderWebsite({ pageName }){
         sessionStorage.removeItem('supabase_token');
         sessionStorage.removeItem('user_profile');
         sessionStorage.removeItem('programs');
-        navigate("/");
+        setCurrentUser?.(null);
+        window.location.replace("/");
     };
 
     useEffect(() => {

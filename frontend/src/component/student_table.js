@@ -197,6 +197,16 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
         }
     };
 
+    const cancelEditGrades = () => {
+        setDraftCourses((courses || []).map((course) => ({
+            ...course,
+            grade: course.grade ?? "",
+            remark: course.remark ?? "N/A",
+            forceIncomplete: String(course.remark || "").toLowerCase() === "incomplete"
+        })));
+        setIsEditGradesMode(false);
+    };
+
     const displayedCourses = isEditGradesMode ? draftCourses : courses;
 
     return (
@@ -221,14 +231,35 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
 
                 {isAdmin(role) && (
                     <div className={style.printHideActions} style={{ marginLeft: "auto", display: "flex", gap: "0.5rem" }}>
-                        <button
-                            className={style.button}
-                            style={{ marginLeft: 0 }}
-                            onClick={toggleEditGrades}
-                            disabled={!student_id || isSavingGrades}
-                        >
-                            {isSavingGrades ? "Saving..." : "Edit Grades"}
-                        </button>
+                        {isEditGradesMode ? (
+                            <>
+                                <button
+                                    className={style.button}
+                                    style={{ marginLeft: 0 }}
+                                    onClick={toggleEditGrades}
+                                    disabled={!student_id || isSavingGrades}
+                                >
+                                    {isSavingGrades ? "Saving..." : "Save Changes"}
+                                </button>
+                                <button
+                                    className={style.button}
+                                    style={{ marginLeft: 0 }}
+                                    onClick={cancelEditGrades}
+                                    disabled={!student_id || isSavingGrades}
+                                >
+                                    Cancel
+                                </button>
+                            </>
+                        ) : (
+                            <button
+                                className={style.button}
+                                style={{ marginLeft: 0 }}
+                                onClick={toggleEditGrades}
+                                disabled={!student_id || isSavingGrades}
+                            >
+                                Edit Grades
+                            </button>
+                        )}
                         <button 
                             className={style.button}
                             style={{ marginLeft: 0 }}

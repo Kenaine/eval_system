@@ -365,6 +365,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                                             {isEditGradesMode ? (
                                                 <label style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
                                                     <select name="remark" id="remark"
+                                                            tabIndex={-1}
                                                             onChange={(e) =>handleIncompleteToggle(course.course_id, e.target.value === "Incomplete")}>
                                                         <option value={"N/A"} selected>N/A</option>
                                                         <option value={"Passed"} selected={effectiveRemark === "Passed" ? true : false} disabled>Passed</option>

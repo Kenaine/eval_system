@@ -303,7 +303,7 @@ export default function CurriculumList() {
         <div className={style.curChecklist}>
             <HeaderWebsite pageName={pageName} />
 
-            <div style={{ padding: "2rem" }}>
+            <div className={style.curriculumBody}>
                 <div style={{ marginBottom: "1.5rem" }}>
                     <div style={{ display: "flex", gap: "1rem", alignItems: "flex-end", marginBottom: "0.5rem" }}>
                         <div style={{ flex: 1 }}>

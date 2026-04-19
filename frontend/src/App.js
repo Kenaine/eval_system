@@ -68,7 +68,7 @@ function App() {
         <CoursesContext.Provider value={[courses, setCourses]}>
             <Router>
               <Routes>
-                <Route path="/" element={<Login />} />
+                <Route path="/" element={getAuthToken() ? <Navigate to="/curriculum-checklist" replace /> : <Login />} />
                 <Route path="/new" element={<ProtectedRoute adminOnly={true}><NewChecklist /></ProtectedRoute>} />
                 <Route path="/dashboard" element={<ProtectedRoute adminOnly={true}><Dashbaord /></ProtectedRoute>} />
                 <Route path="/curriculum-checklist" element={<ProtectedRoute><Checklist /></ProtectedRoute>} />

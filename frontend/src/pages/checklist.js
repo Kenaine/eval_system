@@ -22,6 +22,7 @@ import { generateCurriculumChecklistPrint } from "../lib/printUtils";
 export default function Checklist() {
     const pageName = "CURRICULUM CHECKLIST";
     const navigate = useNavigate();
+    const SELECTED_STUDENT_KEY = "selected_curriculum_student_id";
 
     const [currentUser, setCurrentUser] = useUser();
     const [selectedStudent, setSelectedStudent] = useState(null);
@@ -66,6 +67,7 @@ export default function Checklist() {
                 setSelectedStudent(res.data.student);
                 setCourses(res.data.courses || []);
                 setIsViewing(true);
+                sessionStorage.setItem(SELECTED_STUDENT_KEY, student_id);
             } else {
                 console.error("Invalid response format:", res.data);
                 alert("Failed to load student data");
@@ -82,6 +84,17 @@ export default function Checklist() {
             handleStudentSelect(currentUser.student_id);
         }
     }, [studentView, currentUser]);
+
+    useEffect(() => {
+        if (studentView) {
+            return;
+        }
+
+        const savedStudentId = sessionStorage.getItem(SELECTED_STUDENT_KEY);
+        if (savedStudentId) {
+            handleStudentSelect(savedStudentId);
+        }
+    }, [studentView]);
 
     const handlePrint = () => {
         const student = selectedStudent?.student_id ? selectedStudent : currentUser;

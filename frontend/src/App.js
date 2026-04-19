@@ -19,8 +19,11 @@ function App() {
   const [currentUser, setCurrentUser] = useState(null); 
   const [courses, setCourses] = useState([]);
 
+  const getAuthToken = () => localStorage.getItem('supabase_token') || sessionStorage.getItem('supabase_token');
+  const getUserProfile = () => localStorage.getItem('user_profile') || sessionStorage.getItem('user_profile');
+
   const ProtectedRoute = ({ children, adminOnly = false }) => {
-    const token = sessionStorage.getItem('supabase_token');
+    const token = getAuthToken();
     if (!token) return <Navigate to="/" replace />;
 
     if (adminOnly && isStudent(currentUser?.role)) {
@@ -30,11 +33,16 @@ function App() {
     return children;
   };
 
-  // Restore session from sessionStorage on mount (custom JWT flow)
+  // Restore session from storage on mount (custom JWT flow)
   useEffect(() => {
-    const token = sessionStorage.getItem('supabase_token');
+    const token = getAuthToken();
     if (token) {
-      const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
+      localStorage.setItem('supabase_token', token);
+      sessionStorage.removeItem('supabase_token');
+
+      const profile = JSON.parse(getUserProfile() || '{}');
+      localStorage.setItem('user_profile', JSON.stringify(profile));
+      sessionStorage.removeItem('user_profile');
       setCurrentUser(profile);
     }
   }, []);
@@ -66,7 +74,7 @@ function App() {
                 <Route path="/curriculum-checklist" element={<ProtectedRoute><Checklist /></ProtectedRoute>} />
                 <Route path="/course-list" element={<ProtectedRoute adminOnly={true}><CourseList /></ProtectedRoute>} />
                 <Route path="/curriculum-list" element={<ProtectedRoute adminOnly={true}><CurriculumList /></ProtectedRoute>} />
-                <Route path="*" element={<Navigate to={sessionStorage.getItem('supabase_token') ? "/curriculum-checklist" : "/"} replace />} />
+                <Route path="*" element={<Navigate to={getAuthToken() ? "/curriculum-checklist" : "/"} replace />} />
               </Routes>
             </Router>
         </CoursesContext.Provider>

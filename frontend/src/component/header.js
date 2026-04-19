@@ -33,6 +33,8 @@ export default function HeaderWebsite({ pageName }){
         : pageList;
 
     const signOut = () => {
+        localStorage.removeItem('supabase_token');
+        localStorage.removeItem('user_profile');
         sessionStorage.removeItem('supabase_token');
         sessionStorage.removeItem('user_profile');
         sessionStorage.removeItem('programs');

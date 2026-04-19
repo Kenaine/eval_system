@@ -13,7 +13,7 @@ const apiClient = axios.create({
 // Add request interceptor to include auth token
 apiClient.interceptors.request.use(
     (config) => {
-        const token = sessionStorage.getItem('supabase_token');
+        const token = localStorage.getItem('supabase_token') || sessionStorage.getItem('supabase_token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -30,7 +30,10 @@ apiClient.interceptors.response.use(
     (error) => {
         if (error.response?.status === 401) {
             // Token expired or invalid - redirect to login
+            localStorage.removeItem('supabase_token');
+            localStorage.removeItem('user_profile');
             sessionStorage.removeItem('supabase_token');
+            sessionStorage.removeItem('user_profile');
             window.location.href = '/';
         }
         return Promise.reject(error);

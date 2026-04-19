@@ -28,12 +28,14 @@ export default function Login() {
             });
             
             if (response.data?.access_token) {
-                // Store token in session storage
-                sessionStorage.setItem('supabase_token', response.data.access_token);
+                // Store token in persistent storage
+                localStorage.setItem('supabase_token', response.data.access_token);
+                sessionStorage.removeItem('supabase_token');
                 
                 // Store user profile if available
                 if (response.data.profile) {
-                    sessionStorage.setItem('user_profile', JSON.stringify(response.data.profile));
+                    localStorage.setItem('user_profile', JSON.stringify(response.data.profile));
+                    sessionStorage.removeItem('user_profile');
                     setCurrentUser(response.data.profile);
                 }
                 

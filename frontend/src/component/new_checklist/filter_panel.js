@@ -23,7 +23,7 @@ export default function FilterPanel({ onFilterChange }) {
             setPrograms(prgms);
         } else {
             // Fetch programs if not in sessionStorage
-            const token = sessionStorage.getItem('supabase_token');
+            const token = localStorage.getItem('supabase_token') || sessionStorage.getItem('supabase_token');
             axios.get(API_URL + '/program/get', {
                 headers: token ? { Authorization: `Bearer ${token}` } : {}
             })

@@ -74,14 +74,23 @@ export default function CurriculumList() {
     }, []);
 
     useEffect(() => {
-        sessionStorage.setItem(
-            CURRICULUM_VIEW_KEY,
-            JSON.stringify({
-                selectedProgram,
-                selectedCurriculum,
-                showArchived
-            })
-        );
+        if (!hasRestoredView.current) {
+            return;
+        }
+
+        if (selectedProgram && selectedCurriculum) {
+            sessionStorage.setItem(
+                CURRICULUM_VIEW_KEY,
+                JSON.stringify({
+                    selectedProgram,
+                    selectedCurriculum,
+                    showArchived
+                })
+            );
+            return;
+        }
+
+        sessionStorage.removeItem(CURRICULUM_VIEW_KEY);
     }, [selectedProgram, selectedCurriculum, showArchived]);
 
     useEffect(() => {

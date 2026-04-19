@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import apiClient from "../lib/api";
 
 import style from "../style/checklist.module.css";
@@ -11,6 +11,7 @@ import AddCourseModal from "../component/curriculum_list/addCourse_modal";
 
 export default function CurriculumList() {
     const pageName = "Curriculum List";
+    const CURRICULUM_VIEW_KEY = "curriculum_list_view_state";
     const [programs, setPrograms] = useState([]);
     const [selectedProgram, setSelectedProgram] = useState("");
     const [curriculums, setCurriculums] = useState([]);
@@ -24,10 +25,105 @@ export default function CurriculumList() {
     const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
     const [showUnarchiveConfirm, setShowUnarchiveConfirm] = useState(false);
     const [showArchived, setShowArchived] = useState(false);
+    const hasRestoredView = useRef(false);
+
+    const loadCurriculumsForProgram = async (programId) => {
+        if (!programId) {
+            setCurriculums([]);
+            return [];
+        }
+
+        try {
+            const res = await apiClient.get(`/curriculum/get/${programId}`);
+            const data = res.data || [];
+            setCurriculums(data);
+            return data;
+        } catch (err) {
+            console.error("Failed to load curriculums:", err);
+            setCurriculums([]);
+            return [];
+        }
+    };
+
+    const loadCoursesForCurriculum = async (programId, curriculumName) => {
+        if (!programId || !curriculumName) {
+            setCourses([]);
+            return [];
+        }
+
+        try {
+            const res = await apiClient.get(`/currCourse/get_courses`, {
+                params: {
+                    program: programId,
+                    curriculum: curriculumName
+                }
+            });
+            const data = res.data || [];
+            setCourses(data);
+            return data;
+        } catch (err) {
+            console.error("Failed to load courses:", err);
+            setCourses([]);
+            return [];
+        }
+    };
 
     useEffect(() => {
         const prgms = JSON.parse(sessionStorage.getItem("programs"));
         setPrograms(prgms || [])
+    }, []);
+
+    useEffect(() => {
+        sessionStorage.setItem(
+            CURRICULUM_VIEW_KEY,
+            JSON.stringify({
+                selectedProgram,
+                selectedCurriculum,
+                showArchived
+            })
+        );
+    }, [selectedProgram, selectedCurriculum, showArchived]);
+
+    useEffect(() => {
+        const restoreView = async () => {
+            if (hasRestoredView.current) {
+                return;
+            }
+
+            const rawView = sessionStorage.getItem(CURRICULUM_VIEW_KEY);
+            if (!rawView) {
+                hasRestoredView.current = true;
+                return;
+            }
+
+            try {
+                const savedView = JSON.parse(rawView);
+                const savedProgram = savedView?.selectedProgram || "";
+                const savedCurriculum = savedView?.selectedCurriculum || "";
+                const savedShowArchived = savedView?.showArchived === true;
+
+                if (savedShowArchived) {
+                    await apiClient.put(`/curriculum/toggleArchive`);
+                    setShowArchived(true);
+                }
+
+                if (savedProgram) {
+                    setSelectedProgram(savedProgram);
+                    const loadedCurriculums = await loadCurriculumsForProgram(savedProgram);
+
+                    if (savedCurriculum && loadedCurriculums.some((curriculum) => curriculum.name === savedCurriculum)) {
+                        setSelectedCurriculum(savedCurriculum);
+                        await loadCoursesForCurriculum(savedProgram, savedCurriculum);
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to restore curriculum list view:", err);
+            } finally {
+                hasRestoredView.current = true;
+            }
+        };
+
+        restoreView();
     }, []);
 
     useEffect(() => {
@@ -62,34 +158,27 @@ export default function CurriculumList() {
         const programId = e.target.value;
         setSelectedProgram(programId);
         setSelectedCurriculum("");
+        setCourses([]);
 
         if (programId === "") {
+            setCurriculums([]);
             return;
         }
-        
-        await apiClient.get(`/curriculum/get/${programId}`)
-        .then((res) =>{
-            setCurriculums(res.data);
-        });
+
+        await loadCurriculumsForProgram(programId);
         
     };
 
     const handleCurriculumChange = async (e) => {
-        setSelectedCurriculum(e.target.value);
+        const curriculumName = e.target.value;
+        setSelectedCurriculum(curriculumName);
 
-        if(e.target.value === "")
+        if(curriculumName === "") {
+            setCourses([]);
             return;
+        }
 
-        await apiClient.get(`/currCourse/get_courses`, {
-            params: {
-                program: selectedProgram,
-                curriculum: e.target.value
-            }
-        })
-        .then((res) => {
-            console.log(res.data);
-            setCourses(res.data);
-        });
+        await loadCoursesForCurriculum(selectedProgram, curriculumName);
     };
 
     const fetchAllCourses = async () => {

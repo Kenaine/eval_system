@@ -122,6 +122,7 @@ export default function AddCourseModal({allCourses, handleAddCourse, setShowAddM
                         >
                             <option value={1}>1st Semester</option>
                             <option value={2}>2nd Semester</option>
+                            <option value={3}>3rd Semester</option>
                         </select>
                     </div>
                 </div>

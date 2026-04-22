@@ -188,10 +188,10 @@ export default function NewChecklist() {
                         <button className={style.btnSecondary} type="button" onClick={handlePrint}>
                             <FaPrint /> Print
                         </button>
-                        <button className={style.btnSuccess} type="button" onClick={handleArchive}>
+                        <button className={style.btnSuccess} type="button" onClick={handleArchive} disabled={currentStudent?.archived}>
                             Archive
                         </button>
-                        <button className={style.btnDanger} type="button" onClick={handleUnarchive}>
+                        <button className={style.btnDanger} type="button" onClick={handleUnarchive} disabled={!currentStudent?.archived}>
                             Unarchive
                         </button>
                         <button className={style.btnReset} type="button" onClick={handleResetStudentPassword}>

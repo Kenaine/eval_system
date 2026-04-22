@@ -395,7 +395,7 @@ fieldset input[type="checkbox"]:hover {
     color: white;
 }
 
-.buttonGroup button:hover {
+.buttonGroup button:not([disabled]):hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     background-color: #1e4c8f;
@@ -404,6 +404,11 @@ fieldset input[type="checkbox"]:hover {
 .buttonGroup button:active {
     transform: translateY(0);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.buttonGroup button:disabled{
+    background-color: #64748b;
+    cursor: not-allowed;
 }
 
 .btnReset {

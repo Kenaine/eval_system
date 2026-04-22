@@ -150,13 +150,13 @@ export default function Dashbaord() {
                                         </label>
                                     </li>
                                 ))}
-                            </ul>
+                            </ul>   
                         </div>
                     </div>
                 </div>
 
                 <div className={style.tableWrap}>
-                    <b>Top Performing Students</b>
+                    <b>Top 30 Performing Students</b>
                     <TableStudents student_list={student_list}/>
                 </div>
             </div>
@@ -193,6 +193,12 @@ const TableStudents = ({student_list}) => {
         const aNoGrade = !Number.isFinite(gwaA) || gwaA === 0;
         const bNoGrade = !Number.isFinite(gwaB) || gwaB === 0;
 
+        const aIrregular = a.status !== "Regular"
+        const bIrregular = b.status !== "Regular"
+
+        if (aIrregular && !bIrregular) return 1;
+        if (!aIrregular && bIrregular) return -1;
+
         if (aNoGrade && !bNoGrade) return 1;
         if (!aNoGrade && bNoGrade) return -1;
 
@@ -218,6 +224,7 @@ const TableStudents = ({student_list}) => {
                     {sortedStudents.slice(0, 30).map((student, index) => {
                         const fullName = `${student.l_name}, ${student.f_name}  ${student?.m_name ?? ""}`;
 
+                        console.log(student);
                         return(
                             <tr key={student.student_id ?? index}>
                                 <td>{index + 1}</td>

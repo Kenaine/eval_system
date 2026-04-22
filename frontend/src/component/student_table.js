@@ -187,6 +187,10 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                 );
             }
 
+            await axios.post(
+                API_URL + `/student/evaluate/${student_id}`
+            );
+
             setIsEditGradesMode(false);
             await refreshStudentData();
         } catch (err) {

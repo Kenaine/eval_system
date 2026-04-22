@@ -349,7 +349,7 @@ def reset_filter():
 #------------------------------------------------FOR EVALUATION--------------------------------------------------------
 
 def evaluateStudent(student_id: str):
-    import datetime
+    from datetime import datetime, timezone
     
     # Check if student exists
     student = supabase.table("students").select("*").eq("student_id", student_id).execute()
@@ -357,7 +357,7 @@ def evaluateStudent(student_id: str):
     if not student.data:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Student not found")
     
-    current_timestamp = int(datetime.datetime.now().timestamp() * 1000)  # Convert to milliseconds
+    current_timestamp = str(datetime.now(timezone.utc).date())
     result = supabase.table("students").update({"evaluated": current_timestamp}).eq("student_id", student_id).execute()
     
     # Reload students list

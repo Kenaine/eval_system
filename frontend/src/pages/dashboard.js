@@ -223,8 +223,6 @@ const TableStudents = ({student_list}) => {
                 <tbody>
                     {sortedStudents.slice(0, 30).map((student, index) => {
                         const fullName = `${student.l_name}, ${student.f_name}  ${student?.m_name ?? ""}`;
-
-                        console.log(student);
                         return(
                             <tr key={student.student_id ?? index}>
                                 <td>{index + 1}</td>

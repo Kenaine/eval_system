@@ -427,8 +427,8 @@ export function BulkGradeUpload({ student_id, courses, onSuccess, onClose }) {
         }
 
         // Create CSV content
-        const headers = "course_id,grade";
-        const rows = courses.map(course => `${course.course_id},`).join("\n");
+        const headers = "course_name, course_id,grade";
+        const rows = courses.map(course => `"${course.course_name}",${course.course_id},`).join("\n");
         const csvContent = `${headers}\n${rows}`;
 
         // Create a blob and download

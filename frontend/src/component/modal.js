@@ -13,7 +13,7 @@ export default function Modal({title, programs, formData, handleSubmit, handleCh
                 )}
                 <input name="email" value={formData.email} onChange={handleChange} placeholder="Email" required />
                 <input name="dept" value={formData.dept} onChange={handleChange} placeholder="Department" required />
-                <select name="program_id" value={formData.program_id} onChange={handleChange} required>
+                <select name="program_id" value={formData.program_id} onChange={handleChange} required disabled={isEdit}>
                     <option value="">Select Program</option>
                     {programs.map((program) => {
                     return (

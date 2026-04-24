@@ -217,7 +217,7 @@ export default function BulkUploadStudent({ onSuccess }) {
             <div
               style={{
                 background: "#fff", borderRadius: 8, padding: "2rem",
-                minWidth: 380, maxWidth: 600, maxHeight: "80vh",
+                minWidth: 380, maxWidth: 1200, maxHeight: "80vh",
                 overflowY: "auto", boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
               }}
               onClick={(e) => e.stopPropagation()}

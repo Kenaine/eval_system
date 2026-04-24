@@ -229,7 +229,7 @@ export default function BulkUploadStudent({ onSuccess }) {
 
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, marginBottom: "1.5rem" }}>
                 <thead>
-                  <tr style={{ background: "#f5f5f5" }}>
+                  <tr style={{ background: "#2d53a6" }}>
                     <th style={thStyle}>student_id</th>
                     <th style={thStyle}>email</th>
                     <th style={thStyle}>dept</th>

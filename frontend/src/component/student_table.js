@@ -166,7 +166,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
         // Strict range validation (50–100 only, unless incomplete)
         const outOfRangeCourse = changedCourses.find(
             (course) =>
-                course.forceIncomplete !== true &&
+                course.forceIncomplete !== true && course.grade !== "" &&
                 (Number(course.grade) < 50 || Number(course.grade) > 100)
         );
 
@@ -287,6 +287,14 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                         >
                             Bulk Upload Grades
                         </button>
+
+                        <button
+                            className={style.button}
+                            style={{ marginLeft: 0 }}
+                            disabled={!student_id || isEditGradesMode || isSavingGrades}
+                        >
+                            Export Grades as CSV
+                        </button>
                     </div>
                 )}
             </div>
@@ -367,7 +375,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                                             {isEditGradesMode ? (
                                                 <input
                                                     type="number"
-                                                    min="50"
+                                                    min="0"
                                                     max="100"
                                                     step="0.1"
                                                     value={course.grade ?? ""}

@@ -352,7 +352,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                                             {isEditGradesMode ? (
                                                 <input
                                                     type="number"
-                                                    min="0"
+                                                    min="50"
                                                     max="100"
                                                     step="0.1"
                                                     value={course.grade ?? ""}

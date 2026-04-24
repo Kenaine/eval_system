@@ -228,6 +228,44 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
 
     const displayedCourses = isEditGradesMode ? draftCourses : courses;
 
+    const exportGradesToCSV = () => {
+        const data = courses || []; // or use draftCourses if you want edited values
+
+        if (!data.length) {
+            alert("No courses available to export.");
+            return;
+        }
+
+        // CSV headers
+        const headers = ["course_name", "course_id", "grade"];
+
+        // Build rows
+        const rows = data.map(course => {
+            const grade = course.remark === "Incomplete" ? "Incomplete" : (course.grade ?? "");
+            
+            return [
+                `"${course.course_name || ""}"`, // wrap in quotes in case of commas
+                `"${course.course_id || ""}"`,
+                `"${grade}"`
+            ].join(",");
+        });
+
+        const csvContent = [headers.join(","), ...rows].join("\n");
+
+        // Create and trigger download
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `student_${student_id}_grades.csv`);
+        document.body.appendChild(link);
+        link.click();
+
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <>
             <div className={style.tableHeader}>
@@ -292,6 +330,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                             className={style.button}
                             style={{ marginLeft: 0 }}
                             disabled={!student_id || isEditGradesMode || isSavingGrades}
+                            onClick={exportGradesToCSV}
                         >
                             Export Grades as CSV
                         </button>
@@ -528,3 +567,5 @@ export function BulkGradeUpload({ student_id, courses, onSuccess, onClose }) {
         </div>
     );
 }
+
+

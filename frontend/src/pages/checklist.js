@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FaPrint } from "react-icons/fa";
+import { FaPrint, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -131,6 +131,44 @@ export default function Checklist() {
         printWindow.document.close();
     };
 
+    const deleteStudent = async () => {
+        if (!selectedStudent?.student_id) {
+            alert("No student selected.");
+            return;
+        }
+
+        const confirmDelete = window.confirm(
+            `Are you sure you want to delete student ${selectedStudent.full_name || selectedStudent.student_id}?`
+        );
+
+        if (!confirmDelete) {
+            return; // ❌ user clicked "No"
+        }
+
+        try {
+            await axios.delete(
+                API_URL + `/student/delete/${selectedStudent.student_id}`,
+                { withCredentials: true }
+            );
+
+            // ✅ Reset state
+            setSelectedStudent(null);
+            setCourses([]);
+            setIsViewing(false);
+
+            // ✅ Clear session storage
+            sessionStorage.removeItem(SELECTED_STUDENT_KEY);
+            sessionStorage.removeItem(SELECTED_STUDENT_DATA_KEY);
+            sessionStorage.removeItem(SELECTED_STUDENT_COURSES_KEY);
+
+            alert("Student deleted successfully.");
+        } catch (err) {
+            console.error("Delete failed:", err);
+            const errorMsg = err.response?.data?.detail || err.message || "Failed to delete student";
+            alert(`Error deleting student: ${errorMsg}`);
+        }
+    };
+
     return (
         <div className={style.curChecklist}>
             <HeaderWebsite pageName={pageName} />
@@ -162,8 +200,22 @@ export default function Checklist() {
                                     className={`${style.editIcon} ${!isViewing ? style.disabled : ""}`}
                                     title="Print"
                                     onClick={handlePrint}
+                                    disabled={!isViewing}
                                     style={{ cursor: isViewing ? "pointer" : "not-allowed" }}
                                 />
+                            )}
+                            {adminView && (
+                                <>
+                                    <FaTrash 
+                                        className={`${style.editIcon} ${!isViewing ? style.disabled: ""}`}
+                                        style={{
+                                            color: "#de0000",
+                                            cursor: "pointer"
+                                        }}
+                                        title="Delete Student"
+                                        onClick={deleteStudent}
+                                    />
+                                </>
                             )}
                         </span>
                     </h3>

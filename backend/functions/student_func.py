@@ -80,6 +80,8 @@ def deleteStudent(student_id: str):
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Student not found")
     
     result = supabase.table("students").delete().eq("student_id", student_id).execute()
+    result = supabase.table("user_credentials").delete().eq("student_id", student_id).execute()
+    result = supabase.table("student_courses").delete().eq("student_id", student_id).execute()
     
     # Reload students list
     loadStudents()

@@ -156,11 +156,26 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
             const originalIncomplete = String(original.remark || "").toLowerCase() === "incomplete";
             const currentIncomplete = course.forceIncomplete === true;
 
+
             return (
                 normalizeGradeForCompare(original.grade) !== normalizeGradeForCompare(course.grade) ||
                 originalIncomplete !== currentIncomplete
             );
         });
+
+        // Strict range validation (50–100 only, unless incomplete)
+        const outOfRangeCourse = changedCourses.find(
+            (course) =>
+                course.forceIncomplete !== true &&
+                (Number(course.grade) < 50 || Number(course.grade) > 100)
+        );
+
+        if (outOfRangeCourse) {
+            alert(
+                `Grade for ${outOfRangeCourse.course_id} must be between 50 and 100.`
+            );
+            return; // 🚫 stops everything immediately
+        }
 
         const invalidCourse = changedCourses.find((course) => course.forceIncomplete !== true && !isValidGrade(course.grade));
         if (invalidCourse) {

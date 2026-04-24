@@ -289,29 +289,22 @@ def updateGradesBulk(student_id: str, grades_list: list):
     for grade_entry in grades_list:
         course_id = grade_entry["course_id"]
         grade = grade_entry["grade"]
-        
+
         if grade == -1.0:
             grade = None
-        
+
         remark = getRemark(grade)
-        
-        # Check if course exists for student
-        courses = supabase.table("student_courses")\
-            .select("*")\
-            .eq("course_id", course_id)\
-            .eq("student_id", student_id)\
-            .execute()
-        
-        if not courses.data:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, f"Course {course_id} not found for student {student_id}")
-        
-        # Update the grade
-        supabase.table("student_courses")\
+
+        res = supabase.table("student_courses")\
             .update({"grade": grade, "remark": remark})\
             .eq("course_id", course_id)\
             .eq("student_id", student_id)\
             .execute()
-    
+
+        # Optional: check if anything was updated
+        if not res.data:
+            print(f"Course {course_id} not found for student {student_id}")
+
     return {"message": "Grades updated successfully"}
 
 def getRemark(grade: float | None) -> str:

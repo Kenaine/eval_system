@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import style from "../style/checklist.module.css";
-import buttonStyle from "../style/button.module.css";
 
 import StudentSearchBar from "../component/searchBar";
 import CourseTable from "../component/student_table";
@@ -160,7 +159,7 @@ export default function Checklist() {
                             )}
                             {(studentView || adminView) && (
                                 <FaPrint
-                                    className={`${buttonStyle.editIcon} ${!isViewing ? buttonStyle.disabled : ""}`}
+                                    className={`${style.editIcon} ${!isViewing ? style.disabled : ""}`}
                                     title="Print"
                                     onClick={handlePrint}
                                     style={{ cursor: isViewing ? "pointer" : "not-allowed" }}

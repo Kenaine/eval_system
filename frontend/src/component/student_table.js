@@ -396,7 +396,8 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
 
                                 rows.push(
                                     <tr key={index} className={
-                                            effectiveRemark === "Passed"     ? style.passedRow :
+                                            effectiveRemark === "Passed" || 
+                                            effectiveRemark === "Credited"     ? style.passedRow :
                                             effectiveRemark === "Incomplete" ? style.incompleteRow :
                                             effectiveRemark === "Failed"     ? style.failedRow :
                                             style.defaultRow
@@ -436,6 +437,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                                                         <option value={"N/A"} selected>N/A</option>
                                                         <option value={"Passed"} selected={effectiveRemark === "Passed" ? true : false} disabled>Passed</option>
                                                         <option value={"Failed"} selected={effectiveRemark === "Failed" ? true : false} disabled>Failed</option>
+                                                        <option value={"Credited"}>Credited</option>
                                                         <option value={"Incomplete"}>Incomplete</option>
                                                     </select>
                                                 </label>

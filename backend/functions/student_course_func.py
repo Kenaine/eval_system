@@ -108,7 +108,7 @@ def deleteStudent(student_id: str):
 def getStudentCourses(student_id: str, program_id: str, curriculum_id: int | None = None):
     # 1. Get student_courses for this student
     student_courses_result = supabase.table("student_courses")\
-        .select("course_id, grade, remark")\
+        .select("course_id, grade, remark, retakes")\
         .eq("student_id", student_id)\
         .execute()
     
@@ -181,7 +181,8 @@ def getStudentCourses(student_id: str, program_id: str, curriculum_id: int | Non
     grade_map = {
         sc["course_id"]: {
             "grade": sc.get("grade"),
-            "remark": sc.get("remark")
+            "remark": sc.get("remark"),
+            "retakes": sc.get("retakes")
         }
         for sc in student_courses_result.data
     }
@@ -228,7 +229,8 @@ def getStudentCourses(student_id: str, program_id: str, curriculum_id: int | Non
             "grade": grade_data.get("grade"),
             "remark": remark_value,
             "evaluated": evaluated_value,
-            "sequence": sequence
+            "sequence": sequence,
+            "retakes": grade_data.get("retakes")
         })
     
     # Sort by curriculum year/semester first, then sequence for stable in-sem ordering.
@@ -255,7 +257,7 @@ def getGWA(courses):
 
     return round(total_weighted / total_units, 2)
 
-def updateGrades(course_id: str, student_id: str, grade: float, remark: str, force_incomplete: bool = False):
+def updateGrades(course_id: str, student_id: str, grade: float, remark: str, force_incomplete: bool = False, retakes: int | None = None):
     if grade == -1.0:
         grade = None
     if force_incomplete or str(remark or "").strip().lower() == "incomplete":
@@ -275,6 +277,10 @@ def updateGrades(course_id: str, student_id: str, grade: float, remark: str, for
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Student/Course not found")
     
     update_payload = {"grade": grade, "remark": remark}
+    
+    # Only include retakes if provided
+    if retakes is not None:
+        update_payload["retakes"] = retakes
 
     # Update the record
     result = supabase.table("student_courses")\

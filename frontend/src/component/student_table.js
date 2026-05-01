@@ -122,6 +122,14 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
         );
     };
 
+    const handleretakesChange = (courseId, value) => {
+        setDraftCourses((prev) =>
+            prev.map((course) =>
+                course.course_id === courseId ? { ...course, retakes: value } : course
+            )
+        );
+    };
+
     const handleIncompleteToggle = (courseId, checked) => {
         setDraftCourses((prev) =>
             prev.map((course) =>
@@ -142,6 +150,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                 ...course,
                 grade: course.grade ?? "",
                 remark: course.remark ?? "N/A",
+                retakes: course.retakes ?? "",
                 forceIncomplete: String(course.remark || "").toLowerCase() === "incomplete"
             })));
             setIsEditGradesMode(true);
@@ -159,7 +168,8 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
 
             return (
                 normalizeGradeForCompare(original.grade) !== normalizeGradeForCompare(course.grade) ||
-                originalIncomplete !== currentIncomplete
+                originalIncomplete !== currentIncomplete ||
+                String(original.retakes ?? "") !== String(course.retakes ?? "")
             );
         });
 
@@ -190,14 +200,30 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
 
         setIsSavingGrades(true);
         try {
+            const originalByCourseId = new Map((courses || []).map((course) => [course.course_id, course]));
+            
             for (const course of changedCourses) {
+                const original = originalByCourseId.get(course.course_id);
+                
+                // Check if grade actually changed (excluding remark-only changes)
+                const gradeChanged = normalizeGradeForCompare(original.grade) !== normalizeGradeForCompare(course.grade);
+                
+                // Build the update payload
+                const updatePayload = {
+                    grade: course.forceIncomplete ? null : toApiGrade(course.grade),
+                    remark: course.forceIncomplete ? "Incomplete" : deriveRemarkFromGrade(course.grade),
+                    force_incomplete: course.forceIncomplete === true
+                };
+                
+                // If grade changed, increment retakes count
+                if (gradeChanged) {
+                    let newRetakes = (original.retakes ? Number(original.retakes) : 0) + 1;
+                    updatePayload.retakes = newRetakes;
+                }
+                
                 await axios.patch(
                     API_URL + `/SC/update-grade/${student_id}-${course.course_id}`,
-                    {
-                        grade: course.forceIncomplete ? null : toApiGrade(course.grade),
-                        remark: course.forceIncomplete ? "Incomplete" : deriveRemarkFromGrade(course.grade),
-                        force_incomplete: course.forceIncomplete === true
-                    },
+                    updatePayload,
                     { withCredentials: true }
                 );
             }
@@ -221,6 +247,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
             ...course,
             grade: course.grade ?? "",
             remark: course.remark ?? "N/A",
+            retakes: course.retakes ?? "",
             forceIncomplete: String(course.remark || "").toLowerCase() === "incomplete"
         })));
         setIsEditGradesMode(false);
@@ -357,12 +384,13 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                         <th>GRADE</th>
                         <th>REMARK</th>
                         <th>EVALUATED</th>
+                        <th>RETAKES</th>
                     </tr>
                 </thead>
                 <tbody>
                     {displayedCourses?.length === 0 ? (
                         <tr>
-                            <td colSpan="7" style={{ textAlign: "center" }}>
+                            <td colSpan="8" style={{ textAlign: "center" }}>
                                 No courses found.
                             </td>
                         </tr>
@@ -385,7 +413,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                                 if (year !== prevYear || semester !== prevSem) {
                                     rows.push(
                                         <tr key={`label-${index}`} className={style.yearSem}>
-                                            <td colSpan="7" style={{ fontWeight: "bold" }}>
+                                            <td colSpan="8" style={{ fontWeight: "bold" }}>
                                                 {ordinal(year)} Year, {ordinal(semester)} Sem
                                             </td>
                                         </tr>
@@ -450,6 +478,21 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                                                 <FaCheck fill="#00a700" size={25} title="Evaluated" /> :
                                                 <FaXmark fill="#ea0000" size={25} title="Not Evaluated" />
                                             }
+                                        </td>
+                                        <td>
+                                            {isEditGradesMode ? (
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    step="1"
+                                                    value={course.retakes ?? ""}
+                                                    onChange={(e) => handleretakesChange(course.course_id, e.target.value)}
+                                                    tabIndex="0"
+                                                    style={{width:"75px"}}
+                                                />
+                                            ) : (
+                                                course.retakes ? course.retakes : "-"
+                                            )}
                                         </td>
                                     </tr>
                                 );

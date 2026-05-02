@@ -220,3 +220,104 @@ def delete_user(username: str):
     supabase.table("user_credentials").delete().eq("username", username).execute()
 
     return {"message": "User deleted successfully"}
+
+
+@router.get("/admins/search")
+def search_admins(query: str):
+    """
+    Search for admins by name.
+    Returns all admins whose full_name matches the query.
+    """
+    try:
+        if not query or query.strip() == "":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Query parameter is required"
+            )
+        
+        # Query user_credentials table for admins with matching name
+        # Using ilike for case-insensitive search
+        result = supabase.table("user_credentials").select("*").eq("role", "admin").execute()
+        
+        if not result.data:
+            return {"admins": []}
+        
+        # Filter by name - case insensitive
+        query_lower = query.lower().strip()
+        matching_admins = []
+        
+        for admin in result.data:
+            full_name = admin.get("full_name", "").lower()
+            username = admin.get("username", "").lower()
+            
+            if query_lower in full_name or query_lower in username:
+                # Return only necessary fields
+                matching_admins.append({
+                    "username": admin["username"],
+                    "full_name": admin.get("full_name"),
+                    "email": admin.get("email"),
+                    "role": admin["role"]
+                })
+        
+        return {"admins": matching_admins}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Search failed: {str(e)}"
+        )
+
+
+@router.get("/admin/{name}")
+def get_admin_by_name(name: str):
+    """
+    Get a specific admin by name.
+    Searches user_credentials table for an admin with matching full_name or username.
+    Returns the admin's information.
+    """
+    try:
+        if not name or name.strip() == "":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Name parameter is required"
+            )
+        
+        # Query user_credentials table for admins
+        result = supabase.table("user_credentials").select("*").eq("role", "admin").execute()
+        
+        if not result.data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No admins found"
+            )
+        
+        # Search for exact match or partial match - case insensitive
+        name_lower = name.lower().strip()
+        
+        for admin in result.data:
+            full_name = admin.get("full_name", "").lower()
+            username = admin.get("username", "").lower()
+            
+            if name_lower == full_name or name_lower == username or name_lower in full_name or name_lower in username:
+                return {
+                    "username": admin["username"],
+                    "full_name": admin.get("full_name"),
+                    "email": admin.get("email"),
+                    "role": admin["role"],
+                    "student_id": admin.get("student_id")
+                }
+        
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Admin with name '{name}' not found"
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Get admin failed: {str(e)}"
+        )

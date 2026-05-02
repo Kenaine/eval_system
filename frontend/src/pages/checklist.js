@@ -224,7 +224,7 @@ export default function Checklist() {
                         <div className={style.lBlock}>
                             <span>Student ID: {currentUser?.student_id ?? selectedStudent?.student_id ?? "N/A"}</span>
                             <span>
-                                Student Name: {currentUser?.full_name ?? selectedStudent?.full_name ?? "N/A"}
+                                Student Name: {selectedStudent?.full_name ?? currentUser?.full_name ?? "N/A"}
                             </span>
                             <span>Program/Major: {currentUser?.prgm_spec ?? selectedStudent?.prgm_spec ?? "N/A"}
                             </span>

@@ -102,7 +102,7 @@ def is_admin(request: Request) -> bool:
     """
     try:
         role = get_current_user_role(request)
-        return role == "admin"
+        return role == "admin" or role == "super admin"
     except:
         return False
 

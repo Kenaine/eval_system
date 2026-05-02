@@ -7,10 +7,10 @@ def update_user_role(user_id: str, role: str):
     Update user role in profiles table.
     Only admin, student, or faculty roles allowed.
     """
-    if role not in ["admin", "student", "faculty"]:
+    if role not in ["admin", "student", "faculty", "super admin"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid role. Must be 'admin', 'student', or 'faculty'"
+            detail="Invalid role. Must be 'admin', 'student', 'super admin' or 'faculty'"
         )
     
     # Check if profile exists

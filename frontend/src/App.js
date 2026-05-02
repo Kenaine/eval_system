@@ -7,6 +7,7 @@ import Dashbaord from "./pages/dashboard";
 import NewChecklist from "./pages/new_checklist";
 import CourseList from "./pages/course_list";
 import CurriculumList from "./pages/curriculum_list";
+import AdminManagement from "./pages/admin";
 import './App.css';
 import apiClient from "./lib/api";
 import { isStudent } from "./lib/auth";
@@ -82,6 +83,7 @@ function App() {
                 <Route path="/curriculum-checklist" element={<ProtectedRoute><Checklist /></ProtectedRoute>} />
                 <Route path="/course-list" element={<ProtectedRoute adminOnly={true}><CourseList /></ProtectedRoute>} />
                 <Route path="/curriculum-list" element={<ProtectedRoute adminOnly={true}><CurriculumList /></ProtectedRoute>} />
+                <Route path="/admin-page" element={<ProtectedRoute adminOnly={true}><AdminManagement /></ProtectedRoute>} />
                 <Route path="*" element={<Navigate to={getAuthToken() ? "/curriculum-checklist" : "/"} replace />} />
               </Routes>
             </Router>

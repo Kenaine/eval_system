@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { FaHome, FaChartLine, FaList, FaClipboardCheck, FaBook, FaGraduationCap, FaUserCircle } from "react-icons/fa";
+import { FaHome, FaChartLine, FaList, FaClipboardCheck, FaBook, FaGraduationCap, FaUserCircle, FaPen } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import style from "../style/header.module.css"
 import { useUser } from "../App";
@@ -26,7 +26,8 @@ export default function HeaderWebsite({ pageName }){
         { link: "Dashboard", path: "/dashboard", icon: FaChartLine, label: "Dashboard" }, 
         { link: "Curriculum Checklist", path: "/curriculum-checklist", icon: FaClipboardCheck, label: "Checklist" },
         { link: "Course List", path: "/course-list", icon: FaBook, label: "Courses" },
-        { link: "Curriculum List", path: "/curriculum-list", icon: FaGraduationCap, label: "Curriculum" }
+        { link: "Curriculum List", path: "/curriculum-list", icon: FaGraduationCap, label: "Curriculum" },
+        { link: "Admin Page", path: "/admin-page", icon: FaPen, label: "Admin"}
     ];
     const visiblePages = isStudent(currentUser?.role)
         ? pageList.filter((page) => page.path === "/curriculum-checklist")

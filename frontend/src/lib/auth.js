@@ -11,5 +11,5 @@ export function isStudent(role) {
 }
 
 export function isAdmin(role) {
-    return hasRole(role, "admin");
+    return hasRole(role, "admin") || hasRole(role, "super admin");
 }

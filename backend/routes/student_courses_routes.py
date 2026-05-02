@@ -13,6 +13,7 @@ class Grades(BaseModel):
     remark: str
     force_incomplete: bool = False
     retakes: Optional[int] = None
+    evaluator: Optional[str] = None
 
 @router.get("/get")
 def getStudentCourse(student_id: str, program_id: str):
@@ -26,7 +27,8 @@ def updateGrade(course_id: str, student_id: str, newGrades: Grades):
         newGrades.grade,
         newGrades.remark,
         newGrades.force_incomplete,
-        newGrades.retakes
+        newGrades.retakes,
+        newGrades.evaluator
     )
 
     getStudent(student_id)

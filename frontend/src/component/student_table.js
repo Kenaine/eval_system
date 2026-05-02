@@ -6,6 +6,7 @@ import axios from "axios";
 
 import { API_URL } from "../misc/url";
 import { isAdmin } from "../lib/auth";
+import { useUser } from "../App";
 
 function getApiErrorMessage(err, fallback = "Something went wrong") {
     const detail = err?.response?.data?.detail;
@@ -35,6 +36,7 @@ function ordinal(n) {
 }
 
 export default function CourseTable({ student_id, courses, role, onSelectStudent }) {
+    const [currentUser] = useUser() || [];
     const [showBulkUpload, setShowBulkUpload] = useState(false);
     const [isEditGradesMode, setIsEditGradesMode] = useState(false);
     const [draftCourses, setDraftCourses] = useState([]);
@@ -130,6 +132,14 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
         );
     };
 
+    const handleEvaluatorChange = (courseId, value) => {
+        setDraftCourses((prev) =>
+            prev.map((course) =>
+                course.course_id === courseId ? { ...course, evaluator: value } : course
+            )
+        );
+    };
+
     const handleIncompleteToggle = (courseId, checked) => {
         setDraftCourses((prev) =>
             prev.map((course) =>
@@ -141,6 +151,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
     };
 
     const toggleEditGrades = async () => {
+        console.log(currentUser);
         if (!student_id) {
             return;
         }
@@ -151,6 +162,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                 grade: course.grade ?? "",
                 remark: course.remark ?? "N/A",
                 retakes: course.retakes ?? "",
+                evaluator: course.evaluator ?? "",
                 forceIncomplete: String(course.remark || "").toLowerCase() === "incomplete"
             })));
             setIsEditGradesMode(true);
@@ -169,7 +181,8 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
             return (
                 normalizeGradeForCompare(original.grade) !== normalizeGradeForCompare(course.grade) ||
                 originalIncomplete !== currentIncomplete ||
-                String(original.retakes ?? "") !== String(course.retakes ?? "")
+                String(original.retakes ?? "") !== String(course.retakes ?? "") ||
+                String(original.evaluator ?? "") !== String(course.evaluator ?? "")
             );
         });
 
@@ -208,11 +221,14 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                 // Check if grade actually changed (excluding remark-only changes)
                 const gradeChanged = normalizeGradeForCompare(original.grade) !== normalizeGradeForCompare(course.grade);
                 
+                
                 // Build the update payload
                 const updatePayload = {
                     grade: course.forceIncomplete ? null : toApiGrade(course.grade),
                     remark: course.forceIncomplete ? "Incomplete" : deriveRemarkFromGrade(course.grade),
-                    force_incomplete: course.forceIncomplete === true
+                    force_incomplete: course.forceIncomplete === true,
+                    // Always set evaluator to current user's full_name when any course is updated
+                    evaluator: currentUser?.full_name || ""
                 };
                 
                 // If grade changed, increment retakes count
@@ -248,6 +264,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
             grade: course.grade ?? "",
             remark: course.remark ?? "N/A",
             retakes: course.retakes ?? "",
+            evaluator: course.evaluator ?? "",
             forceIncomplete: String(course.remark || "").toLowerCase() === "incomplete"
         })));
         setIsEditGradesMode(false);
@@ -385,6 +402,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                         <th>REMARK</th>
                         <th>EVALUATED</th>
                         <th>RETAKES</th>
+                        <th>EVALUATOR</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -413,7 +431,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                                 if (year !== prevYear || semester !== prevSem) {
                                     rows.push(
                                         <tr key={`label-${index}`} className={style.yearSem}>
-                                            <td colSpan="8" style={{ fontWeight: "bold" }}>
+                                            <td colSpan="9" style={{ fontWeight: "bold" }}>
                                                 {ordinal(year)} Year, {ordinal(semester)} Sem
                                             </td>
                                         </tr>
@@ -492,6 +510,19 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                                                 />
                                             ) : (
                                                 course.retakes ? course.retakes : "-"
+                                            )}
+                                        </td>
+                                        <td>
+                                            {isEditGradesMode ? (
+                                                <input
+                                                    type="text"
+                                                    value={course.evaluator ?? ""}
+                                                    onChange={(e) => handleEvaluatorChange(course.course_id, e.target.value)}
+                                                    tabIndex="0"
+                                                    style={{width:"150px"}}
+                                                />
+                                            ) : (
+                                                course.evaluator ? course.evaluator : "-"
                                             )}
                                         </td>
                                     </tr>

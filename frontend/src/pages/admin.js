@@ -11,7 +11,7 @@ import EditAdmin from "../component/admin_page/editAdmin";
 
 import { useUser } from "../App";
 import { API_URL } from "../misc/url";
-import { isAdmin } from "../lib/auth";
+import { isAdmin, isSuperAdmin } from "../lib/auth";
 
 export default function AdminManagement() {
     const pageName = "Admin Management";
@@ -39,7 +39,7 @@ export default function AdminManagement() {
         const cachedAdmin = readCachedJson(SELECTED_ADMIN_DATA_KEY, null);
         return Boolean(cachedAdmin?.username);
     });
-    const adminView = isAdmin(currentUser?.role);
+    const adminView = isSuperAdmin(currentUser?.role);
 
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState([]);

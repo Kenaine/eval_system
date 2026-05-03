@@ -10,7 +10,7 @@ import CurriculumList from "./pages/curriculum_list";
 import AdminManagement from "./pages/admin";
 import './App.css';
 import apiClient from "./lib/api";
-import { isStudent } from "./lib/auth";
+import { isStudent, isSuperAdmin } from "./lib/auth";
 
 const UserContext = createContext(null)
 const CoursesContext = createContext(null)
@@ -31,11 +31,15 @@ function App() {
     }
   };
 
-  const ProtectedRoute = ({ children, adminOnly = false }) => {
+  const ProtectedRoute = ({ children, adminOnly = false, superAdminOnly = false }) => {
     const token = getAuthToken();
     if (!token) return <Navigate to="/" replace />;
 
     if (adminOnly && isStudent(currentUser?.role)) {
+      return <Navigate to="/curriculum-checklist" replace />;
+    }
+
+    if (superAdminOnly && isSuperAdmin(currentUser?.role)){
       return <Navigate to="/curriculum-checklist" replace />;
     }
 
@@ -78,12 +82,12 @@ function App() {
             <Router>
               <Routes>
                 <Route path="/" element={getAuthToken() ? <Navigate to={getDefaultAuthenticatedRoute()} replace /> : <Login />} />
-                <Route path="/new" element={<ProtectedRoute adminOnly={true}><NewChecklist /></ProtectedRoute>} />
-                <Route path="/dashboard" element={<ProtectedRoute adminOnly={true}><Dashbaord /></ProtectedRoute>} />
+                <Route path="/new" element={<ProtectedRoute adminOnly={true} superAdminOnly={false}><NewChecklist /></ProtectedRoute>} />
+                <Route path="/dashboard" element={<ProtectedRoute adminOnly={true} superAdminOnly={false}><Dashbaord /></ProtectedRoute>} />
                 <Route path="/curriculum-checklist" element={<ProtectedRoute><Checklist /></ProtectedRoute>} />
-                <Route path="/course-list" element={<ProtectedRoute adminOnly={true}><CourseList /></ProtectedRoute>} />
-                <Route path="/curriculum-list" element={<ProtectedRoute adminOnly={true}><CurriculumList /></ProtectedRoute>} />
-                <Route path="/admin-page" element={<ProtectedRoute adminOnly={true}><AdminManagement /></ProtectedRoute>} />
+                <Route path="/course-list" element={<ProtectedRoute adminOnly={true} superAdminOnly={false}><CourseList /></ProtectedRoute>} />
+                <Route path="/curriculum-list" element={<ProtectedRoute adminOnly={true} superAdminOnly={false}><CurriculumList /></ProtectedRoute>} />
+                <Route path="/admin-page" element={<ProtectedRoute adminOnly={true} superAdminOnly={true}><AdminManagement /></ProtectedRoute>} />
                 <Route path="*" element={<Navigate to={getAuthToken() ? "/curriculum-checklist" : "/"} replace />} />
               </Routes>
             </Router>

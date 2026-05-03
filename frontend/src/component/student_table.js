@@ -236,6 +236,10 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                     let newRetakes = (original.retakes ? Number(original.retakes) : 0) + 1;
                     updatePayload.retakes = newRetakes;
                 }
+                else
+                {
+                    updatePayload.retakes = course.retakes
+                }
                 
                 await axios.patch(
                     API_URL + `/SC/update-grade/${student_id}-${course.course_id}`,

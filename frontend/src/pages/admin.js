@@ -6,6 +6,8 @@ import axios from "axios";
 import style from "../style/checklist.module.css";
 
 import HeaderWebsite from "../component/header";
+import AddAdmin from "../component/admin_page/addAdmin";
+import EditAdmin from "../component/admin_page/editAdmin";
 
 import { useUser } from "../App";
 import { API_URL } from "../misc/url";
@@ -112,7 +114,7 @@ export default function AdminManagement() {
 
         try {
             await axios.delete(
-                `${API_URL}/auth/admin/${selectedAdmin.username}`,
+                `${API_URL}/auth/admin-delete/${selectedAdmin.username}`,
                 { withCredentials: true }
             );
 
@@ -137,6 +139,22 @@ export default function AdminManagement() {
         }
     }, []);
 
+    const handleAdminAdded = (newAdmin) => {
+        // Refresh the selected admin or clear search
+        setSearchQuery("");
+        setSearchResults([]);
+        setSelectedAdmin(null);
+        setIsViewing(false);
+    };
+
+    const handleAdminUpdated = (updatedAdmin) => {
+        // Refresh the selected admin with updated data
+        setSelectedAdmin(updatedAdmin);
+        sessionStorage.setItem(SELECTED_ADMIN_DATA_KEY, JSON.stringify(updatedAdmin));
+        setSearchQuery("");
+        setSearchResults([]);
+    };
+
 
     return (
         <div className={style.curChecklist}>
@@ -154,20 +172,20 @@ export default function AdminManagement() {
                                 searchAdmins(e.target.value);
                             }}
                             style={{
-                                width: "100%",
+                                width: "20%",
                                 padding: "10px",
                                 fontSize: "14px",
                                 border: "1px solid #ccc",
-                                borderRadius: "4px"
+                                borderRadius: "4px",
                             }}
                         />
                         {searchResults.length > 0 && (
                             <div style={{
-                                marginTop: "10px",
                                 border: "1px solid #ccc",
                                 borderRadius: "4px",
                                 maxHeight: "300px",
-                                overflowY: "auto"
+                                overflowY: "auto",
+                                width: "20%"
                             }}>
                                 {searchResults.map((admin) => (
                                     <div
@@ -191,16 +209,24 @@ export default function AdminManagement() {
                     </div>
                 )}
 
-                <div className={style.studentDetail}>
+                <div className={style.studentDetail}
+                style={{marginTop: "20px"}}>
                     <h3>
                         Admin Information
                         <span className={style.buttons}>
+                            {adminView && (
+                                <AddAdmin onAdminAdded={handleAdminAdded} />
+                            )}
+                            {adminView && isViewing && (
+                                <EditAdmin admin={selectedAdmin} onAdminUpdated={handleAdminUpdated} />
+                            )}
                             {adminView && isViewing && (
                                 <FaTrash 
                                     className={`${style.editIcon} ${!isViewing ? style.disabled: ""}`}
                                     style={{
                                         color: "#de0000",
-                                        cursor: "pointer"
+                                        cursor: "pointer",
+                                        marginLeft: "10px"
                                     }}
                                     title="Delete Admin"
                                     onClick={deleteAdmin}

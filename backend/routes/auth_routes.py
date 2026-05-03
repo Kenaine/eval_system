@@ -2,6 +2,7 @@ from functions import auth_func, user_func
 from fastapi import APIRouter, Request, HTTPException, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from typing import Optional
 from db.supabase_client import supabase
 from passlib.context import CryptContext
 import jwt
@@ -21,6 +22,20 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
 class LoginRequest(BaseModel):
     username: str  # student_id for students, username for admin
     password: str
+
+class AdminCreateRequest(BaseModel):
+    username: str
+    email: str
+    full_name: str
+    password: str
+    role: str
+
+class AdminUpdateRequest(BaseModel):
+    username: str
+    email: str
+    full_name: str
+    role: str
+    password: Optional[str] = None
 
 @router.post("/login")
 def login(credentials: LoginRequest):
@@ -220,6 +235,187 @@ def delete_user(username: str):
     supabase.table("user_credentials").delete().eq("username", username).execute()
 
     return {"message": "User deleted successfully"}
+
+
+@router.post("/admin/create")
+def create_admin(admin_data: AdminCreateRequest):
+    """
+    Create a new admin user.
+    Accepts admin details and stores them in user_credentials table with hashed password.
+    """
+    try:
+        # Validate required fields
+        if not admin_data.username or not admin_data.email or not admin_data.full_name or not admin_data.password:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Missing required fields: username, email, full_name, password"
+            )
+        
+        # Check if username already exists
+        existing_user = supabase.table("user_credentials").select("username").eq("username", admin_data.username).execute()
+        if existing_user.data:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Username '{admin_data.username}' already exists"
+            )
+        
+        # Check if email already exists
+        existing_email = supabase.table("user_credentials").select("email").eq("email", admin_data.email).execute()
+        if existing_email.data:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Email '{admin_data.email}' already exists"
+            )
+        
+        # Validate password length
+        if len(admin_data.password) < MIN_PASSWORD_LENGTH:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Password must be at least {MIN_PASSWORD_LENGTH} characters long"
+            )
+        
+        # Hash password (respect bcrypt 72-byte limit)
+        safe_password = admin_data.password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
+        hashed_password = pwd_context.hash(safe_password)
+        
+        # Insert new admin into user_credentials table
+        admin_record = {
+            "username": admin_data.username,
+            "email": admin_data.email,
+            "full_name": admin_data.full_name,
+            "hashed_password": hashed_password,
+            "role": admin_data.role or "admin"
+        }
+        
+        result = supabase.table("user_credentials").insert(admin_record).execute()
+        
+        return {
+            "message": "Admin created successfully",
+            "admin": {
+                "username": admin_data.username,
+                "email": admin_data.email,
+                "full_name": admin_data.full_name,
+                "role": admin_data.role or "admin"
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create admin: {str(e)}"
+        )
+
+
+@router.put("/admin-update/{username}")
+def update_admin(username: str, admin_data: AdminUpdateRequest):
+    """
+    Update an existing admin user.
+    Accepts admin username and fields to update: username, email, full_name, role, and optional password.
+    Password will only be updated if provided.
+    """
+    try:
+        # Validate required fields
+        if not admin_data.username or not admin_data.email or not admin_data.full_name:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Missing required fields: username, email, full_name"
+            )
+        
+        # Check for duplicate username (if username changed)
+        if admin_data.username != username:
+            existing_user = supabase.table("user_credentials").select("username").eq("username", admin_data.username).execute()
+            if existing_user.data:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"Username '{admin_data.username}' already exists"
+                )
+        
+        # Check for duplicate email
+        existing_email = supabase.table("user_credentials").select("email").eq("email", admin_data.email).eq("username", username).execute()
+        if existing_email.data and existing_email.data[0]["email"] != admin_data.email:
+            existing_email_check = supabase.table("user_credentials").select("email").eq("email", admin_data.email).execute()
+            if existing_email_check.data:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"Email '{admin_data.email}' already exists"
+                )
+        
+        # Build update data
+        update_record = {
+            "username": admin_data.username,
+            "email": admin_data.email,
+            "full_name": admin_data.full_name,
+            "role": admin_data.role or "admin"
+        }
+        
+        # Update password if provided
+        if admin_data.password:
+            if len(admin_data.password) < MIN_PASSWORD_LENGTH:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Password must be at least {MIN_PASSWORD_LENGTH} characters long"
+                )
+            safe_password = admin_data.password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
+            update_record["hashed_password"] = pwd_context.hash(safe_password)
+        
+        # Update the admin record
+        supabase.table("user_credentials").update(update_record).eq("username", username).execute()
+        
+        return {
+            "message": "Admin updated successfully",
+            "admin": {
+                "username": admin_data.username,
+                "email": admin_data.email,
+                "full_name": admin_data.full_name,
+                "role": admin_data.role or "admin"
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update admin: {str(e)}"
+        )
+
+
+@router.delete("/admin-delete/{username}")
+def delete_admin(username: str):
+    """
+    Delete an admin user by username.
+    Removes the admin from the user_credentials table.
+    """
+    try:
+        # Check if admin exists
+        result = supabase.table("user_credentials").select("*").eq("username", username).execute()
+        
+        if not result.data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Admin with username '{username}' not found"
+            )
+        
+        # Delete the admin
+        supabase.table("user_credentials").delete().eq("username", username).execute()
+        
+        return {"message": f"Admin '{username}' deleted successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete admin: {str(e)}"
+        )
 
 
 @router.get("/admins/search")

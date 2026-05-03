@@ -73,27 +73,34 @@ export const generateCurriculumChecklistPrint = (currentStudent, studentCourses)
                 body {
                     font-family: Arial, sans-serif;
                     color: #333;
-                    font-size: 11px;
-                    line-height: 1.2;
+                    font-size: 10px;
+                    line-height: 1.1;
+                    padding: 10px;
+                    display: flex;
+                    flex-direction: column;
+                    min-height: 100vh;
+                }
+                .content-wrapper {
+                    flex: 1;
                 }
                 .student-info {
-                    margin: 5px 0;
-                    padding: 5px 0 5px 0;
+                    margin: 3px 0;
+                    padding: 3px 0 3px 0;
                     border-bottom: 1px solid #333;
                 }
                 .student-info p {
-                    margin: 2px 0;
-                    font-size: 10px;
+                    margin: 1px 0;
+                    font-size: 9px;
                 }
                 table {
                     width: 100%;
                     border-collapse: collapse;
-                    margin-top: 5px;
-                    font-size: 10px;
+                    margin-top: 3px;
+                    font-size: 9px;
                 }
                 th, td {
                     border: 1px solid #999;
-                    padding: 4px 3px;
+                    padding: 2px 2px;
                     text-align: left;
                     overflow: hidden;
                 }
@@ -101,8 +108,8 @@ export const generateCurriculumChecklistPrint = (currentStudent, studentCourses)
                     background-color: #4CAF50;
                     color: white;
                     font-weight: bold;
-                    font-size: 9px;
-                    padding: 3px 2px;
+                    font-size: 8px;
+                    padding: 2px 1px;
                 }
                 td {
                     word-break: break-word;
@@ -113,46 +120,73 @@ export const generateCurriculumChecklistPrint = (currentStudent, studentCourses)
                 h1 {
                     text-align: center;
                     margin: 0;
-                    padding: 5px 0 3px 0;
-                    font-size: 16px;
+                    padding: 3px 0 2px 0;
+                    font-size: 14px;
+                }
+                .footer {
+                    margin-top: 10px;
+                    display: flex;
+                    justify-content: flex-end;
+                }
+                .evaluated-by {
+                    text-align: center;
+                    width: 150px;
+                }
+                .evaluated-by-line {
+                    border-top: 1px solid #333;
+                    margin-top: 15px;
+                    font-size: 8px;
                 }
                 @media print {
                     html, body {
                         margin: 0;
                         padding: 0;
+                        height: auto;
                     }
                     body {
-                        margin: 3px;
+                        margin: 2px;
+                        padding: 5px;
                     }
                     thead {
                         display: table-header-group;
+                    }
+                    .content-wrapper {
+                        flex: none;
                     }
                 }
             </style>
         </head>
         <body>
-            <h1>Curriculum Checklist</h1>
-            <div class="student-info">
-                <p><strong>Student ID:</strong> ${currentStudent?.student_id}</p>
-                <p><strong>Name:</strong> ${studentName}</p>
-                <p><strong>Program:</strong> ${currentStudent?.program_id}</p>
-                <p><strong>Year:</strong> ${currentStudent?.year}</p>
+            <div class="content-wrapper">
+                <h1>Curriculum Checklist</h1>
+                <div class="student-info">
+                    <p><strong>Student ID:</strong> ${currentStudent?.student_id}</p>
+                    <p><strong>Name:</strong> ${studentName}</p>
+                    <p><strong>Program:</strong> ${currentStudent?.program_id}</p>
+                    <p><strong>Year:</strong> ${currentStudent?.year}</p>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>SUB CODE</th>
+                            <th>SUB DESCRIPTION</th>
+                            <th>TOTAL UNIT</th>
+                            <th>CREDIT EARNED</th>
+                            <th>GRADE</th>
+                            <th>REMARK</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${courseTableRows}
+                    </tbody>
+                </table>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>SUB CODE</th>
-                        <th>SUB DESCRIPTION</th>
-                        <th>TOTAL UNIT</th>
-                        <th>CREDIT EARNED</th>
-                        <th>GRADE</th>
-                        <th>REMARK</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${courseTableRows}
-                </tbody>
-            </table>
+            <div class="footer">
+                <div class="evaluated-by">
+                    <p>Evaluated by:</p>
+                    <div class="evaluated-by-line"></div>
+                </div>
+            </div>
             <script>
                 window.print();
                 window.close();

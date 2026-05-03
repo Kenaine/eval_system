@@ -241,7 +241,7 @@ export default function AddAdmin({ onAdminAdded }) {
                     }}
                   >
                     <option value="admin">Admin</option>
-                    <option value="super_admin">Super Admin</option>
+                    <option value="super admin">Super Admin</option>
                   </select>
                 </div>
 

@@ -3,7 +3,7 @@ import { FaHome, FaChartLine, FaList, FaClipboardCheck, FaBook, FaGraduationCap,
 import { useNavigate } from "react-router-dom";
 import style from "../style/header.module.css"
 import { useUser } from "../App";
-import { isStudent } from "../lib/auth";
+import { isStudent, isSuperAdmin } from "../lib/auth";
 import apiClient from "../lib/api";
 
 const MIN_PASSWORD_LENGTH = 8;
@@ -29,9 +29,7 @@ export default function HeaderWebsite({ pageName }){
         { link: "Curriculum List", path: "/curriculum-list", icon: FaGraduationCap, label: "Curriculum" },
         { link: "Admin Page", path: "/admin-page", icon: FaPen, label: "Admin"}
     ];
-    const visiblePages = isStudent(currentUser?.role)
-        ? pageList.filter((page) => page.path === "/curriculum-checklist")
-        : pageList;
+    const [visiblePages, setVisiblePages] = useState([]);
 
     const signOut = () => {
         localStorage.removeItem('supabase_token');
@@ -50,6 +48,16 @@ export default function HeaderWebsite({ pageName }){
             }
         };
 
+        if(isStudent(currentUser?.role)){
+            setVisiblePages(pageList.filter((page) => page.path === "/curriculum-checklist"));
+        } else if(!isSuperAdmin(currentUser?.role))
+        {
+            setVisiblePages(pageList.filter((page) => page.path !== "/admin-page"));
+        }
+        else{
+            setVisiblePages(pageList);
+        }
+        
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);

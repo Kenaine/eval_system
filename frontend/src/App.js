@@ -39,7 +39,7 @@ function App() {
       return <Navigate to="/curriculum-checklist" replace />;
     }
 
-    if (superAdminOnly && isSuperAdmin(currentUser?.role)){
+    if (superAdminOnly && !isSuperAdmin(currentUser?.role)){
       return <Navigate to="/curriculum-checklist" replace />;
     }
 

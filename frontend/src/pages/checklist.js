@@ -15,7 +15,7 @@ import { BulkGradeUpload } from "../component/student_table";
 
 import { useUser, useCourses } from "../App";
 import { API_URL } from "../misc/url";
-import { isAdmin, isStudent } from "../lib/auth";
+import { isAdmin, isStudent, isSuperAdmin } from "../lib/auth";
 import { generateCurriculumChecklistPrint } from "../lib/printUtils";
 
 export default function Checklist() {
@@ -47,7 +47,7 @@ export default function Checklist() {
         return Boolean(cachedStudent?.student_id);
     });
     const studentView = isStudent(currentUser?.role);
-    const adminView = isAdmin(currentUser?.role);
+    const adminView = isAdmin(currentUser?.role) || isSuperAdmin(currentUser?.role);
 
     const addStudent = async (student) => {
         try {

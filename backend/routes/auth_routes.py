@@ -117,6 +117,7 @@ def login(credentials: LoginRequest):
             "sub": username,
             "username": username,
             "role": user["role"],
+            "dept": user.get("dept"),
             "student_id": user.get("student_id"),
             "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         }

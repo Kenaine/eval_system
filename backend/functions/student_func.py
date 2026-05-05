@@ -162,18 +162,23 @@ def getStudent(student_id: str = None):
         traceback.print_exc()
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, f"Error fetching student: {str(e)}")
 
-def search_students(query: str, apply_filters: bool = False):
+def search_students(query: str, apply_filters: bool = False, admin_dept: str = None):
     """
     Search students by name or student_id in the students table.
     When apply_filters is True, applies the active search filters.
     When query is empty and apply_filters is True, returns all students that match the active filters.
+    When admin_dept is provided, only returns students from that department.
     """
     query_lower = query.lower().strip() if query else ""
     results = []
 
     # Start building the query with base selection
     query_builder = supabase.table("students") \
-        .select("student_id, f_name, l_name, m_name, evaluated, status, is_transferee, program_id, year")
+        .select("student_id, f_name, l_name, m_name, evaluated, status, is_transferee, program_id, year, dept")
+    
+    # Filter by admin's department if provided
+    if admin_dept:
+        query_builder = query_builder.eq("dept", admin_dept)
     
     # Only apply search filters if apply_filters is True
     if apply_filters:
@@ -207,7 +212,8 @@ def search_students(query: str, apply_filters: bool = False):
             results.append({
                 "student_id": s["student_id"],
                 "name": f"{s['l_name']}, {s['f_name']} {s.get('m_name', '') or ''}".strip(),
-                "evaluated": str(s.get("evaluated", ""))
+                "evaluated": str(s.get("evaluated", "")),
+                "dept": s.get("dept", "")
             })
             if len(results) >= 30:
                 break

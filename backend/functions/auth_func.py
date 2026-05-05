@@ -1,7 +1,13 @@
 from fastapi import Depends, HTTPException, status, Request
 from typing import Optional
+import jwt
+import os
 
 from db.supabase_client import supabase
+
+# JWT settings (should match auth_routes.py)
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-this-in-production")
+ALGORITHM = "HS256"
 
 def get_user_from_token(request: Request) -> dict:
     """
@@ -106,8 +112,23 @@ def is_admin(request: Request) -> bool:
     except:
         return False
 
-    else:
-        expr = datetime.datetime.now(datetime.timezone.utc) + timedelta(15)
-    to_encode.update({"exp": expr})
-
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+def get_admin_dept_from_token(request: Request) -> Optional[str]:
+    """
+    Extract admin department from JWT token.
+    Returns the dept if found, None otherwise.
+    """
+    auth_header = request.headers.get("Authorization")
+    
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return None
+    
+    token = auth_header.split(" ")[1]
+    
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        dept = payload.get("dept")
+        return dept
+    except jwt.InvalidTokenError:
+        return None
+    except Exception:
+        return None

@@ -1,9 +1,9 @@
 import csv
 import io
-from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File, Request
 from fastapi.responses import JSONResponse
 from schema.student_schema import Student
-from functions import student_func
+from functions import student_func, auth_func
 from services.student_services import addStudentHelper, bulkAddStudents
 
 
@@ -22,8 +22,12 @@ def deleteStudent(student_id: str):
     return student_func.deleteStudent(student_id)
 
 @router.get("/search")
-def search_students(q: str = Query(default="", min_length=0), apply_filters: bool = Query(default=False)):
-    return student_func.search_students(q, apply_filters)
+def search_students(q: str = Query(default="", min_length=0), apply_filters: bool = Query(default=False), request: Request = None):
+    # Get admin's department from token
+    admin_dept = None
+    if request:
+        admin_dept = auth_func.get_admin_dept_from_token(request)
+    return student_func.search_students(q, apply_filters, admin_dept)
 
 @router.get("/get/{student_id}")
 def getStudentByID(student_id: str):

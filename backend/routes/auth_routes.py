@@ -7,15 +7,26 @@ from pydantic import BaseModel
 from typing import Optional
 from db.database import get_db
 from models import UserCredential
-from passlib.context import CryptContext
+import bcrypt
 import jwt
 from datetime import datetime, timedelta
 import os
 
 router = APIRouter()
 
-# Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Password hashing using bcrypt directly
+def hash_password(password: str) -> str:
+    """Hash password using bcrypt"""
+    safe_password = password.encode('utf-8')[:72]
+    return bcrypt.hashpw(safe_password, bcrypt.gensalt()).decode('utf-8')
+
+def verify_password(password: str, hashed: str) -> bool:
+    """Verify password against bcrypt hash"""
+    try:
+        safe_password = password.encode('utf-8')[:72]
+        return bcrypt.checkpw(safe_password, hashed.encode('utf-8'))
+    except:
+        return False
 
 # JWT settings
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-this-in-production")
@@ -70,9 +81,7 @@ def login(credentials: LoginRequest, db: Session = Depends(get_db)):
             # First login - hash the temp password and update
             temp_password = stored_password.replace("TEMP_", "")
             if password == temp_password:
-                # Ensure password is within bcrypt's 72-byte limit before hashing
-                safe_password = password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
-                hashed = pwd_context.hash(safe_password)
+                hashed = hash_password(password)
                 user.hashed_password = hashed
                 db.commit()
             else:
@@ -82,8 +91,7 @@ def login(credentials: LoginRequest, db: Session = Depends(get_db)):
                 )
         else:
             # Verify hashed password
-            safe_password = password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
-            if not pwd_context.verify(safe_password, stored_password):
+            if not verify_password(password, stored_password):
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Invalid username or password"
@@ -158,8 +166,7 @@ def edit_password(username: str, request: PasswordChangeRequest, db: Session = D
             )
 
         # Respect bcrypt 72-byte limit
-        safe_password = request.new_password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
-        hashed = pwd_context.hash(safe_password)
+        hashed = hash_password(request.new_password)
 
         user.hashed_password = hashed
         db.commit()
@@ -189,7 +196,7 @@ def reset_student_password(student_id: str, db: Session = Depends(get_db)):
             )
 
         safe_password = DEFAULT_STUDENT_PASSWORD.encode('utf-8')[:72].decode('utf-8', errors='ignore')
-        hashed = pwd_context.hash(safe_password)
+        hashed = hash_password(DEFAULT_STUDENT_PASSWORD)
 
         user.hashed_password = hashed
         db.commit()
@@ -266,8 +273,7 @@ def create_admin(admin_data: AdminCreateRequest, db: Session = Depends(get_db)):
             )
         
         # Hash password (respect bcrypt 72-byte limit)
-        safe_password = admin_data.password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
-        hashed_password = pwd_context.hash(safe_password)
+        hashed_password = hash_password(request.password)
         
         # Create new admin
         new_admin = UserCredential(
@@ -359,7 +365,7 @@ def update_admin(username: str, admin_data: AdminUpdateRequest, db: Session = De
                     detail=f"Password must be at least {MIN_PASSWORD_LENGTH} characters long"
                 )
             safe_password = admin_data.password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
-            admin.hashed_password = pwd_context.hash(safe_password)
+            admin.hashed_password = hash_password(safe_password)
         
         db.commit()
         db.refresh(admin)

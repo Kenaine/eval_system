@@ -17,6 +17,7 @@ class UserCredential(Base):
     full_name = Column(String, nullable=True)
     student_id = Column(String, ForeignKey("students.student_id", ondelete="SET NULL"), unique=True, nullable=True)
     email = Column(String, nullable=True)
+    dept = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 

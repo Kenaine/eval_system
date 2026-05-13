@@ -23,7 +23,6 @@ class Student(Base):
     archived = Column(Boolean, default=False)
     email = Column(String, nullable=True)
     dept = Column(String, nullable=True)
-    curriculum = Column(String, nullable=True)
     evaluated = Column(Integer, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

@@ -127,7 +127,6 @@ def getStudent(student_id: str = None, db: Session = None):
             "archived": student_data.archived,
             "email": student_data.email,
             "dept": student_data.dept,
-            "curriculum": student_data.curriculum,
             "evaluated": student_data.evaluated
         }
 

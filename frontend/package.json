@@ -48,6 +48,7 @@
     ]
   },
   "devDependencies": {
-    "@recharts/devtools": "^0.0.7"
+    "@recharts/devtools": "^0.0.7",
+    "serve": "^14.2.6"
   }
 }

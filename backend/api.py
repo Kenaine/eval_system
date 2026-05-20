@@ -12,6 +12,7 @@ origins = [
     "http://localhost:3000",
     "http://localhost:5000",
     "https://eval-system-eight.vercel.app",
+    "https://eval-system-eugz.onrender.com",
     "https://eval-system-ar1e.onrender.com",
     "https://evalsystem-production.up.railway.app",
     "https://evaluation.uphsl.edu.ph/",

@@ -4,6 +4,7 @@ from functions.student_course_func import getStudentCourses, getGWA, deleteCours
 from schema.student_schema import Student
 from schema.user_schema import User
 from db.supabase_client import supabase
+import json
 
 students_list = []
 
@@ -386,3 +387,32 @@ def takeOffEvaluation(student_id: str):
     loadStudents()
     
     return JSONResponse(content={"message": "Evaluation removed successfully"})
+
+def exportAllStudents():
+    students = supabase.table("student_courses") \
+        .select("student_id, course_id, grade, remark, retakes, evaluator") \
+        .execute()
+
+    return students.data
+
+def importAllStudents(data):
+
+    # Delete all existing rows first
+    supabase.table("student_courses") \
+        .delete() \
+        .neq("student_id", "") \
+        .execute()
+
+    # Insert new data
+    response = (
+        supabase
+        .table("student_courses")
+        .insert(data)
+        .execute()
+    )
+
+    return {
+        "message": "Students imported successfully",
+        "inserted": len(data),
+        "data": response.data
+    }

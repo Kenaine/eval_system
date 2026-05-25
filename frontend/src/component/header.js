@@ -5,6 +5,7 @@ import style from "../style/header.module.css"
 import { useUser } from "../App";
 import { isStudent, isSuperAdmin } from "../lib/auth";
 import apiClient from "../lib/api";
+import { API_URL } from "../misc/url";
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -71,6 +72,67 @@ export default function HeaderWebsite({ pageName }){
         setPasswordError("");
         setIsProfileMenuOpen(false);
         setIsPasswordModalOpen(true);
+    };
+
+    const getStudentGrades = async () => {
+        try {
+            const response = await apiClient.get("/student/export-all");
+
+            const blob = new Blob(
+                [JSON.stringify(response.data, null, 2)],
+                { type: "application/json" }
+            );
+
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "students.json";
+
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            URL.revokeObjectURL(url);
+
+        } catch (error) {
+            console.error("Failed to export students:", error);
+        }
+    };
+
+    const importStudentGrades = async () => {
+        try {
+            // Create hidden file input
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = ".json,application/json";
+
+            input.onchange = async (event) => {
+                const file = event.target.files[0];
+
+                if (!file) return;
+
+                // Read file contents
+                const text = await file.text();
+
+                // Convert JSON text into JS object
+                const jsonData = JSON.parse(text);
+
+                console.log("Imported JSON:", jsonData);
+
+                // Example API call
+                // await apiClient.post("/student/import-all", jsonData);
+                await apiClient.post("/student/import-all", jsonData)
+
+                alert("JSON file imported successfully!");
+            };
+
+            // Open file picker
+            input.click();
+
+        } catch (error) {
+            console.error("Failed to import JSON:", error);
+        }
     };
 
     const closeChangePasswordModal = () => {
@@ -178,6 +240,12 @@ export default function HeaderWebsite({ pageName }){
                     <div className={style.dropdownMenu}>
                         <button type="button" className={style.dropdownItem} onClick={openChangePasswordModal}>
                             Change Password
+                        </button>
+                        <button type="button" className={style.dropdownItem} onClick={getStudentGrades}>
+                            Export all student grades
+                        </button>
+                        <button type="button" className={style.dropdownItem} onClick={importStudentGrades}>
+                            Import students' grades
                         </button>
                         <button
                             type="button"

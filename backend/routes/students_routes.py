@@ -3,6 +3,7 @@ import io
 from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File, Request
 from fastapi.responses import JSONResponse
 from schema.student_schema import Student
+from schema.student_course_schema import StudentCourse
 from functions import student_func, auth_func
 from services.student_services import addStudentHelper, bulkAddStudents
 
@@ -113,3 +114,14 @@ def archiveStudent(student_id: str = Query(...)):
 def unarchiveStudent(student_id: str = Query(...)):
     return student_func.unarchiveStudent(student_id)
 
+@router.get("/export-all")
+def exportAllStudents():
+    return student_func.exportAllStudents()
+
+from fastapi import UploadFile, File
+import json
+
+@router.post("/import-all")
+async def importAllStudents(data: list[StudentCourse]):
+    dat = [d.model_dump() for d in data]
+    return student_func.importAllStudents(dat)

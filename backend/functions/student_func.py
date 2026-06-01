@@ -445,11 +445,11 @@ def FixCourses():
     """Fix courses by populating student_courses for all students based on their program and curriculum"""
     
     # Students that got skipped - get only these students
-    missing = ["25-0080-680", "25-2793-942", "1-241-02682",
-                "1-241-02116", "25-3108-889", "23-1930-480"]
+    #missing = ["25-0080-680", "25-2793-942", "1-241-02682",
+    #            "1-241-02116", "25-3108-889", "23-1930-480"]
     
     # Get only the students from the missing list
-    students = supabase.table("students").select("*").in_("student_id", missing).execute()
+    students = supabase.table("students").select("*").execute()
     
     if not students.data:
         return {"message": "No students found in missing list"}

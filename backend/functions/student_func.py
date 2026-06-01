@@ -396,23 +396,137 @@ def exportAllStudents():
     return students.data
 
 def importAllStudents(data):
+    updated_count = 0
+    inserted_count = 0
+    updated_records = []
+    inserted_records = []
 
-    # Delete all existing rows first
-    supabase.table("student_courses") \
-        .delete() \
-        .neq("student_id", "") \
-        .execute()
-
-    # Insert new data
-    response = (
-        supabase
-        .table("student_courses")
-        .insert(data)
-        .execute()
-    )
+    # Process each record: update if exists, insert if new
+    for record in data:
+        student_id = record.get("student_id")
+        course_id = record.get("course_id")
+        
+        # Check if record exists
+        existing = supabase.table("student_courses") \
+            .select("*") \
+            .eq("student_id", student_id) \
+            .eq("course_id", course_id) \
+            .execute()
+        
+        if existing.data:
+            # Update existing record
+            response = supabase.table("student_courses") \
+                .update(record) \
+                .eq("student_id", student_id) \
+                .eq("course_id", course_id) \
+                .execute()
+            updated_count += 1
+            if response.data:
+                updated_records.extend(response.data)
+        else:
+            # Insert new record
+            response = supabase.table("student_courses") \
+                .insert(record) \
+                .execute()
+            inserted_count += 1
+            if response.data:
+                inserted_records.extend(response.data)
 
     return {
         "message": "Students imported successfully",
-        "inserted": len(data),
-        "data": response.data
+        "updated": updated_count,
+        "inserted": inserted_count,
+        "total": len(data),
+        "updated_data": updated_records,
+        "inserted_data": inserted_records
+    }
+
+def FixCourses():
+    """Fix courses by populating student_courses for all students based on their program and curriculum"""
+    
+    # Students that got skipped - get only these students
+    missing = ["25-0080-680", "25-2793-942", "1-241-02682",
+                "1-241-02116", "25-3108-889", "23-1930-480"]
+    
+    # Get only the students from the missing list
+    students = supabase.table("students").select("*").in_("student_id", missing).execute()
+    
+    if not students.data:
+        return {"message": "No students found in missing list"}
+    
+    total_students = len(students.data)
+    processed_students = 0
+    inserted_courses = 0
+    skipped_students = []
+    
+    print(f"\n{'='*60}")
+    print(f"Starting FixCourses - Processing {total_students} students")
+    print(f"{'='*60}\n")
+    
+    for index, student in enumerate(students.data, 1):
+        student_id = student["student_id"]
+        program_id = student["program_id"]
+        curriculum_id = student.get("curriculum_id")
+        
+        # Skip if no curriculum_id
+        if not curriculum_id:
+            skipped_students.append({"student_id": student_id, "reason": "No curriculum_id"})
+            print(f"[{index}/{total_students}] ⊘ Skipped {student_id} - No curriculum_id")
+            continue
+        
+        try:
+            # Get all courses for this curriculum
+            curriculum_courses = supabase.table("curriculum_course") \
+                .select("course_id") \
+                .eq("curriculum_id", curriculum_id) \
+                .execute()
+            
+            if not curriculum_courses.data:
+                skipped_students.append({"student_id": student_id, "reason": "No courses found for curriculum"})
+                print(f"[{index}/{total_students}] ⊘ Skipped {student_id} - No courses found for curriculum")
+                continue
+            
+            courses_inserted_for_student = 0
+            # For each course, check if student_course entry exists, if not insert
+            for course in curriculum_courses.data:
+                course_id = course["course_id"]
+                
+                # Check if entry already exists
+                existing = supabase.table("student_courses") \
+                    .select("*") \
+                    .eq("student_id", student_id) \
+                    .eq("course_id", course_id) \
+                    .execute()
+                
+                if not existing.data:
+                    # Insert new record
+                    supabase.table("student_courses") \
+                        .insert({
+                            "student_id": student_id,
+                            "course_id": course_id
+                        }) \
+                        .execute()
+                    inserted_courses += 1
+                    courses_inserted_for_student += 1
+            
+            processed_students += 1
+            print(f"[{index}/{total_students}] ✓ Processed {student_id} - Inserted {courses_inserted_for_student} courses")
+        
+        except Exception as e:
+            print(f"[{index}/{total_students}] ✗ Error processing student {student_id}: {str(e)}")
+            skipped_students.append({"student_id": student_id, "reason": str(e)})
+    
+    print(f"\n{'='*60}")
+    print(f"FixCourses Completed!")
+    print(f"  Processed: {processed_students}/{total_students} students")
+    print(f"  Inserted: {inserted_courses} total courses")
+    print(f"  Skipped: {len(skipped_students)} students")
+    print(f"{'='*60}\n")
+    
+    return {
+        "message": "Courses fixed successfully",
+        "processed_students": processed_students,
+        "inserted_courses": inserted_courses,
+        "total_students": len(students.data),
+        "skipped": skipped_students
     }

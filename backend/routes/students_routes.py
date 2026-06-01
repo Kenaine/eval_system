@@ -125,3 +125,7 @@ import json
 async def importAllStudents(data: list[StudentCourse]):
     dat = [d.model_dump() for d in data]
     return student_func.importAllStudents(dat)
+
+@router.post("/fix-courses")
+async def FixCourses():
+    return student_func.FixCourses()

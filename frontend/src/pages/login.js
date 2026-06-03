@@ -40,7 +40,7 @@ export default function Login() {
                 }
                 
                 // Navigate by role
-                navigate(isStudent(response.data?.profile?.role) ? "/curriculum-checklist" : "/new");
+                navigate(isStudent(response.data?.profile?.role) ? "/curriculum-checklist" : "/home");
             } else {
                 setError("Login failed. Please try again.");
             }

@@ -23,7 +23,7 @@ export default function HeaderWebsite({ pageName }){
     const [isChangingPassword, setIsChangingPassword] = useState(false);
     const profileMenuRef = useRef(null);
     const pageList = [
-        { link: "New Checklist", path: "/new", icon: FaHome, label: "Home" }, 
+        { link: "New Checklist", path: "/home", icon: FaHome, label: "Home" }, 
         { link: "Dashboard", path: "/dashboard", icon: FaChartLine, label: "Dashboard" }, 
         { link: "Curriculum Checklist", path: "/curriculum-checklist", icon: FaClipboardCheck, label: "Checklist" },
         { link: "Course List", path: "/course-list", icon: FaBook, label: "Courses" },

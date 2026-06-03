@@ -25,9 +25,9 @@ function App() {
   const getDefaultAuthenticatedRoute = () => {
     try {
       const profile = JSON.parse(getUserProfile() || '{}');
-      return isStudent(profile?.role) ? '/curriculum-checklist' : '/new';
+      return isStudent(profile?.role) ? '/curriculum-checklist' : '/home';
     } catch {
-      return '/new';
+      return '/home';
     }
   };
 
@@ -82,7 +82,7 @@ function App() {
             <Router>
               <Routes>
                 <Route path="/" element={getAuthToken() ? <Navigate to={getDefaultAuthenticatedRoute()} replace /> : <Login />} />
-                <Route path="/new" element={<ProtectedRoute adminOnly={true} superAdminOnly={false}><NewChecklist /></ProtectedRoute>} />
+                <Route path="/home" element={<ProtectedRoute adminOnly={true} superAdminOnly={false}><NewChecklist /></ProtectedRoute>} />
                 <Route path="/dashboard" element={<ProtectedRoute adminOnly={true} superAdminOnly={false}><Dashbaord /></ProtectedRoute>} />
                 <Route path="/curriculum-checklist" element={<ProtectedRoute><Checklist /></ProtectedRoute>} />
                 <Route path="/course-list" element={<ProtectedRoute adminOnly={true} superAdminOnly={false}><CourseList /></ProtectedRoute>} />

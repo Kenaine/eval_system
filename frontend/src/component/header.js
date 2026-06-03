@@ -6,6 +6,7 @@ import { useUser } from "../App";
 import { isStudent, isSuperAdmin } from "../lib/auth";
 import apiClient from "../lib/api";
 import { API_URL } from "../misc/url";
+import Logo2025 from "../imgs/uphsllogo.png"
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -204,11 +205,15 @@ export default function HeaderWebsite({ pageName }){
 
     return(
         <header className={style.taskbar}>
-            <div className={style.logo}>
-                <b>--UNIVERSITY</b>
+            <div style={{display:"flex", flexDirection:"row", width:"auto", height:"100%", position:"absolute", left:"1%"}}>
+                <img src={Logo2025} style={{width:"auto", height:"100%", objectFit:"contain", marginRight:"10px"}}></img>
+                <div className={style.logo}>
+                    <b>UPHSL - ASystem</b>
+                </div>
             </div>
             
-            <nav className={style.navIcons}>
+            
+            <nav className={style.navIcons} style={{position:"absolute", left:"33%"}}>
                 {visiblePages.map((page) => {
                     const Icon = page.icon;
                     const isActive = page.link.toLowerCase() === pageName.toLowerCase();
@@ -226,7 +231,7 @@ export default function HeaderWebsite({ pageName }){
                 })}
             </nav>
 
-            <div className={style.profileMenu} ref={profileMenuRef}>
+            <div className={style.profileMenu} ref={profileMenuRef} style={{position:"absolute", right:"1%"}}>
                 <button
                     className={style.profileButton}
                     type="button"

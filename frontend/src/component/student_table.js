@@ -118,9 +118,22 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
 
     const handleGradeChange = (courseId, value) => {
         setDraftCourses((prev) =>
-            prev.map((course) =>
-                course.course_id === courseId ? { ...course, grade: value, evaluator: currentUser?.full_name } : course
-            )
+            prev.map((course) => {
+                if (course.course_id === courseId) {
+                    const updatedCourse = { ...course, grade: value, evaluator: currentUser?.full_name };
+                    
+                    // Auto-set retakes to 1 if adding a new grade (no previous grade existed)
+                    const originalCourse = courses?.find(c => c.course_id === courseId);
+                    const hadPreviousGrade = originalCourse?.grade !== null && originalCourse?.grade !== undefined && originalCourse?.grade !== "";
+                    
+                    if (!hadPreviousGrade && value !== "" && value !== null) {
+                        updatedCourse.retakes = 1;
+                    }
+                    
+                    return updatedCourse;
+                }
+                return course;
+            })
         );
     };
 
@@ -230,16 +243,11 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                     // Always set evaluator to current user's full_name when any course is updated
                     evaluator: course.evaluator
                 };
-                
-                // If grade changed, increment retakes count
-                if (gradeChanged) {
-                    let newRetakes = (original.retakes ? Number(original.retakes) : 0) + 1;
-                    updatePayload.retakes = newRetakes;
-                }
-                else
-                {
-                    updatePayload.retakes = course.retakes
-                }
+        
+                // Just send whatever the user set in the retakes field
+                // The auto-increment happens only in handleGradeChange for visual feedback
+                updatePayload.retakes = course.retakes;
+
                 
                 await axios.patch(
                     API_URL + `/SC/update-grade/${student_id}-${course.course_id}`,

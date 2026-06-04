@@ -119,7 +119,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
     const handleGradeChange = (courseId, value) => {
         setDraftCourses((prev) =>
             prev.map((course) =>
-                course.course_id === courseId ? { ...course, grade: value } : course
+                course.course_id === courseId ? { ...course, grade: value, evaluator: currentUser?.full_name } : course
             )
         );
     };
@@ -228,7 +228,7 @@ export default function CourseTable({ student_id, courses, role, onSelectStudent
                     remark: course.forceIncomplete ? "Incomplete" : deriveRemarkFromGrade(course.grade),
                     force_incomplete: course.forceIncomplete === true,
                     // Always set evaluator to current user's full_name when any course is updated
-                    evaluator: currentUser?.full_name || ""
+                    evaluator: course.evaluator
                 };
                 
                 // If grade changed, increment retakes count
